@@ -1,0 +1,9 @@
+matplotlib~=3.5.2
+numpy~=1.21.6
+fxcmpy~=1.3.3
+DateTime~=4.4
+python-dateutil~=2.8.2
+mplfinance~=0.12.9b0
+schedule~=1.1.0
+pandas~=1.1.5
+forexconnect~=1.6.43
