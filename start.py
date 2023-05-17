@@ -499,6 +499,8 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
         ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['BidClose'], 'black', marker='s')
+        ax1.plot(df.index, df['Buy'], 'green', marker='s')
+        ax1.plot(df.index, df['Sell'], 'red', marker='s')
         ax1.plot([df.loc[3, 'slope'],df.loc[4, 'slope']],[df.loc[1, 'slope'],df.loc[2, 'slope']],linewidth=2, color= 'yellow', marker='s')
         ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
                   df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
