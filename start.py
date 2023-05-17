@@ -358,15 +358,38 @@ def analysis(df, ind):
 
         return df
 
-    def find_limit(df):
-        df.iloc[-2]['BidClose']
-
     df = chikou_signal(df)
     # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
     # backcandles i ma reday to follow 1 week so 5 days
     df = trend_channels(df, 27*3, 3, len(df) - 4 - ind, 5, False)
     df = find_last_peaks(df, ind)
+
+    # Generate signals
+    df['Tenkan-Kijun Cross'] = np.where(df['tenkan_avg'] > df['kijun_avg'], 1, -1)
+    df['Price-Above-Cloud'] = np.where(df['BidClose'] > df['senkou_a'], 1, -1)
+    df['Price-Above-Kumo'] = np.where(df['BidClose'] > df['senkou_b'], 1, -1)
+    df['Cloud-Breakout'] = np.where((df['BidClose'].shift(26) > df['senkou_a'].shift(26)) & (df['BidClose'] > df['senkou_a']), 1, -1)
+
+    # Define entry conditions
+    entry_conditions_buy = [
+        (df['Tenkan-Kijun Cross'] > 0) &  # Bullish Tenkan-Kijun Cross
+        (df['Price-Above-Cloud'] > 0) &  # Price is above the Cloud
+        (df['Price-Above-Kumo'] > 0) &  # Price is above Kumo
+        (df['Cloud-Breakout'] > 0) &  # Cloud Breakout
+        (df['Chikou-Span-Above-Price'] > 0)  # Chikou Span is above price
+    ]
+    df['Buy']== np.where(any(entry_conditions_buy), 1, 0)
+
+    # Define entry conditions for sell
+    entry_conditions_sell = [
+        (df['Tenkan-Kijun Cross'] < 0) &  # Bearish Tenkan-Kijun Cross
+        (df['Price-Above-Cloud'] < 0) &  # Price is below the Cloud
+        (df['Price-Above-Kumo'] < 0) &  # Price is below Kumo
+        (df['Cloud-Breakout'] < 0) &  # Cloud Breakdown
+        (df['Chikou-Span-Above-Price'] < 0)  # Chikou Span is below price
+    ]
+    df['Sell']== np.where(any(entry_conditions_sell), 1, 0)
 
     return df
 
@@ -1166,17 +1189,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and (df.iloc[-2]['BidHigh']-df.iloc[-1]['BidLow'])<3*np.mean(df.iloc[-7:-2]['BidHigh']-df.iloc[-7:-2]['BidLow']):
 
         #SELL TENDANCE
-        if df.iloc[-28]['chikou_signal'] == -1\
-            and df.loc[0, 'slope_macd'] < 0\
-            and df.loc[0, 'slope'] < 0\
-            and df.iloc[-2]['macd'] < df.iloc[-3]['macd']\
-            and df.iloc[-2]['Delta'] < df.iloc[-3]['Delta']\
-            and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']\
-            and df.iloc[-2]['kijun_avg'] > df.iloc[-3]['kijun_avg']\
-            and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
-            and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg']        \
-            and candle_2<0\
-            and df.iloc[-7:-2]['rsi'].min() > 30:
+        if df.iloc[-1]['Sell'] == 1:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("sell", open_price, df)
             tp = take_profit("sell",open_price,df)
@@ -1199,17 +1212,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
         #BUY TENDANCE
-        elif df.iloc[-28]['chikou_signal'] == 1\
-            and df.loc[0, 'slope_macd'] > 0\
-            and df.loc[0, 'slope'] > 0\
-            and df.iloc[-2]['macd'] > df.iloc[-3]['macd']\
-            and df.iloc[-2]['Delta'] > df.iloc[-3]['Delta']\
-            and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']\
-            and df.iloc[-2]['kijun_avg'] > df.iloc[-3]['kijun_avg']\
-            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
-            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and candle_2 > 0 \
-            and df.iloc[-7:-2]['rsi'].max() < 70:
+        elif df.iloc[-1]['Buy'] == 1:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("buy", open_price, df)
             tp = take_profit("buy",open_price,df)
