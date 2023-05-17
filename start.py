@@ -932,7 +932,7 @@ def open_trade_old2(df, fx, tick, trading_settings_provider,dj,dfd1):
 
     return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
 
-def open_trade_old(df, fx, tick, trading_settings_provider,dj,dfd1):
+def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
