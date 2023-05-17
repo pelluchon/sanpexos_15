@@ -377,7 +377,8 @@ def analysis(df, ind):
         (df['Price-Above-Cloud'] > 0) &  # Price is above the Cloud
         (df['Price-Above-Kumo'] > 0) &  # Price is above Kumo
         (df['Cloud-Breakout'] > 0) &  # Cloud Breakout
-        (df['Chikou-Span-Above-Price'] > 0)  # Chikou Span is above price
+        (df['Chikou-Span-Above-Price'] > 0) &  # Chikou Span is above price
+        (df['BidClose'] > df['BidClose'].rolling(200).mean()) # Reinforce buy signal if the close price is above the 200-day moving average
     ]
     df['Buy']== np.where(any(entry_conditions_buy), 1, 0)
 
@@ -387,7 +388,9 @@ def analysis(df, ind):
         (df['Price-Above-Cloud'] < 0) &  # Price is below the Cloud
         (df['Price-Above-Kumo'] < 0) &  # Price is below Kumo
         (df['Cloud-Breakout'] < 0) &  # Cloud Breakdown
-        (df['Chikou-Span-Above-Price'] < 0)  # Chikou Span is below price
+        (df['Chikou-Span-Above-Price'] < 0) & # Chikou Span is below price
+        (df['BidClose'] < df['BidClose'].rolling(200).mean())# Reinforce sell signal if the close price is below the 200-day moving average
+
     ]
     df['Sell']== np.where(any(entry_conditions_sell), 1, 0)
 
