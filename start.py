@@ -682,7 +682,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and (df.iloc[-2]['BidHigh']-df.iloc[-1]['BidLow'])<3*np.mean(df.iloc[-7:-2]['BidHigh']-df.iloc[-7:-2]['BidLow']):
 
         #SELL TENDANCE
-        if df['senkou_a'] < df['senkou_b'] \
+        if df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['BidClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['BidClose'] < df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
@@ -709,7 +709,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
         #SELL QUICK TENDANCE
-        if df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
+        elif df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['BidClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['BidClose'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
@@ -866,7 +866,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
         #BUY OPPOSITE TREND
-        if df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
+        elif df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['BidClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['BidClose'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
