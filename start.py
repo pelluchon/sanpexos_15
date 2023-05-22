@@ -690,7 +690,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-27]['chikou'] < df.iloc[-27]['BidClose'] \
             and df.iloc[-2]['macd'] < df.iloc[-3]['macd']\
             and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
-            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta']):
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("sell", open_price, df)
             tp = take_profit("sell",open_price,df)
@@ -771,7 +772,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['BidClose'] < df.iloc[-2]['kijun_avg']\
             and df.iloc[-2]['macd'] < df.iloc[-3]['macd']\
             and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
-            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta']):
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("sell", open_price, df)
             tp = take_profit("sell",open_price,df)
@@ -801,7 +803,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-27]['chikou'] > df.iloc[-27]['BidClose'] \
             and df.iloc[-2]['macd'] > df.iloc[-3]['macd']\
             and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
-            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta']):
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("buy", open_price, df)
             tp = take_profit("buy",open_price,df)
@@ -882,7 +885,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['BidClose'] > df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['macd'] > df.iloc[-3]['macd']\
             and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
-            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta']):
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']:
             open_price = df.iloc[-2]['BidClose']
             sl = stop_loss("buy", open_price, df)
             tp = take_profit("buy",open_price,df)
