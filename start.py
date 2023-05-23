@@ -596,17 +596,43 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
     def take_profit(type,open_price,df):
         tp=None
         #Found the next range
-        for i in range(5, len(df)-5):
-            if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg']:
-                    if type=="sell" and df.iloc[-i]['kijun_avg'] < open_price:
-                        tp = df.iloc[-i]['kijun_avg']
-                        return tp
-                    elif type == "buy" and df.iloc[-i]['kijun_avg'] > open_price:
-                        tp = df.iloc[-i]['kijun_avg']
-                        return tp
+        if tp is None:
+            for i in range(7, len(df)-6):
+                if df.iloc[-i]['senkou_a']==df.iloc[-i-1]['senkou_a'] \
+                    and df.iloc[-i]['senkou_a'] == df.iloc[-i - 2]['senkou_a'] \
+                    and df.iloc[-i]['senkou_a'] == df.iloc[-i - 3]['senkou_a'] \
+                    and df.iloc[-i]['senkou_a'] == df.iloc[-i - 4]['senkou_a'] \
+                    and df.iloc[-i]['senkou_a'] == df.iloc[-i - 5]['senkou_a']:
+                        if type=="sell" and df.iloc[-i]['senkou_a'] < open_price:
+                            tp = df.iloc[-i]['senkou_a']
+                            return tp
+                        elif type == "buy" and df.iloc[-i]['senkou_a'] > open_price:
+                            tp = df.iloc[-i]['senkou_a']
+                            return tp
+                if df.iloc[-i]['senkou_b']==df.iloc[-i-1]['senkou_b'] \
+                    and df.iloc[-i]['senkou_b'] == df.iloc[-i - 2]['senkou_b'] \
+                    and df.iloc[-i]['senkou_b'] == df.iloc[-i - 3]['senkou_b'] \
+                    and df.iloc[-i]['senkou_b'] == df.iloc[-i - 4]['senkou_b'] \
+                    and df.iloc[-i]['senkou_b'] == df.iloc[-i - 5]['senkou_b']:
+                        if type=="sell" and df.iloc[-i]['senkou_b'] < open_price:
+                            tp = df.iloc[-i]['senkou_b']
+                            return tp
+                        elif type == "buy" and df.iloc[-i]['senkou_b'] > open_price:
+                            tp = df.iloc[-i]['senkou_b']
+                            return tp
+        if tp is None:
+            for i in range(7, len(df)-6):
+                if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg']:
+                        if type=="sell" and df.iloc[-i]['kijun_avg'] < open_price:
+                            tp = df.iloc[-i]['kijun_avg']
+                            return tp
+                        elif type == "buy" and df.iloc[-i]['kijun_avg'] > open_price:
+                            tp = df.iloc[-i]['kijun_avg']
+                            return tp
         # if kijun not found then look for the max
         if tp is None:
             if type == "sell" and min(df.iloc[-27*3:-2]['BidLow'])< open_price:
@@ -631,17 +657,42 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
     def stop_loss(type,open_price,df):
         sl=None
         #Found the next range
-        for i in range(5, len(df)-5):
-            if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg']:
-                    if type=="sell" and df.iloc[-i]['kijun_avg'] > open_price:
-                        sl = df.iloc[-i]['kijun_avg']
+        for i in range(7, len(df)-6):
+            if df.iloc[-i]['senkou_a']==df.iloc[-i-1]['senkou_a'] \
+                and df.iloc[-i]['senkou_a'] == df.iloc[-i - 2]['senkou_a'] \
+                and df.iloc[-i]['senkou_a'] == df.iloc[-i - 3]['senkou_a'] \
+                and df.iloc[-i]['senkou_a'] == df.iloc[-i - 4]['senkou_a']\
+                and df.iloc[-i]['senkou_a'] == df.iloc[-i - 5]['senkou_a']:
+                    if type=="sell" and df.iloc[-i]['senkou_a'] > open_price:
+                        sl = df.iloc[-i]['senkou_a']
                         return sl
-                    elif type == "buy" and df.iloc[-i]['kijun_avg'] < open_price:
-                        sl = df.iloc[-i]['kijun_avg']
+                    elif type == "buy" and df.iloc[-i]['senkou_a'] < open_price:
+                        sl = df.iloc[-i]['senkou_a']
                         return sl
+            if df.iloc[-i]['senkou_b']==df.iloc[-i-1]['senkou_b'] \
+                and df.iloc[-i]['senkou_b'] == df.iloc[-i - 2]['senkou_b'] \
+                and df.iloc[-i]['senkou_b'] == df.iloc[-i - 3]['senkou_b'] \
+                and df.iloc[-i]['senkou_b'] == df.iloc[-i - 4]['senkou_b']\
+                and df.iloc[-i]['senkou_b'] == df.iloc[-i - 5]['senkou_b']:
+                    if type=="sell" and df.iloc[-i]['senkou_b'] > open_price:
+                        sl = df.iloc[-i]['senkou_b']
+                        return sl
+                    elif type == "buy" and df.iloc[-i]['senkou_b'] < open_price:
+                        sl = df.iloc[-i]['senkou_b']
+                        return sl
+        if sl is None:
+            for i in range(7, len(df)-6):
+                if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg']\
+                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg']:
+                        if type=="sell" and df.iloc[-i]['kijun_avg'] > open_price:
+                            sl = df.iloc[-i]['kijun_avg']
+                            return sl
+                        elif type == "buy" and df.iloc[-i]['kijun_avg'] < open_price:
+                            sl = df.iloc[-i]['kijun_avg']
+                            return sl
         # if kijun not found then look for the max
         if sl is None:
             if type == "sell" and max(df.iloc[-27*3:-2]['BidHigh'])> open_price:
