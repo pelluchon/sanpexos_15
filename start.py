@@ -455,6 +455,8 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         #     df = df.iloc[-100:-1]
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
+        min_x=27*10
+        max_x=1
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
@@ -464,11 +466,11 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
 
         ###AX1
         # Where enter
-        ax1.plot(df.index, df['tenkan_avg'], linewidth=2, color='red')
-        ax1.plot(df.index, df['kijun_avg'], linewidth=2, color='blue')
-        ax1.plot(df.index, df['senkou_a'], linewidth=0.5, color='black')
-        ax1.plot(df.index, df['senkou_b'], linewidth=0.5, color='black')
-        ax1.plot(df.index, df['chikou'], linewidth=2, color='brown')
+        ax1.plot(df.index[-min_x:-max_x], df['tenkan_avg'][-min_x:-max_x], linewidth=2, color='red')
+        ax1.plot(df.index[-min_x:-max_x], df['kijun_avg'][-min_x:-max_x], linewidth=2, color='blue')
+        ax1.plot(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], linewidth=0.5, color='black')
+        ax1.plot(df.index[-min_x:-max_x], df['senkou_b'][-min_x:-max_x], linewidth=0.5, color='black')
+        ax1.plot(df.index[-min_x:-max_x], df['chikou'][-min_x:-max_x], linewidth=2, color='brown')
         ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
         ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
@@ -483,9 +485,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
                  [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
                   df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
                  linewidth=2, color='red')
-        ax1.fill_between(df.index, df['senkou_a'], df['senkou_b'], where=df['senkou_a'] >= df['senkou_b'],
+        ax1.fill_between(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], df['senkou_b'][-min_x:-max_x], where=df['senkou_a'][-min_x:-max_x] >= df['senkou_b'][-min_x:-max_x],
                          color='lightgreen')
-        ax1.fill_between(df.index, df['senkou_a'], df['senkou_b'], where=df['senkou_a'] < df['senkou_b'],
+        ax1.fill_between(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], df['senkou_b'][-min_x:-max_x], where=df['senkou_a'][-min_x:-max_x] < df['senkou_b'][-min_x:-max_x],
                          color='lightcoral')
         quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
@@ -504,31 +506,31 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
             ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
                        linestyle='-.')
         ax1.grid()
-        low_limit=np.nanmin(df['AskLow'])
-        high_limit = np.nanmax(df['AskHigh'])
+        low_limit=np.nanmin(df['AskLow'][-min_x:-max_x])
+        high_limit = np.nanmax(df['AskHigh'][-min_x:-max_x])
         ax1.set_ylim(low_limit-0.1*(high_limit-low_limit),high_limit+0.1*(high_limit-low_limit))
-        ax1.set_xlim(np.nanmin(df['index']), np.nanmax(df['index']))
+        ax1.set_xlim(np.nanmin(df['index'][-min_x:-max_x]), np.nanmax(df['index'][-min_x:-max_x]))
         ax1.set(xlabel=None)
 
         ###AX2
-        ax2.bar(df.index, df['macd'], color='grey')
-        ax2.plot(df.index, df['signal'], color='red')
+        ax2.bar(df.index[-min_x:-max_x], df['macd'][-min_x:-max_x], color='grey')
+        ax2.plot(df.index[-min_x:-max_x], df['signal'][-min_x:-max_x], color='red')
         ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']], linewidth=2,
                  color='yellow', marker='s')
-        ax2.set_ylim(np.nanmin(df['macd']), np.nanmax(df['macd']))
+        ax2.set_ylim(np.nanmin(df['macd'][-min_x:-max_x]), np.nanmax(df['macd'][-min_x:-max_x]))
         ax2.grid()
         ax2.set(xlabel=None)
 
-        ax3.bar(df.index, df['Delta'], color='black')
-        ax3.set_ylim(np.nanmin(df['Delta']), np.nanmax(df['Delta']))
+        ax3.bar(df.index[-min_x:-max_x], df['Delta'][-min_x:-max_x], color='black')
+        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:-max_x]), np.nanmax(df['Delta'][-min_x:-max_x]))
         ax3.grid()
         ax3.set(xlabel=None)
 
         ###AX3
-        ax4.plot(df.index, df['rsi'], color='black')
+        ax4.plot(df.index[-min_x:-max_x], df['rsi'][-min_x:-max_x], color='black')
         ax4.axhline(y=30, color='grey', linestyle='-.')
         ax4.axhline(y=70, color='grey', linestyle='-.')
-        ax4.plot(df.index, df['ci'], color='orange')
+        ax4.plot(df.index[-min_x:-max_x], df['ci'][-min_x:-max_x], color='orange')
         ax4.axhline(y=38.2, color='yellow', linestyle='-.')
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.set_ylim((0, 100))
@@ -623,8 +625,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] > open_price:
                     tp = df.iloc[-i][senkou_type]
                     return tp
-        if tp is None:
-            for i in range(7, len(df)-6):
+            if tp is None:
                 if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
@@ -687,8 +688,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] < open_price:
                     sl = df.iloc[-i][senkou_type]
                     return sl
-        if sl is None:
-            for i in range(7, len(df)-6):
+            if sl is None:
                 if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
