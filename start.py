@@ -466,13 +466,14 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
 
         ###AX1
         # Where enter
-        ax1.plot(df.index[-min_x:-max_x], df['tenkan_avg'][-min_x:-max_x], linewidth=2, color='red')
-        ax1.plot(df.index[-min_x:-max_x], df['kijun_avg'][-min_x:-max_x], linewidth=2, color='blue')
-        ax1.plot(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], linewidth=0.5, color='black')
-        ax1.plot(df.index[-min_x:-max_x], df['senkou_b'][-min_x:-max_x], linewidth=0.5, color='black')
-        ax1.plot(df.index[-min_x:-max_x], df['chikou'][-min_x:-max_x], linewidth=2, color='brown')
+        ax1.plot(df.index[-min_x:], df['tenkan_avg'][-min_x:], linewidth=2, color='red')
+        ax1.plot(df.index[-min_x:], df['kijun_avg'][-min_x:], linewidth=2, color='blue')
+        ax1.plot(df.index[-min_x:], df['senkou_a'][-min_x:], linewidth=0.5, color='black')
+        ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
+        ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
         ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
         ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
+        ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.plot([df.loc[3, 'slope'],df.loc[4, 'slope']],[df.loc[1, 'slope'],df.loc[2, 'slope']],linewidth=2, color= 'yellow', marker='s')
         ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
@@ -485,9 +486,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
                  [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
                   df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
                  linewidth=2, color='red')
-        ax1.fill_between(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], df['senkou_b'][-min_x:-max_x], where=df['senkou_a'][-min_x:-max_x] >= df['senkou_b'][-min_x:-max_x],
+        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:], where=df['senkou_a'][-min_x:] >= df['senkou_b'][-min_x:],
                          color='lightgreen')
-        ax1.fill_between(df.index[-min_x:-max_x], df['senkou_a'][-min_x:-max_x], df['senkou_b'][-min_x:-max_x], where=df['senkou_a'][-min_x:-max_x] < df['senkou_b'][-min_x:-max_x],
+        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:], where=df['senkou_a'][-min_x:] < df['senkou_b'][-min_x:],
                          color='lightcoral')
         quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
@@ -506,31 +507,31 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
             ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
                        linestyle='-.')
         ax1.grid()
-        low_limit=np.nanmin(df['AskLow'][-min_x:-max_x])
-        high_limit = np.nanmax(df['AskHigh'][-min_x:-max_x])
+        low_limit=np.nanmin(df['AskLow'][-min_x:])
+        high_limit = np.nanmax(df['AskHigh'][-min_x:])
         ax1.set_ylim(low_limit-0.1*(high_limit-low_limit),high_limit+0.1*(high_limit-low_limit))
-        ax1.set_xlim(np.nanmin(df['index'][-min_x:-max_x]), np.nanmax(df['index'][-min_x:-max_x]))
+        ax1.set_xlim(np.nanmin(df['index'][-min_x:]), np.nanmax(df['index'][-min_x:]))
         ax1.set(xlabel=None)
 
         ###AX2
-        ax2.bar(df.index[-min_x:-max_x], df['macd'][-min_x:-max_x], color='grey')
-        ax2.plot(df.index[-min_x:-max_x], df['signal'][-min_x:-max_x], color='red')
+        ax2.bar(df.index[-min_x:], df['macd'][-min_x:], color='grey')
+        ax2.plot(df.index[-min_x:], df['signal'][-min_x:], color='red')
         ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']], linewidth=2,
                  color='yellow', marker='s')
-        ax2.set_ylim(np.nanmin(df['macd'][-min_x:-max_x]), np.nanmax(df['macd'][-min_x:-max_x]))
+        ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
         ax2.set(xlabel=None)
 
-        ax3.bar(df.index[-min_x:-max_x], df['Delta'][-min_x:-max_x], color='black')
-        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:-max_x]), np.nanmax(df['Delta'][-min_x:-max_x]))
+        ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
+        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
         ax3.grid()
         ax3.set(xlabel=None)
 
         ###AX3
-        ax4.plot(df.index[-min_x:-max_x], df['rsi'][-min_x:-max_x], color='black')
+        ax4.plot(df.index[-min_x:], df['rsi'][-min_x:], color='black')
         ax4.axhline(y=30, color='grey', linestyle='-.')
         ax4.axhline(y=70, color='grey', linestyle='-.')
-        ax4.plot(df.index[-min_x:-max_x], df['ci'][-min_x:-max_x], color='orange')
+        ax4.plot(df.index[-min_x:], df['ci'][-min_x:], color='orange')
         ax4.axhline(y=38.2, color='yellow', linestyle='-.')
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.set_ylim((0, 100))
@@ -597,62 +598,66 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
 
     def take_profit(type,open_price,df):
         tp=None
-        #Found the next range
-        for i in range(7, len(df) - 6):
-            if type=="sell":
-                if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] < open_price:
-                    tp = df.iloc[-i][senkou_type]
-                    return tp
-            elif type == "buy":
-                if df.iloc[-i]['senkou_a'] > df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] > open_price:
-                    tp = df.iloc[-i][senkou_type]
-                    return tp
+        pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
+            (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
+        if pos_in_channel>0.8 or pos_in_channel<0.2:
+            #Found the next range
+            for i in range(27, len(df) - 6):
+                if type=="sell":
+                    if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
+                        senkou_type = 'senkou_a'
+                    else:
+                        senkou_type = 'senkou_b'
+                    if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
+                        and df.iloc[-i][senkou_type] < df.iloc[-i]['AskHigh']:
+                        tp = df.iloc[-i][senkou_type]
+                        return tp
+                elif type == "buy":
+                    if df.iloc[-i]['senkou_a'] > df.iloc[-i]['senkou_b']:
+                        senkou_type = 'senkou_a'
+                    else:
+                        senkou_type = 'senkou_b'
+                    if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
+                        and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
+                        and df.iloc[-i][senkou_type] > df.iloc[-i]['AskLow']:
+                        tp = df.iloc[-i][senkou_type]
+                        return tp
+                if tp is None:
+                    if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
+                        and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
+                        and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
+                        and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
+                        and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg']:
+                            if type=="sell" and df.iloc[-i]['kijun_avg'] < df.iloc[-i]['AskHigh']:
+                                tp = df.iloc[-i]['kijun_avg']
+                                return tp
+                            elif type == "buy" and df.iloc[-i]['kijun_avg'] > df.iloc[-i]['AskLow']:
+                                tp = df.iloc[-i]['kijun_avg']
+                                return tp
+        else:
             if tp is None:
-                if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg']:
-                        if type=="sell" and df.iloc[-i]['kijun_avg'] < open_price:
-                            tp = df.iloc[-i]['kijun_avg']
-                            return tp
-                        elif type == "buy" and df.iloc[-i]['kijun_avg'] > open_price:
-                            tp = df.iloc[-i]['kijun_avg']
-                            return tp
+                if type == "sell":
+                    tp = np.array(df['ychannelmin'].dropna())[-1]
+                    return tp
+                elif type == "buy":
+                    tp = np.array(df['ychannelmax'].dropna())[-1]
+                    return tp
         # if kijun not found then look for the max
         if tp is None:
-            if type == "sell" and min(df.iloc[-27*3:-2]['AskLow'])< open_price:
+            if type == "sell" and min(df.iloc[-27*3:-2]['AskLow'])< df.iloc[-i]['AskHigh']:
                 tp = min(df.iloc[-27*3:-2]['AskLow'])
                 return tp
-            elif type == "buy" and max(df.iloc[-27*3:-2]['AskHigh'])> open_price:
+            elif type == "buy" and max(df.iloc[-27*3:-2]['AskHigh'])> df.iloc[-i]['AskLow']:
                 tp = max(df.iloc[-27*3:-2]['AskHigh'])
                 return tp
         # if kijun not found no max peak then take the double
-        if tp is None:
-            if type == "sell":
-                tp = np.array(df['ychannelmin'].dropna())[-1]
-                return tp
-            elif type == "buy":
-                tp = np.array(df['ychannelmax'].dropna())[-1]
-                return tp
         if tp is None:
             #fibonacci when possible
             tp=open_price
