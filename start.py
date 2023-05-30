@@ -616,7 +616,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] < df.iloc[-1]['AskHigh'] \
+                    and df.iloc[-i][senkou_type] < max(df.iloc[-5:-1]['AskHigh']) \
                     and tp_senkou is None:
                     tp_senkou = df.iloc[-i][senkou_type]
                 if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
@@ -624,7 +624,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] < df.iloc[-1]['AskHigh']\
+                    and df.iloc[-i]['kijun_avg'] < max(df.iloc[-5:-1]['AskHigh'])\
                     and tp_kijun is None:
                     tp_kijun = df.iloc[-i]['kijun_avg']
             elif type == "buy":
@@ -637,7 +637,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] > df.iloc[-1]['AskLow']\
+                    and df.iloc[-i][senkou_type] > min(df.iloc[-5:-1]['AskLow'])\
                     and tp_senkou is None:
                     tp_senkou = df.iloc[-i][senkou_type]
                 if df.iloc[-i]['kijun_avg'] == df.iloc[-i - 1]['kijun_avg'] \
@@ -645,7 +645,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] > df.iloc[-1]['AskLow'] \
+                    and df.iloc[-i]['kijun_avg'] > min(df.iloc[-5:-1]['AskLow']) \
                     and tp_kijun is None:
                     tp_kijun = df.iloc[-i]['kijun_avg']
         #Found tp_price
@@ -713,7 +713,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] > df.iloc[-1]['AskHigh'] \
+                    and df.iloc[-i][senkou_type] > max(df.iloc[-5:-1]['AskHigh']) \
                     and sl_senkou is None:
                     sl_senkou = df.iloc[-i][senkou_type]
                 if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
@@ -721,7 +721,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] > df.iloc[-1]['AskHigh']\
+                    and df.iloc[-i]['kijun_avg'] > max(df.iloc[-5:-1]['AskHigh'])\
                     and sl_kijun is None:
                     sl_kijun = df.iloc[-i]['kijun_avg']
             elif type == "buy":
@@ -734,7 +734,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
                     and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] < df.iloc[-1]['AskLow']\
+                    and df.iloc[-i][senkou_type] < min(df.iloc[-5:-1]['AskLow'])\
                     and sl_senkou is None:
                     sl_senkou = df.iloc[-i][senkou_type]
                 if df.iloc[-i]['kijun_avg'] == df.iloc[-i - 1]['kijun_avg'] \
@@ -742,7 +742,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
                     and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] < df.iloc[-1]['AskLow'] \
+                    and df.iloc[-i]['kijun_avg'] < min(df.iloc[-5:-1]['AskLow']) \
                     and sl_kijun is None:
                     sl_kijun = df.iloc[-i]['kijun_avg']
         #Found tp_price
