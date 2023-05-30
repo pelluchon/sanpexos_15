@@ -659,13 +659,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 # Filter out None values
                 values = [value for value in [np.array(df['ychannelmin'].dropna())[-1], tp_price, tp_kijun, tp_senkou]
                           if value is not None]
-                tp = max(values)
-                return tp
+                if values:
+                    tp = max(values)
+                    return tp
             elif type == "buy":
                 values = [value for value in [np.array(df['ychannelmax'].dropna())[-1], tp_price, tp_kijun, tp_senkou]
                           if value is not None]
-                tp = min(values)
-                return tp
+                if values:
+                    tp = min(values)
+                    return tp
         else:
             if type == "sell" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-1]['AskHigh']:
                 tp_price = min(df.iloc[-Dict['channel_length']:-2]['AskLow'])
@@ -675,13 +677,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             if type == "sell":
                 values = [value for value in [tp_price, tp_kijun, tp_senkou]
                           if value is not None]
-                tp = max(values)
-                return tp
+                if values:
+                    tp = max(values)
+                    return tp
             elif type == "buy":
                 values = [value for value in [tp_price, tp_kijun, tp_senkou]
                           if value is not None]
-                tp = min(values)
-                return tp
+                if values:
+                    tp = min(values)
+                    return tp
             # TP minimum / maximum
         # if kijun not found no max peak then take the double
         if tp is None:
@@ -753,13 +757,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 # Filter out None values
                 values = [value for value in [np.array(df['ychannelmax'].dropna())[-1], sl_price, sl_kijun, sl_senkou]
                           if value is not None]
-                sl = min(values)
-                return sl
+                if values:
+                    sl = min(values)
+                    return sl
             elif type == "buy":
                 values = [value for value in [np.array(df['ychannelmin'].dropna())[-1], sl_price, sl_kijun, sl_senkou]
                           if value is not None]
-                sl = max(values)
-                return sl
+                if values:
+                    sl = max(values)
+                    return sl
         else:
             if type == "sell" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskHigh']:
                 sl_price = max(df.iloc[-Dict['channel_length']:-2]['AskLow'])
@@ -769,13 +775,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             if type == "sell":
                 values = [value for value in [sl_price, sl_kijun, sl_senkou]
                           if value is not None]
-                sl = min(values)
-                return sl
+                if values:
+                    sl = min(values)
+                    return sl
             elif type == "buy":
                 values = [value for value in [sl_price, sl_kijun, sl_senkou]
                           if value is not None]
-                sl = max(values)
-                return sl
+                if values:
+                    sl = max(values)
+                    return sl
 
         # if kijun not found no max peak then take the doubl
         if sl is None:
