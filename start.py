@@ -605,7 +605,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(5, len(df-6)):
+        for i in range(5, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
@@ -656,10 +656,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 tp_price = max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
             # Found the next tp between all of these
             if type == "sell":
-                tp = max(np.array(df['ychannelmin'].dropna())[-1],tp_price,tp_kijun,tp_senkou)
+                # Filter out None values
+                values = [value for value in [np.array(df['ychannelmin'].dropna())[-1], tp_price, tp_kijun, tp_senkou]
+                          if value is not None]
+                tp = max(values)
                 return tp
             elif type == "buy":
-                tp = min(np.array(df['ychannelmax'].dropna())[-1],tp_price,tp_kijun,tp_senkou)
+                values = [value for value in [np.array(df['ychannelmax'].dropna())[-1], tp_price, tp_kijun, tp_senkou]
+                          if value is not None]
+                tp = min(values)
                 return tp
         else:
             if type == "sell" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-1]['AskHigh']:
@@ -668,10 +673,14 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 tp_price = max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
             # Found the next tp between all of these
             if type == "sell":
-                tp = max(tp_price,tp_kijun,tp_senkou)
+                values = [value for value in [tp_price, tp_kijun, tp_senkou]
+                          if value is not None]
+                tp = max(values)
                 return tp
             elif type == "buy":
-                tp = min(tp_price,tp_kijun,tp_senkou)
+                values = [value for value in [tp_price, tp_kijun, tp_senkou]
+                          if value is not None]
+                tp = min(values)
                 return tp
             # TP minimum / maximum
         # if kijun not found no max peak then take the double
@@ -689,7 +698,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(5, len(df-6)):
+        for i in range(5, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
@@ -741,10 +750,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 sl_price = min(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
             # Found the next tp between all of these
             if type == "sell":
-                sl = min(np.array(df['ychannelmax'].dropna())[-1],sl_price,sl_kijun,sl_senkou)
+                # Filter out None values
+                values = [value for value in [np.array(df['ychannelmax'].dropna())[-1], sl_price, sl_kijun, sl_senkou]
+                          if value is not None]
+                sl = min(values)
                 return sl
             elif type == "buy":
-                sl = max(np.array(df['ychannelmin'].dropna())[-1],sl_price,sl_kijun,sl_senkou)
+                values = [value for value in [np.array(df['ychannelmin'].dropna())[-1], sl_price, sl_kijun, sl_senkou]
+                          if value is not None]
+                sl = max(values)
                 return sl
         else:
             if type == "sell" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskHigh']:
@@ -753,10 +767,14 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 sl_price = min(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
             # Found the next tp between all of these
             if type == "sell":
-                sl = min(sl_price,sl_kijun,sl_senkou)
+                values = [value for value in [sl_price, sl_kijun, sl_senkou]
+                          if value is not None]
+                sl = min(values)
                 return sl
             elif type == "buy":
-                sl = max(sl_price,sl_kijun,sl_senkou)
+                values = [value for value in [sl_price, sl_kijun, sl_senkou]
+                          if value is not None]
+                sl = max(values)
                 return sl
 
         # if kijun not found no max peak then take the doubl
