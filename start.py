@@ -457,7 +457,6 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
         min_x=27*10
-        max_x=1
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
@@ -605,7 +604,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(5, len(df)-6):
+        for i in range(27/2, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
@@ -649,10 +648,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and tp_kijun is None:
                     tp_kijun = df.iloc[-i]['kijun_avg']
         #Found tp_price
-        if pos_in_channel > 0.85 or pos_in_channel < 0.15:
-            if type == "sell" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-i]['AskHigh']:
+        if pos_in_channel < 0.85 or pos_in_channel > 0.15:
+            if type == "sell" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-1]['AskHigh']:
                 tp_price = min(df.iloc[-Dict['channel_length']:-2]['AskLow'])
-            elif type == "buy" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-i]['AskLow']:
+            elif type == "buy" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskLow']:
                 tp_price = max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
             # Found the next tp between all of these
             if type == "sell":
@@ -702,7 +701,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(5, len(df)-6):
+        for i in range(27/2, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
@@ -746,7 +745,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     and sl_kijun is None:
                     sl_kijun = df.iloc[-i]['kijun_avg']
         #Found tp_price
-        if pos_in_channel > 0.85 or pos_in_channel < 0.15:
+        if pos_in_channel < 0.85 or pos_in_channel > 0.15:
 
             if type == "sell" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskHigh']:
                 sl_price = max(df.iloc[-Dict['channel_length']:-2]['AskLow'])
@@ -823,6 +822,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("sell", open_price, df)
             tp = take_profit("sell",open_price,df)
+            #type_signal = ' Sell TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
             if (open_price- tp)/(sl - open_price)>2:
                 try:
                     amount = set_amount(int(Dict['amount']), dj)
@@ -845,10 +845,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] :
+            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']:
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("sell", open_price, df)
-            tp = df.iloc[-2]['tenkan_avg']+margin
+            tp = df.iloc[-2]['tenkan_avg']
+            #type_signal = ' Sell Quick TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
             if (open_price- tp)/(sl - open_price)>2:
                 try:
                     amount = set_amount(int(Dict['amount']), dj)
@@ -871,10 +873,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg']:
+            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg']\
+            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']:
             open_price = df.iloc[-2]['AskClose']
-            sl = max(df.iloc[-27:-1]['AskClose'])+margin
-            tp = df.iloc[-2]['kijun_avg']+margin
+            sl = max(df.iloc[-27:-1]['AskClose'])
+            tp = df.iloc[-2]['kijun_avg']
+            #type_signal = ' Sell Quick TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
             if (open_price- tp)/(sl - open_price)>2:
                 try:
                     amount = set_amount(int(Dict['amount']), dj)
@@ -905,6 +909,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("sell", open_price, df)
             tp = take_profit("sell",open_price,df)
+            #type_signal = ' Sell OPPOSITE TREND ratio: ' + str((open_price - tp) / (sl - open_price))
             if (open_price- tp)/(sl - open_price)>2:
                 try:
                     amount = set_amount(int(Dict['amount']), dj)
@@ -936,6 +941,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("buy", open_price, df)
             tp = take_profit("buy",open_price,df)
+            #type_signal = ' BUY TENDANCE ratio: ' + str((tp - open_price) / (open_price - sl))
             if (tp-open_price) / (open_price - sl)>2:
                 try:
                     amount=set_amount(int(Dict['amount']), dj)
@@ -958,10 +964,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] :
+            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']:
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("buy", open_price, df)
-            tp = df.iloc[-2]['tenkan_avg']-margin
+            tp = df.iloc[-2]['tenkan_avg']
+            #type_signal = ' BUY Quick TENDANCE ratio: ' + str((tp - open_price) / (open_price - sl))
             if (tp-open_price) / (open_price - sl)>2:
                 try:
                     amount=set_amount(int(Dict['amount']), dj)
@@ -984,10 +992,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             and df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] :
+            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']:
             open_price = df.iloc[-2]['AskClose']
-            sl = min(df.iloc[-27:-1]['AskClose'])-margin
-            tp = df.iloc[-2]['kijun_avg']-margin
+            sl = min(df.iloc[-27:-1]['AskClose'])
+            tp = df.iloc[-2]['kijun_avg']
+            #type_signal = ' BUY Quick OPPOSITE TREND ratio: ' + str((tp - open_price) / (open_price - sl))
             if (tp-open_price) / (open_price - sl)>2:
                 try:
                     amount=set_amount(int(Dict['amount']), dj)
@@ -1018,6 +1028,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("buy", open_price, df)
             tp = take_profit("buy",open_price,df)
+            #type_signal = ' BUY OPPOSITE TREND ratio: ' + str((tp - open_price) / (open_price - sl))
             if (tp-open_price) / (open_price - sl)>2:
                 try:
                     amount=set_amount(int(Dict['amount']), dj)
@@ -1533,44 +1544,44 @@ def main():
     #if not ((currentday == 5 and currenthour > 2) or (currentday == 6 and currenthour < 20)):
     print(str(currentDateAndTime.strftime("%H:%M:%S")))
     with ForexConnect() as fx:
-        #try:
-        fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
-                 Dict['FXCM']['str_connection'], Dict['FXCM']['str_session_id'], Dict['FXCM']['str_pin'],
-                 session_status_callback=session_status_changed)
-        login_rules = fx.login_rules
-        trading_settings_provider = login_rules.trading_settings_provider
-        for l1 in range(0, len(FX)):
-            #hours = fx.getTradingHours(FX[l1])
-            if trading_settings_provider.get_market_status(FX[l1])==fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
-                print(FX[l1])
-                #H1
-                df = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                if len(df) < 7*5*3:
-                    df = pd.DataFrame(
-                        fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6), Dict['indicators']['ed']))
-                # If there is history data
-                # Add all the indicators needed
-                df = indicators(df)
-                #M15
-                df15 = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                df15 = indicators(df15)
-                #d1
-                dfd1 = pd.DataFrame(fx.get_history(FX[l1], 'D1', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                dfd1 = indicators(dfd1)
-                # Check the current open positions
-                open_pos_status, dj = check_trades(FX[l1], fx)
-                # if status not open then check if to open
-                if open_pos_status == 'No':
-                    df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
-                        open_trade(df, fx, FX[l1],trading_settings_provider,dj,dfd1)
-                # if status is open then check if to close
-                elif open_pos_status == 'Yes':
-                    df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
-                        close_trade(df, fx, FX[l1], dj,df15)
-                df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
+        try:
+            fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
+                     Dict['FXCM']['str_connection'], Dict['FXCM']['str_session_id'], Dict['FXCM']['str_pin'],
+                     session_status_callback=session_status_changed)
+            login_rules = fx.login_rules
+            trading_settings_provider = login_rules.trading_settings_provider
+            for l1 in range(0, len(FX)):
+                #hours = fx.getTradingHours(FX[l1])
+                if trading_settings_provider.get_market_status(FX[l1])==fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
+                    print(FX[l1])
+                    #H1
+                    df = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                    if len(df) < 7*5*3:
+                        df = pd.DataFrame(
+                            fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6), Dict['indicators']['ed']))
+                    # If there is history data
+                    # Add all the indicators needed
+                    df = indicators(df)
+                    #M15
+                    df15 = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                    df15 = indicators(df15)
+                    #d1
+                    dfd1 = pd.DataFrame(fx.get_history(FX[l1], 'D1', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                    dfd1 = indicators(dfd1)
+                    # Check the current open positions
+                    open_pos_status, dj = check_trades(FX[l1], fx)
+                    # if status not open then check if to open
+                    if open_pos_status == 'No':
+                        df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                            open_trade(df, fx, FX[l1],trading_settings_provider,dj,dfd1)
+                    # if status is open then check if to close
+                    # elif open_pos_status == 'Yes':
+                    #     df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                    #         close_trade(df, fx, FX[l1], dj,df15)
+                    df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
 
-        # except Exception as e:
-        #       print("Exception: " + str(e))
+        except Exception as e:
+            print("Exception: " + str(e))
         try:
             fx.logout()
         except Exception as e:
