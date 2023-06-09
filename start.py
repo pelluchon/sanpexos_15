@@ -1049,7 +1049,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
 
     return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
 
-def close_trade(df, fx, tick,dj,df15):
+def close_trade_old(df, fx, tick,dj,df15):
     try:
         open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][
             0]
@@ -1535,6 +1535,75 @@ def close_trade(df, fx, tick,dj,df15):
             # if now in range --> Sell
     return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
 
+def close_trade(df, fx, tick,dj,df15):
+    try:
+        open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][
+            0]
+    except:
+        open_rev_index = 1
+    type_signal = 'No'
+    open_price = dj.loc[0,'tick_open_price']
+    price = dj.loc[0,'tick_price']
+    box_def = False
+    high_box = 0
+    low_box = 0
+    df = analysis(df, open_rev_index)
+    tp = dj.loc[0,'tick_limit']
+    sl = dj.loc[0,'tick_stop']
+    offer = Common.get_offer(fx, tick)
+    buy = fxcorepy.Constants.BUY
+    sell = fxcorepy.Constants.SELL
+    buy_sell = sell if dj.loc[0,'tick_type'] == buy else buy
+    order_id = None
+    candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen'])/(df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
+    candle_3 = (df.iloc[-3]['AskClose'] - df.iloc[-3]['AskOpen']) / (df.iloc[-3]['AskHigh'] - df.iloc[-3]['AskLow'])
+    candle_4 = (df.iloc[-4]['AskClose'] - df.iloc[-4]['AskOpen']) / (df.iloc[-4]['AskHigh'] - df.iloc[-4]['AskLow'])
+    current_ratio = (price - open_price) / (open_price - sl)
+
+    if df['ychannelmin'].dropna().size != 0:
+        # if market was in range
+        if open_rev_index<1:
+                print('open_rev_index too small')
+        else:
+            # if was buy
+            if dj.loc[0,'tick_type'] == 'B':
+                if  (df.iloc[-2]['signal'] > df.iloc[-2]['macd'] and candle_2 <-0.1 and current_ratio>-0.1):
+                    try:
+                        type_signal = ' Buy : Close for Signal higher than MACD ' + str(current_ratio)
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0,'tick_amount']),
+                            TRADE_ID=dj.loc[0,'tick_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+            # if was sell
+            if dj.loc[0,'tick_type'] == 'S':
+                # signal cross macd sell
+                if (df.iloc[-2]['signal'] < df.iloc[-2]['macd'] and candle_2>0.1 and current_ratio>-0.1):
+                    try:
+                        type_signal = ' Sell : Close for Signal MACD ' + str(current_ratio)
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0,'tick_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+
+            # if now in range --> Sell
+    return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+
 def main():
     currentDateAndTime = datetime.now()
     currentday = currentDateAndTime.weekday()
@@ -1575,9 +1644,9 @@ def main():
                         df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
                             open_trade(df, fx, FX[l1],trading_settings_provider,dj,dfd1)
                     # if status is open then check if to close
-                    # elif open_pos_status == 'Yes':
-                    #     df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
-                    #         close_trade(df, fx, FX[l1], dj,df15)
+                    elif open_pos_status == 'Yes':
+                        df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                            close_trade(df, fx, FX[l1], dj,df15)
                     df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
 
         except Exception as e:
