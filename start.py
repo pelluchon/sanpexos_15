@@ -604,7 +604,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(27/2, len(df)-6):
+        for i in range(13, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
@@ -701,7 +701,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
             (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
         #Found the next tp within kijun and senkou
-        for i in range(27/2, len(df)-6):
+        for i in range(13, len(df)-6):
             if type=="sell":
                 if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
                     senkou_type = 'senkou_a'
