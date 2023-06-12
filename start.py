@@ -843,10 +843,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         #SELL QUICK TENDANCE (going from kijun to tenkan)
         elif df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg']\
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']:
+            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['macd'] < df.iloc[-3]['macd']:
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("sell", open_price, df)
             tp = df.iloc[-2]['tenkan_avg']
@@ -871,12 +873,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         #SELL QUICK OPPOSITE TREND
         elif df.iloc[-2]['senkou_a'] > df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg']\
+            and df.iloc[-3]['AskHigh'] < df.iloc[-3]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg']\
-            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']:
+            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta']) \
+            and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
+            and df.iloc[-2]['macd'] < df.iloc[-3]['macd']:
             open_price = df.iloc[-2]['AskClose']
-            sl = max(df.iloc[-27:-1]['AskClose'])
+            sl = max(df.iloc[-27:-1]['BidHigh'])
             tp = df.iloc[-2]['kijun_avg']
             #type_signal = ' Sell Quick TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
             if (open_price- tp)/(sl - open_price)>2:
@@ -962,10 +967,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         # BUY QUICK TENDANCE (going from kijun to tenkan)
         elif df.iloc[-2]['senkou_a'] > df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']:
+            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['macd'] > df.iloc[-3]['macd']:
             open_price = df.iloc[-2]['AskClose']
             sl = stop_loss("buy", open_price, df)
             tp = df.iloc[-2]['tenkan_avg']
@@ -990,12 +997,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         # BUY QUICK OPPOSITE TREND (going from tenkan to kijun)
         elif df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
             and df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg']\
+            and df.iloc[-3]['AskLow'] > df.iloc[-3]['tenkan_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']:
+            and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
+            and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
+            and df.iloc[-2]['macd'] > df.iloc[-3]['macd']:
             open_price = df.iloc[-2]['AskClose']
-            sl = min(df.iloc[-27:-1]['AskClose'])
+            sl = min(df.iloc[-27:-1]['BidLow'])
             tp = df.iloc[-2]['kijun_avg']
             #type_signal = ' BUY Quick OPPOSITE TREND ratio: ' + str((tp - open_price) / (open_price - sl))
             if (tp-open_price) / (open_price - sl)>2:
