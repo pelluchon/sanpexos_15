@@ -809,8 +809,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
     #     and (df.iloc[-2]['AskHigh']-df.iloc[-1]['AskLow'])<3*np.mean(df.iloc[-7:-2]['AskHigh']-df.iloc[-7:-2]['AskLow']):
 
     #SELL TENDANCE
-    if df.iloc[-2]['senkou_a'] < df.iloc[-2]['senkou_b'] \
-        and df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
+    if df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
@@ -824,6 +823,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         open_price = df.iloc[-2]['AskClose']
         sl = stop_loss("sell", open_price, df)
         tp = take_profit("sell",open_price,df)
+        #print(str((open_price - tp) / (sl - open_price)))
         #type_signal = ' Sell TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
         if (open_price- tp)/(sl - open_price)>2:
             try:
@@ -938,8 +938,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
     #             type_signal = type_signal + ' not working for ' + str(e)
     #             pass
     #BUY TENDANCE
-    elif df.iloc[-2]['senkou_a'] > df.iloc[-2]['senkou_b'] \
-        and df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
+    elif df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
@@ -953,6 +952,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         open_price = df.iloc[-2]['AskClose']
         sl = stop_loss("buy", open_price, df)
         tp = take_profit("buy",open_price,df)
+        #print(str((tp - open_price) / (open_price - sl)))
+        #type_signal = ' BUY TENDANCE ratio: ' + str((tp - open_price) / (open_price - sl))
         #type_signal = ' BUY TENDANCE ratio: ' + str((tp - open_price) / (open_price - sl))
         if (tp-open_price) / (open_price - sl)>2:
             try:
