@@ -668,10 +668,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         #             tp = min(values)
         #             return tp
         # else:
-        if type == "sell" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-1]['AskHigh']:
-            tp_price = min(df.iloc[-Dict['channel_length']:-2]['AskLow'])
-        elif type == "buy" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskLow']:
-            tp_price = max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
+        if type == "sell" and min(df.iloc[-Dict['channel_length']-13:-2-13]['AskLow'])< df.iloc[-1]['AskHigh']:
+            tp_price = min(df.iloc[-Dict['channel_length']-13:-2-13]['AskLow'])
+        elif type == "buy" and max(df.iloc[-Dict['channel_length']-13:-2-13]['AskHigh'])> df.iloc[-1]['AskLow']:
+            tp_price = max(df.iloc[-Dict['channel_length']-13:-2-13]['AskHigh'])
         # Found the next tp between all of these
         if type == "sell":
             values = [value for value in [tp_price, tp_kijun, tp_senkou]
@@ -766,10 +766,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         #             sl = max(values)
         #             return sl
         #else:
-        if type == "sell" and max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])> df.iloc[-1]['AskHigh']:
-            sl_price = max(df.iloc[-Dict['channel_length']:-2]['AskHigh'])
-        elif type == "buy" and min(df.iloc[-Dict['channel_length']:-2]['AskLow'])< df.iloc[-1]['AskLow']:
-            sl_price = min(df.iloc[-Dict['channel_length']:-2]['AskLow'])
+        if type == "sell" and max(df.iloc[-Dict['channel_length']-13:-2-13]['AskHigh'])> df.iloc[-1]['AskHigh']:
+            sl_price = max(df.iloc[-Dict['channel_length']-13:-2-13]['AskHigh'])
+        elif type == "buy" and min(df.iloc[-Dict['channel_length']-13:-2-13]['AskLow'])< df.iloc[-1]['AskLow']:
+            sl_price = min(df.iloc[-Dict['channel_length']-13:-2-13]['AskLow'])
         # Found the next tp between all of these
         if type == "sell":
             values = [value for value in [sl_price, sl_kijun, sl_senkou]
