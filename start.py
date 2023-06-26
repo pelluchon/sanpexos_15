@@ -808,6 +808,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 pass
     #SELL OPPOSITE
     if df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
+        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
+        and df.iloc[-2]['tenkan_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
         and max(df.iloc[-wait_time:-2]['rsi']) > 60\
         and candle_2 < 0 \
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
@@ -875,6 +877,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                 pass
     # BUY OPPOSITE
     if df.iloc[-2]['AskHigh'] > min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
+        and df.iloc[-2]['kijun_avg'] > min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
+        and df.iloc[-2]['tenkan_avg'] > min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
         and min(df.iloc[-wait_time:-2]['rsi']) < 40 \
         and candle_2 > 0 \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
