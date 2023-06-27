@@ -819,7 +819,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-27]['chikou'] > df.iloc[-27]['tenkan_avg']\
         and df.iloc[-27]['chikou'] > df.iloc[-27]['kijun_avg']\
         and df.iloc[-2]['tenkan_avg'] <= df.iloc[-3]['tenkan_avg']:
-        sl = max(df.iloc[-3*window_of_interest:-2]['AskHigh'])
+        sl = max(df.iloc[-window_of_interest:-2]['AskHigh'])+margin
         tp = df.iloc[-2]['kijun_avg']
         if (open_price- tp)/(sl - open_price)>2:
             try:
@@ -831,7 +831,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     BUY_SELL=fxcorepy.Constants.SELL,
                     AMOUNT=amount,
                     SYMBOL=tick,
-                    RATE_STOP=sl+2*margin,
+                    RATE_STOP=sl+margin,
                     RATE_LIMIT=tp+margin,
                 )
                 fx.send_request(request)
@@ -888,7 +888,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-27]['chikou'] < df.iloc[-27]['tenkan_avg'] \
         and df.iloc[-27]['chikou'] < df.iloc[-27]['kijun_avg'] \
         and df.iloc[-2]['tenkan_avg'] >= df.iloc[-3]['tenkan_avg']:
-        sl = min(df.iloc[-3*window_of_interest:-2]['AskLow'])
+        sl = min(df.iloc[-window_of_interest:-2]['AskLow'])-margin
         tp = df.iloc[-2]['kijun_avg']
         if (tp-open_price) / (open_price - sl)>2:
             try:
@@ -900,7 +900,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
                     BUY_SELL=fxcorepy.Constants.BUY,
                     AMOUNT=amount,
                     SYMBOL=tick,
-                    RATE_STOP=sl-2*margin,
+                    RATE_STOP=sl-margin,
                     RATE_LIMIT=tp-margin,
                 )
                 fx.send_request(request)
