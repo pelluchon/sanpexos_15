@@ -819,7 +819,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-27]['chikou'] > df.iloc[-27]['tenkan_avg']\
         and df.iloc[-27]['chikou'] > df.iloc[-27]['kijun_avg']\
         and df.iloc[-2]['tenkan_avg'] <= df.iloc[-3]['tenkan_avg']\
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg']:
+        and df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg']:
         sl = max(df.iloc[-window_of_interest-5:-2-5]['AskHigh'])+margin
         tp = df.iloc[-2]['kijun_avg']
         if (open_price- tp)/(sl - open_price)>2 and (sl-open_price) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
@@ -889,7 +889,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-27]['chikou'] < df.iloc[-27]['tenkan_avg'] \
         and df.iloc[-27]['chikou'] < df.iloc[-27]['kijun_avg'] \
         and df.iloc[-2]['tenkan_avg'] >= df.iloc[-3]['tenkan_avg']\
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg']:
+        and df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg']:
         sl = min(df.iloc[-window_of_interest-5:-2-5]['AskLow'])-margin
         tp = df.iloc[-2]['kijun_avg']
         if (tp-open_price) / (open_price - sl)>2 and (open_price - sl) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
