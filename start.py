@@ -784,7 +784,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
         and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']\
-        and min(df.iloc[-wait_time:-2]['rsi']) > 40:
+        and min(df.iloc[-wait_time:-2]['rsi']) > 40\
+        and df.iloc[-2]['kijun_avg'] < df.iloc[-3]['kijun_avg']:
         sl = stop_loss("sell", open_price, df)
         tp = take_profit("sell",open_price,df)
         if tp is None :
@@ -854,6 +855,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
         and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']\
+        and df.iloc[-2]['kijun_avg'] > df.iloc[-3]['kijun_avg']\
         and max(df.iloc[-wait_time:-2]['rsi']) < 60:
         sl = stop_loss("buy", open_price, df)
         tp = take_profit("buy",open_price,df)
