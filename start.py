@@ -790,7 +790,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         tp = take_profit("sell",open_price,df)
         if tp is None :
             tp = open_price - 2*(sl - open_price)
-        if (open_price- tp)/(sl - open_price)>=2 and (sl-open_price) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
+        if (open_price- tp)/(sl - open_price)>=2:
             try:
                 amount = set_amount(int(Dict['amount']), dj)
                 type_signal = ' Sell TENDANCE ratio: '+ str((open_price- tp)/(sl - open_price))
@@ -861,7 +861,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         tp = take_profit("buy",open_price,df)
         if tp is None :
             tp = 2*(open_price - sl)+open_price
-        if (tp-open_price) / (open_price - sl)>=2 and (open_price - sl) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
+        if (tp-open_price) / (open_price - sl)>=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
                 type_signal = ' BUY TENDANCE ratio: '+ str((tp-open_price) / (open_price - sl))
