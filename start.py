@@ -784,12 +784,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
         and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']\
-        and min(df.iloc[-wait_time:-2]['rsi']) > 40\
-        and df.iloc[-2]['kijun_avg'] < df.iloc[-3]['kijun_avg']:
+        and min(df.iloc[-wait_time:-2]['rsi']) > 35:
         sl = stop_loss("sell", open_price, df)
         tp = take_profit("sell",open_price,df)
         if tp is None :
             tp = open_price - 2*(sl - open_price)
+        print((open_price- tp)/(sl - open_price))
         if (open_price- tp)/(sl - open_price)>=2:
             try:
                 amount = set_amount(int(Dict['amount']), dj)
@@ -855,12 +855,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj,dfd1):
         and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
         and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']\
-        and df.iloc[-2]['kijun_avg'] > df.iloc[-3]['kijun_avg']\
-        and max(df.iloc[-wait_time:-2]['rsi']) < 60:
+        and max(df.iloc[-wait_time:-2]['rsi']) < 65:
         sl = stop_loss("buy", open_price, df)
         tp = take_profit("buy",open_price,df)
         if tp is None :
             tp = 2*(open_price - sl)+open_price
+        print((tp-open_price) / (open_price - sl))
         if (tp-open_price) / (open_price - sl)>=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
