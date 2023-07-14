@@ -944,7 +944,7 @@ def close_trade(df, fx, tick,dj):
         else:
             # if was buy
             if dj.loc[0,'tick_type'] == 'B':
-                if  (df.iloc[-2]['signal'] > df.iloc[-2]['macd'] and candle_2 <-0.1):
+                if (df.iloc[-2]['signal'] > df.iloc[-2]['macd'] and candle_2 <-0.1):
                     try:
                         type_signal = ' Buy : Close for Signal higher than MACD ' + str(current_ratio)
                         request = fx.create_order_request(
@@ -959,7 +959,7 @@ def close_trade(df, fx, tick,dj):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if  (df.iloc[-2]['macd'] < df.iloc[-3]['macd'] and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg']):
+                if (df.iloc[-2]['macd'] < df.iloc[-3]['macd'] and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg']):
                     try:
                         type_signal = ' Buy : Close for Price below tenkan  ' + str(current_ratio)
                         request = fx.create_order_request(
@@ -969,6 +969,25 @@ def close_trade(df, fx, tick,dj):
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0,'tick_amount']),
                             TRADE_ID=dj.loc[0,'tick_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+                if (abs(df.iloc[-2]['delta']) < abs(df.iloc[-3]['delta']) and df.iloc[-2]['AskClose'] < df.iloc[-3]['AskClose']):
+                    try:
+                        type_signal = ' Buy : Adjust for stalling ' + str(current_ratio)
+                        sl = df.iloc[-2]['AskLow']
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                            ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -1002,6 +1021,25 @@ def close_trade(df, fx, tick,dj):
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
                             TRADE_ID=dj.loc[0,'tick_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+                if (abs(df.iloc[-2]['delta']) < abs(df.iloc[-3]['delta']) and df.iloc[-2]['AskClose'] > df.iloc[-3]['AskClose']):
+                    try:
+                        type_signal = ' Sell : Adjust for stalling ' + str(current_ratio)
+                        sl = df.iloc[-2]['AskHigh']
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                            ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
