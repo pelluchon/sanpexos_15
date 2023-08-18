@@ -2,7 +2,6 @@ import os
 import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import time
 import matplotlib.pyplot as plt
 import numpy as np
 import smtplib
@@ -14,61 +13,10 @@ from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
-import schedule
 import math
 
+#### All hours in GMT
 
-FX = ['AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD', 'AUS200',
-      'Bund', 'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'CHN50', 'Copper',
-      'ESP35', 'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY',
-      'EUR/NOK', 'EUR/NZD', 'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'EUSTX50',
-      'FRA40', 'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/JPY', 'GBP/NZD',
-      'GBP/USD', 'GER30', 'HKG33', 'JPN225', 'NAS100', 'NGAS', 'NZD/CAD',
-      'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'SOYF', 'SPX500', 'TRY/JPY',
-      'UK100', 'UKOil', 'US30', 'USD/CAD', 'USD/CHF', 'USD/CNH',
-      'USD/HKD', 'USD/JPY', 'USD/MXN', 'USD/NOK', 'USD/SEK',
-      'USD/ZAR', 'USDOLLAR', 'USOil', 'XAG/USD', 'XAU/USD', 'ZAR/JPY',
-      'USD/ILS', 'VOLX', 'US2000', 'USOilSpot', 'UKOilSpot', 'WHEATF',
-      'CORNF', 'EMBasket', 'JPYBasket', 'BTC/USD', 'BCH/USD', 'ETH/USD',
-      'LTC/USD', 'CryptoMajor', 'ESPORTS', 'BIOTECH',
-      'FAANG', 'CHN.TECH', 'CHN.ECOMM', 'USEquities', 'AIRLINES',
-      'CASINOS', 'TRAVEL', 'US.ECOMM', 'US.BANKS', 'US.AUTO', 'WFH',
-      'URANIUM', 'BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
-      'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
-      'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
-      'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
-      'SBUX.us', 'ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
-      'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
-      'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr',
-      'ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
-      'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
-      'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
-      'VOW.de', 'AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
-      'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
-      'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk', 'BABA.us', 'DAL.us',
-      'NFLX.us', 'TSLA.us', 'GLEN.uk', 'TTE.fr', 'ENGI.fr', 'VNA.de',
-      'SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
-      'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
-      'CPNG.us', 'NET.us', 'RBLX.us', 'ENR.de', 'AskU.hk', 'COIN.us',
-      'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
-      'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
-      'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
-      'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au', 'BT.A.uk', 'NWG.uk',
-      'TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk', 'CBK.de', 'DHER.de',
-      'STM.fr', 'STLA.fr', 'FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
-      'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
-      'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
-      'PTON.us', 'TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
-      'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
-      'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
-      'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
-      'BYDE.hk', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
-      'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
-      'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
-      'SONY.us']
-Fx2 = ['CANNABIS']
-#below all the values that have big peaks
-#FX=FX+[', 'USD/TRY']
 Dict = {
     'FXCM': {
             'str_user_i_d': '71533239',
@@ -86,58 +34,140 @@ Dict = {
         },
     'channel_length':27*3,
     'amount':1,
-    'instrument':{
-            1:{'open': 7,#opening time in UTC
-               'close':16,#closing time in UTC
-               'FX':['AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD', 'AUS200',
-      'Bund', 'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'CHN50', 'Copper',
-      'ESP35', 'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY',
-      'EUR/NOK', 'EUR/NZD', 'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'EUSTX50',
-      'FRA40', 'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/JPY', 'GBP/NZD',
-      'GBP/USD', 'GER30', 'HKG33', 'JPN225', 'NAS100', 'NGAS', 'NZD/CAD',
-      'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'SOYF', 'SPX500', 'TRY/JPY',
-      'UK100', 'UKOil', 'US30', 'USD/CAD', 'USD/CHF', 'USD/CNH',
+    'instrument':
+        {
+        
+        1:{
+            'hour_open': 0,#opening time in UTC (for midnight put 24)
+            'hour_close':21,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
+      'CAD/CHF', 'CAD/JPY', 'CHF/JPY',
+      'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY',
+      'EUR/NOK', 'EUR/NZD', 'EUR/SEK', 'EUR/TRY', 'EUR/USD',
+      'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/JPY', 'GBP/NZD',
+      'GBP/USD', 'NZD/CAD',
+      'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY',
+      'USD/CAD', 'USD/CHF', 'USD/CNH',
       'USD/HKD', 'USD/JPY', 'USD/MXN', 'USD/NOK', 'USD/SEK',
-      'USD/ZAR', 'USDOLLAR', 'USOil', 'XAG/USD', 'XAU/USD', 'ZAR/JPY',
-      'USD/ILS', 'VOLX', 'US2000', 'USOilSpot', 'UKOilSpot', 'WHEATF',
-      'CORNF', 'EMBasket', 'JPYBasket', 'BTC/USD', 'BCH/USD', 'ETH/USD',
-      'LTC/USD', 'CryptoMajor', 'ESPORTS', 'BIOTECH',
-      'FAANG', 'CHN.TECH', 'CHN.ECOMM', 'USEquities', 'AIRLINES',
-      'CASINOS', 'TRAVEL', 'US.ECOMM', 'US.BANKS', 'US.AUTO', 'WFH',
-      'URANIUM', 'BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
-      'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
-      'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
-      'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
-      'SBUX.us', 'ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
-      'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
-      'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr',
-      'ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
-      'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
-      'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
-      'VOW.de', 'AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
-      'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
-      'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk', 'BABA.us', 'DAL.us',
-      'NFLX.us', 'TSLA.us', 'GLEN.uk', 'TTE.fr', 'ENGI.fr', 'VNA.de',
-      'SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
-      'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
-      'CPNG.us', 'NET.us', 'RBLX.us', 'ENR.de', 'AskU.hk', 'COIN.us',
+      'USD/ZAR', 'XAG/USD', 'XAU/USD', 'ZAR/JPY',
+      'USD/ILS','BTC/USD', 'BCH/USD', 'ETH/USD',
+      'LTC/USD', 'JPN225', 'NAS100', 'NGAS','SPX500', 'US30', 
+                  'VOLX', 'US2000','AUS200','UKOil','USOil',
+                  'USOilSpot', 'UKOilSpot','EMBasket','USDOLLAR',
+                  'JPYBasket', 'CryptoMajor']},
+        2:{
+            'hour_open': 0,#opening time in UTC (for midnight put 24)
+            'hour_close':6,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':[
       'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
       'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
       'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
-      'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au', 'BT.A.uk', 'NWG.uk',
-      'TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk', 'CBK.de', 'DHER.de',
-      'STM.fr', 'STLA.fr', 'FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
+      'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
+    
+        3:{
+            'hour_open': 7,#opening time in UTC (for midnight put 24)
+            'hour_close':15,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
+      'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
+      'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
+      'VOW.de','VNA.de','ENR.de','CBK.de', 'DHER.de']},
+
+        4:{
+            'hour_open': 14,#opening time in UTC (for midnight put 24)
+            'hour_close':20,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
       'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
       'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
-      'PTON.us', 'TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
+      'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
+      'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
+      'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
+      'SONY.us','BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
+      'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
+      'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
+      'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
+      'SBUX.us','BABA.us', 'DAL.us',
+      'NFLX.us', 'TSLA.us','SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
+      'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
+      'CPNG.us', 'NET.us', 'RBLX.us', 'COIN.us']},
+            
+        5:{
+            'hour_open': 2,#opening time in UTC (for midnight put 24)
+            'hour_close':8,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
       'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
       'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
       'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
-      'BYDE.hk', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
-      'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
-      'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
-      'SONY.us'],
-            },
+      'BYDE.hk','AskU.hk']}, 
+
+        6:{
+            'hour_open': 7,#opening time in UTC (for midnight put 24)
+            'hour_close':15,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
+      'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
+      'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
+
+        7:{
+            'hour_open': 7,#opening time in UTC (for midnight put 24)
+            'hour_close':15,#closing time in UTC
+            'day_open':1, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
+      'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
+      'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
+       'BT.A.uk', 'NWG.uk','TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
+            
+        8:{
+            'hour_open': 6,#opening time in UTC (for midnight put 24)
+            'hour_close':20,#closing time in UTC
+            'day_open':7, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['EUSTX50','FRA40']},
+
+        9:{
+            'hour_open': 6,#opening time in UTC (for midnight put 24)
+            'hour_close':18,#closing time in UTC
+            'day_open':7, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['ESP35','Bund']},
+
+        10:{
+            'hour_open': 1,#opening time in UTC (for midnight put 24)
+            'hour_close':19,#closing time in UTC
+            'day_open':7, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['GER30','HKG33','CHN50','UK100']},
+
+        11:{
+            'hour_open': 0,#opening time in UTC (for midnight put 24)
+            'hour_close':18,#closing time in UTC
+            'day_open':7, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['SOYF', 'WHEATF','CORNF']},
+
+        12:{
+            'hour_open': 14,#opening time in UTC (for midnight put 24)
+            'hour_close':20,#closing time in UTC
+            'day_open':7, # 7 is Sunday
+            'day_close':5, #5 is Friday
+            'FX':['ESPORTS', 'BIOTECH','FAANG',
+                  'CHN.TECH', 'CHN.ECOMM',
+                  'AIRLINES','CASINOS', 
+                  'TRAVEL', 'US.ECOMM', 
+                  'US.BANKS','US.AUTO', 
+                  'WFH','URANIUM']},
+            
         },
 }
 
@@ -229,7 +259,7 @@ def indicators(df):
 
     return (df)
 
-def analysis(df, ind):
+def analysis(df, ind,tick):
     def chikou_signal(df):
 
         # Check the Chikou
@@ -362,12 +392,106 @@ def analysis(df, ind):
     def find_limit(df):
         df.iloc[-2]['AskClose']
 
+    def mean_reversion(data,tick):
+        def sendemail(attach, subject_mail, body_mail):
+            
+            fromaddr = 'sanpexos@hotmail.com'
+            toaddr = 'paul.pelluchon.doc@gmail.com'
+            password = '@c<Md5&$gzGNU<('
+
+            # instance of MIMEMultipart
+            msg = MIMEMultipart()
+            # storing the senders email address
+            msg['From'] = fromaddr
+            # storing the receivers email address
+            msg['To'] = toaddr
+            # storing the subject
+            msg['Subject'] = subject_mail
+            # string to store the body of the mail
+            body = body_mail
+            # attach the body with the msg instance
+            msg.attach(MIMEText(body, 'plain'))
+            # open the file to be sent
+            filename = attach
+            attachment = open(attach, 'rb')
+            # instance of MIMEBase and named as p
+            p = MIMEBase('application', 'octet-stream')
+            # To change the payload into encoded form
+            p.set_payload((attachment).read())
+            # encode into base64
+            encoders.encode_base64(p)
+            p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+            # attach the instance 'p' to instance 'msg'
+            msg.attach(p)
+            # creates SMTP session
+            s = smtplib.SMTP("smtp.office365.com", 587)
+            # start TLS for security
+            s.starttls()
+            # Authentication
+            s.login(fromaddr, password)
+            # Converts the Multipart msg into a string
+            text = msg.as_string()
+            # sending the mail
+            s.sendmail(fromaddr, toaddr, text)
+            # terminating the session
+            s.quit()
+        
+        # Calculate the rolling mean and standard deviation
+        window = 20
+        data['RollingMean'] = data['AskClose'].rolling(window=window).mean()
+        data['RollingStd'] = data['AskClose'].rolling(window=window).std()
+        # Calculate z-scores
+        data['ZScore'] = (data['AskClose'] - data['RollingMean']) / data['RollingStd']
+        # Define entry and exit thresholds
+        entry_threshold = 1.0
+        exit_threshold = 0.0
+        # Initialize positions and signals
+        data['Position'] = 0  # 1 for long, -1 for short, 0 for no position
+        data['Signal'] = 0  # 1 for buy signal, -1 for sell signal, 0 for no signal
+
+        # Generate trading signals
+        for i in range(window, len(data)):
+            if data.iloc[i]['ZScore'] > entry_threshold and data.iloc[i-1]['ZScore'] <= entry_threshold:
+                data.loc[i,'Signal'] = -1  # Short position
+            elif data.iloc[i]['ZScore'] < -entry_threshold and data.iloc[i-1]['ZScore'] >= -entry_threshold:
+                data.loc[i,'Signal'] = 1  # Long position
+        
+        # Apply signals to positions
+        for i in range(window, len(data)):
+            if data.iloc[i]['Signal'] == 1:
+                data.loc[i,'Position'] = 1  # Long position
+            elif data.iloc[i]['Signal'] == -1:
+                data.loc[i,'Position'] = -1  # Short position
+
+        # Calculate strategy returns
+        data['Returns'] = data['Position'].shift() * data['AskClose'].pct_change()
+
+        # Calculate cumulative returns
+        data['CumulativeReturns'] = (1 + data['Returns']).cumprod()
+
+        # Plotting
+        fig=plt.figure(figsize=(12, 6))
+        plt.plot(data.index, data['CumulativeReturns'])
+        plt.xlabel('Date')
+        plt.ylabel('Cumulative Returns')
+        plt.title('Mean Reversion Strategy')
+        fig.savefig('mean_reversion.png')
+        #try:
+        #    sendemail(attach='mean_reversion.png', subject_mail=str(tick), body_mail=str(tick) + 'mean_reversion')
+        #except Exception as e:
+        #    print("issue with mails for " + tick)
+        #    print("Exception: " + str(e))
+        plt.close()
+        return data
+
+
     df = chikou_signal(df)
     # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
     # backcandles i ma reday to follow 1 week so 5 days
     df = trend_channels(df, 27*3, 3, len(df) - 4 - ind, 5, False)
     df = find_last_peaks(df, ind)
+    df = mean_reversion(df,tick)
     return df
 
 def box(df, index):
@@ -596,161 +720,6 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         if amount == 0 : amount=1
         return amount
 
-    def take_profit(type,open_price,df):
-        tp=None
-        tp_senkou=None
-        tp_kijun=None
-        tp_price=None
-        pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
-            (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
-        #Found the next tp within kijun and senkou
-        wait_time=7
-        window_of_interest=27
-        for i in range(wait_time, len(df)-6):
-            if type=="sell":
-                if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] < max(df.iloc[-wait_time:-1]['AskHigh']) \
-                    and df.iloc[-i][senkou_type] < df.iloc[-2]['kijun_avg'] \
-                    and df.iloc[-i][senkou_type] < df.iloc[-2]['tenkan_avg'] \
-                    and tp_senkou is None:
-                    tp_senkou = df.iloc[-i][senkou_type]
-                if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] < max(df.iloc[-wait_time:-1]['AskHigh'])\
-                    and df.iloc[-i]['kijun_avg'] < df.iloc[-2]['tenkan_avg']\
-                    and tp_kijun is None:
-                    tp_kijun = df.iloc[-i]['kijun_avg']
-            elif type == "buy":
-                if df.iloc[-i]['senkou_a'] > df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] > df.iloc[-2]['kijun_avg'] \
-                    and df.iloc[-i][senkou_type] > df.iloc[-2]['tenkan_avg'] \
-                    and tp_senkou is None:
-                    tp_senkou = df.iloc[-i][senkou_type]
-                if df.iloc[-i]['kijun_avg'] == df.iloc[-i - 1]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg']  \
-                    and df.iloc[-i]['kijun_avg'] > df.iloc[-2]['tenkan_avg']\
-                    and tp_kijun is None:
-                    tp_kijun = df.iloc[-i]['kijun_avg']
-        # else:
-        if type == "sell" and min(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskLow'])< df.iloc[-1]['AskHigh']:
-            tp_price = min(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskLow'])
-        elif type == "buy" and max(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskHigh'])> df.iloc[-1]['AskLow']:
-            tp_price = max(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskHigh'])
-        # Found the next tp between all of these
-        if type == "sell":
-            values = [value for value in [tp_price, tp_kijun, tp_senkou]
-                      if value is not None]
-            if values:
-                tp = max(values)
-                return tp
-        elif type == "buy":
-            values = [value for value in [tp_price, tp_kijun, tp_senkou]
-                      if value is not None]
-            if values:
-                tp = min(values)
-                return tp
-        # TP minimum / maximum
-        # if kijun not found no max peak then take the double
-
-    def stop_loss(type,open_price,df):
-        sl=None
-        sl_senkou=None
-        sl_kijun=None
-        sl_price=None
-        wait_time=7
-        window_of_interest=27
-        #Found the next range
-        pos_in_channel = (df.iloc[-2]['AskHigh']-np.array(df['ychannelmin'].dropna())[-1])/\
-            (np.array(df['ychannelmax'].dropna())[-1]-np.array(df['ychannelmin'].dropna())[-1])
-        #Found the next tp within kijun and senkou
-        for i in range(wait_time, len(df)-6):
-            if type=="sell":
-                if df.iloc[-i]['senkou_a'] < df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type]  \
-                    and df.iloc[-i][senkou_type] > df.iloc[-2]['kijun_avg'] \
-                    and df.iloc[-i][senkou_type] > df.iloc[-2]['tenkan_avg'] \
-                    and sl_senkou is None:
-                    sl_senkou = df.iloc[-i][senkou_type]
-                if df.iloc[-i]['kijun_avg']==df.iloc[-i-1]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] > df.iloc[-2]['tenkan_avg'] \
-                    and sl_kijun is None:
-                    sl_kijun = df.iloc[-i]['kijun_avg']
-            elif type == "buy":
-                if df.iloc[-i]['senkou_a'] > df.iloc[-i]['senkou_b']:
-                    senkou_type = 'senkou_a'
-                else:
-                    senkou_type = 'senkou_b'
-                if df.iloc[-i][senkou_type]==df.iloc[-i-1][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 2][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 3][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 4][senkou_type] \
-                    and df.iloc[-i][senkou_type] == df.iloc[-i - 5][senkou_type] \
-                    and df.iloc[-i][senkou_type] < min(df.iloc[-5:-1]['AskLow'])\
-                    and df.iloc[-i][senkou_type] < df.iloc[-2]['kijun_avg'] \
-                    and df.iloc[-i][senkou_type] < df.iloc[-2]['tenkan_avg'] \
-                    and sl_senkou is None:
-                    sl_senkou = df.iloc[-i][senkou_type]
-                if df.iloc[-i]['kijun_avg'] == df.iloc[-i - 1]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 2]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 3]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 4]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] == df.iloc[-i - 5]['kijun_avg'] \
-                    and df.iloc[-i]['kijun_avg'] < min(df.iloc[-5:-1]['AskLow']) \
-                    and df.iloc[-i]['kijun_avg'] < df.iloc[-2]['tenkan_avg'] \
-                    and sl_kijun is None:
-                    sl_kijun = df.iloc[-i]['kijun_avg']
-        #else:
-        if type == "sell" and max(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskHigh'])> df.iloc[-1]['AskHigh']:
-            sl_price = max(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskHigh'])
-        elif type == "buy" and min(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskLow'])< df.iloc[-1]['AskLow']:
-            sl_price = min(df.iloc[-window_of_interest-wait_time:-2-wait_time]['AskLow'])
-        # Found the next tp between all of these
-        if type == "sell":
-            values = [value for value in [sl_price, sl_kijun, sl_senkou]
-                      if value is not None]
-            if values:
-                sl = min(values)
-                return sl
-        elif type == "buy":
-            values = [value for value in [sl_price, sl_kijun, sl_senkou]
-                      if value is not None]
-            if values:
-                sl = max(values)
-                return sl
-
     open_rev_index = 1
     box_def = False
     high_box = 0
@@ -758,110 +727,22 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     type_signal = 'No'
     tp = 0
     sl = 0
-    df = analysis(df, open_rev_index)
-    wait_time=13
+    df = analysis(df, open_rev_index,tick)
     window_of_interest=27
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
-    margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(df.iloc[-window_of_interest:-2]['AskLow'])))
+    margin = abs(0.2 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(df.iloc[-window_of_interest:-2]['AskLow'])))
     open_price = df.iloc[-2]['AskClose']
-
-    #SELL TENDANCE
-    if df.iloc[-2]['AskClose'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['tenkan_avg'] < min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
-        and df.iloc[-27]['chikou'] < min(df.iloc[-27]['senkou_a'], df.iloc[-27]['senkou_b'])\
+    #BUY
+    if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['AskClose'] \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['kijun_avg'] \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['tenkan_avg'] \
-        and df.iloc[-2]['macd'] < df.iloc[-3]['macd']\
-        and df.iloc[-2]['signal'] > df.iloc[-2]['macd']\
-        and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
-        and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg']\
-        and min(df.iloc[-wait_time:-2]['rsi']) > 35:
-        sl = stop_loss("sell", open_price, df)
-        tp = take_profit("sell",open_price,df)
-        if tp is None :
-            tp = open_price - 2*(sl - open_price)
-        #type_signal = ' Sell TENDANCE ratio: ' + str((open_price - tp) / (sl - open_price))
-        if (open_price- tp)/(sl - open_price)>=2:
-            try:
-                amount = set_amount(int(Dict['amount']), dj)
-                type_signal = ' Sell TENDANCE ratio: '+ str((open_price- tp)/(sl - open_price))
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=amount,
-                    SYMBOL=tick,
-                    RATE_STOP=sl+margin,
-                    RATE_LIMIT=tp+margin,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
-                pass
-    #SELL OPPOSITE
-    if df.iloc[-2]['AskClose'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['tenkan_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
-        and max(df.iloc[-wait_time:-2]['rsi']) > 60\
-        and candle_2 < 0 \
-        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['kijun_avg'] <= df.iloc[-3]['kijun_avg']\
-        and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])\
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['AskClose']\
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['tenkan_avg']\
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['kijun_avg']\
-        and df.iloc[-2]['tenkan_avg'] <= df.iloc[-3]['tenkan_avg']\
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg']:
-        sl = max(df.iloc[-window_of_interest-5:-2-5]['AskHigh'])+margin
+        and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
         tp = df.iloc[-2]['kijun_avg']
-        #type_signal = ' Sell OPPOSITE ratio: ' + str((open_price - tp) / (sl - open_price))
-        if (open_price- tp)/(sl - open_price)>2 and (sl-open_price) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
-            try:
-                amount = set_amount(int(Dict['amount']), dj)
-                type_signal = ' Sell OPPOSITE ratio: '+ str((open_price- tp)/(sl - open_price))
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=amount,
-                    SYMBOL=tick,
-                    RATE_STOP=sl+margin,
-                    RATE_LIMIT=tp+margin,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
-                pass
-    #BUY TENDANCE
-    elif df.iloc[-2]['AskLow'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['tenkan_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
-        and df.iloc[-27]['chikou'] > max(df.iloc[-27]['senkou_a'], df.iloc[-27]['senkou_b']) \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['AskClose']\
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['kijun_avg'] \
-        and df.iloc[-27]['chikou'] > df.iloc[-27]['tenkan_avg'] \
-        and df.iloc[-2]['macd'] > df.iloc[-3]['macd']\
-        and df.iloc[-2]['signal'] < df.iloc[-2]['macd']\
-        and abs(df.iloc[-2]['Delta']) > abs(df.iloc[-3]['Delta'])\
-        and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg']\
-        and max(df.iloc[-wait_time:-2]['rsi']) < 65:
-        sl = stop_loss("buy", open_price, df)
-        tp = take_profit("buy",open_price,df)
-        #type_signal = ' BUY TENDANCE ratio: ' + str((tp - open_price) / (open_price - sl))
-        if tp is None :
-            tp = 2*(open_price - sl)+open_price
+        sl = df.iloc[-2]['AskClose']-(df.iloc[-2]['tenkan_avg']-df.iloc[-2]['AskClose'])
         if (tp-open_price) / (open_price - sl)>=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
-                type_signal = ' BUY TENDANCE ratio: '+ str((tp-open_price) / (open_price - sl))
+                type_signal = ' BUY rsi ratio: '+ str((tp-open_price) / (open_price - sl))
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -875,44 +756,74 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
             except Exception as e:
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
-    # BUY OPPOSITE
-    if df.iloc[-2]['AskHigh'] > min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['kijun_avg'] > min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']) \
-        and df.iloc[-2]['tenkan_avg'] > min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
-        and min(df.iloc[-wait_time:-2]['rsi']) < 40 \
-        and candle_2 > 0 \
-        and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['kijun_avg'] >= df.iloc[-3]['kijun_avg'] \
-        and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['AskClose'] \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['tenkan_avg'] \
-        and df.iloc[-27]['chikou'] < df.iloc[-27]['kijun_avg'] \
-        and df.iloc[-2]['tenkan_avg'] >= df.iloc[-3]['tenkan_avg']\
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg']:
-        sl = min(df.iloc[-window_of_interest-5:-2-5]['AskLow'])-margin
+    #SELL
+    elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])\
+        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
         tp = df.iloc[-2]['kijun_avg']
-        #type_signal = ' BUY OPPOSITE ratio: ' + str((tp - open_price) / (open_price - sl))
-        if (tp-open_price) / (open_price - sl)>2 and (open_price - sl) > (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow']):
+        sl = df.iloc[-2]['AskClose']+(df.iloc[-2]['AskClose']-df.iloc[-2]['tenkan_avg'])
+        if (open_price- tp)/(sl - open_price)>2:
+            try:
+                amount = set_amount(int(Dict['amount']), dj)
+                type_signal = ' Sell rsi ratio: '+ str((open_price- tp)/(sl - open_price))
+                request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=fxcorepy.Constants.SELL,
+                    AMOUNT=amount,
+                    SYMBOL=tick,
+                    RATE_STOP=sl+margin,
+                    RATE_LIMIT=tp+margin,
+                )
+                fx.send_request(request)
+            except Exception as e:
+                type_signal = type_signal + ' not working for ' + str(e)
+
+    if df.iloc[-2]['Signal'] == 1:
+        tp = df.iloc[-2]['AskClose']+20*margin
+        sl = df.iloc[-2]['AskClose']-10*margin
+        if (tp-open_price) / (open_price - sl)>=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
-                type_signal = ' BUY OPPOSITE ratio: '+ str((tp-open_price) / (open_price - sl))
+                type_signal = ' BUY mean ratio: '+ str((tp-open_price) / (open_price - sl))
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
                     BUY_SELL=fxcorepy.Constants.BUY,
                     AMOUNT=amount,
                     SYMBOL=tick,
-                    RATE_STOP=sl-margin,
-                    RATE_LIMIT=tp-margin,
+                    RATE_STOP=sl,
+                    RATE_LIMIT=tp,
                 )
                 fx.send_request(request)
             except Exception as e:
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
-
-    return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
-
-def close_trade(df, fx, tick,dj):
+    #SELL
+    elif df.iloc[-2]['Signal'] == -1:
+        tp = df.iloc[-2]['AskClose']-20*margin
+        sl = df.iloc[-2]['AskClose']+10*margin
+        if (open_price- tp)/(sl - open_price)>2:
+            try:
+                amount = set_amount(int(Dict['amount']), dj)
+                type_signal = ' Sell mean ratio: '+ str((open_price- tp)/(sl - open_price))
+                request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=fxcorepy.Constants.SELL,
+                    AMOUNT=amount,
+                    SYMBOL=tick,
+                    RATE_STOP=sl,
+                    RATE_LIMIT=tp,
+                )
+                fx.send_request(request)
+            except Exception as e:
+                type_signal = type_signal + ' not working for ' + str(e)
+     
+    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+                    
+def close_trade(df, fx, tick,dj,l0):
     try:
         open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][
             0]
@@ -924,18 +835,18 @@ def close_trade(df, fx, tick,dj):
     box_def = False
     high_box = 0
     low_box = 0
-    df = analysis(df, open_rev_index)
+    df = analysis(df, open_rev_index,tick)
     tp = dj.loc[0,'tick_limit']
     sl = dj.loc[0,'tick_stop']
     offer = Common.get_offer(fx, tick)
     buy = fxcorepy.Constants.BUY
     sell = fxcorepy.Constants.SELL
     buy_sell = sell if dj.loc[0,'tick_type'] == buy else buy
-    order_id = None
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen'])/(df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
-    candle_3 = (df.iloc[-3]['AskClose'] - df.iloc[-3]['AskOpen']) / (df.iloc[-3]['AskHigh'] - df.iloc[-3]['AskLow'])
-    candle_4 = (df.iloc[-4]['AskClose'] - df.iloc[-4]['AskOpen']) / (df.iloc[-4]['AskHigh'] - df.iloc[-4]['AskLow'])
     current_ratio = (price - open_price) / (open_price - sl)
+    window_of_interest=27
+    margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
+        df.iloc[-window_of_interest:-2]['AskLow'])))
 
     if df['ychannelmin'].dropna().size != 0:
         # if market was in range
@@ -943,41 +854,42 @@ def close_trade(df, fx, tick,dj):
                 print('open_rev_index too small')
         else:
             # if was buy
+            if l0==1 and Dict['instrument'][l0]['day_close'] == int(datetime.now().strftime("%d")) and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
+                try:
+                    type_signal = ' Close Forex for End of day trading ' + str(current_ratio)
+                    request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                    OFFER_ID=offer.offer_id,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=buy_sell,
+                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                    TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if l0>1 and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
+                try:
+                    type_signal = ' Close for End of day trading ' + str(current_ratio)
+                    request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                    OFFER_ID=offer.offer_id,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=buy_sell,
+                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                    TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
             if dj.loc[0,'tick_type'] == 'B':
                 if (df.iloc[-2]['signal'] > df.iloc[-2]['macd'] and candle_2 <-0.1):
                     try:
-                        type_signal = ' Buy : Close for Signal higher than MACD ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0,'tick_amount']),
-                            TRADE_ID=dj.loc[0,'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if (df.iloc[-2]['macd'] < df.iloc[-3]['macd'] and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg']):
-                    try:
-                        type_signal = ' Buy : Close for Price below tenkan  ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0,'tick_amount']),
-                            TRADE_ID=dj.loc[0,'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if (abs(df.iloc[-2]['delta']) < abs(df.iloc[-3]['delta']) and df.iloc[-2]['AskClose'] < df.iloc[-3]['AskClose']):
-                    try:
-                        type_signal = ' Buy : Adjust for stalling ' + str(current_ratio)
-                        sl = df.iloc[-2]['AskLow']
+                        type_signal = ' Buy : adjust for Signal higher than MACD ' + str(current_ratio)
+                        sl = df.iloc[-2]['AskLow']-margin
+                        tp = df.iloc[-2]['AskHigh']+margin
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -987,49 +899,101 @@ def close_trade(df, fx, tick,dj):
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
                             TRADE_ID=dj.loc[0, 'tick_id'],
                             RATE=sl,
+                            RATE_LIMIT=tp,
                             ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
+                if df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg']:
+                    try:
+                        type_signal = ' Buy : adjust for higher than tenkan ' + str(current_ratio)
+                        sl = df.iloc[-3]['AskLow']-margin
+                        
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                        
+                            ORDER_ID=dj.loc[0, 'order_stop_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+                if (abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['AskClose'] < df.iloc[-3]['AskClose']):
+                    if current_ratio>0.2:
+                        try:
+                            type_signal = ' Buy : Close for stalling and positive  ' + str(current_ratio)
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id']
+                            )
+                            resp = fx.send_request(request)
+                        except Exception as e:
+                            type_signal = type_signal + ' not working for ' + str(e)
+                            pass
+                    elif (abs(df.iloc[-3]['Delta']) < abs(df.iloc[-4]['Delta']) and df.iloc[-3]['AskClose'] > df.iloc[-4]['AskClose']):
+                        try:
+                            type_signal = ' Buy : Adjust for stalling ' + str(current_ratio)
+                            sl = df.iloc[-2]['AskLow']-margin
+                            tp = df.iloc[-2]['AskHigh']+margin
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.LIMIT,
+                                command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id'],
+                                RATE=sl,
+                                RATE_LIMIT=tp,
+                                ORDER_ID=dj.loc[0, 'order_stop_id']
+                            )
+                            resp = fx.send_request(request)
+                        except Exception as e:
+                            type_signal = type_signal + ' not working for ' + str(e)
+                            pass
             # if was sell
             if dj.loc[0,'tick_type'] == 'S':
                 # signal cross macd sell
                 if (df.iloc[-2]['signal'] < df.iloc[-2]['macd'] and candle_2>0.1):
                     try:
-                        type_signal = ' Sell : Close for Signal MACD ' + str(current_ratio)
+                        type_signal = ' adjust : Close for Signal MACD ' + str(current_ratio)
+                        sl = df.iloc[-2]['AskHigh']+margin
+                        tp = df.iloc[-2]['AskLow']-margin
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0,'tick_id']
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                            RATE_LIMIT=tp,
+                            ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
+                        
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if  (df.iloc[-2]['macd'] > df.iloc[-3]['macd'] and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg']):
+                if df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg']:
                     try:
-                        type_signal = ' Sell : Close for Price above tenkan  ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0,'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if (abs(df.iloc[-2]['delta']) < abs(df.iloc[-3]['delta']) and df.iloc[-2]['AskClose'] > df.iloc[-3]['AskClose']):
-                    try:
-                        type_signal = ' Sell : Adjust for stalling ' + str(current_ratio)
-                        sl = df.iloc[-2]['AskHigh']
+                        type_signal = ' adjust : Close for Signal MACD ' + str(current_ratio)
+                        sl = df.iloc[-3]['AskHigh']+margin
+                        
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -1041,54 +1005,185 @@ def close_trade(df, fx, tick,dj):
                             RATE=sl,
                             ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
+                        
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
+                if (abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['AskClose'] > df.iloc[-3]['AskClose']):
+                    if current_ratio > 0.2:
+                        try:
+                            type_signal = ' Sell : Close for stalling and positive ' + str(current_ratio)
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id']
+                            )
+                            resp = fx.send_request(request)
+                        except Exception as e:
+                            type_signal = type_signal + ' not working for ' + str(e)
+                            pass
+                    elif (abs(df.iloc[-3]['Delta']) < abs(df.iloc[-4]['Delta']) and df.iloc[-3]['AskClose'] > df.iloc[-4]['AskClose']):
+                        try:
+                            type_signal = ' Sell : Adjust for stalling ' + str(current_ratio)
+                            sl = df.iloc[-2]['AskHigh']+2*margin
+                            tp = df.iloc[-2]['AskLow']-2*margin
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.LIMIT,
+                                command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id'],
+                                RATE=sl,
+                                RATE_LIMIT=tp,
+                                ORDER_ID=dj.loc[0, 'order_stop_id']
+                            )
+                            resp = fx.send_request(request)
+                        except Exception as e:
+                            type_signal = type_signal + ' not working for ' + str(e)
+                            pass
             # if now in range --> Sell
-    return df, tick, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+
+def rsi_algorithm(data,tick):
+    def sendemail(attach, subject_mail, body_mail):
+        fromaddr = 'sanpexos@hotmail.com'
+        toaddr = 'paul.pelluchon.doc@gmail.com'
+        password = '@c<Md5&$gzGNU<('
+
+        # instance of MIMEMultipart
+        msg = MIMEMultipart()
+        # storing the senders email address
+        msg['From'] = fromaddr
+        # storing the receivers email address
+        msg['To'] = toaddr
+        # storing the subject
+        msg['Subject'] = subject_mail
+        # string to store the body of the mail
+        body = body_mail
+        # attach the body with the msg instance
+        msg.attach(MIMEText(body, 'plain'))
+        # open the file to be sent
+        filename = attach
+        attachment = open(attach, 'rb')
+        # instance of MIMEBase and named as p
+        p = MIMEBase('application', 'octet-stream')
+        # To change the payload into encoded form
+        p.set_payload((attachment).read())
+        # encode into base64
+        encoders.encode_base64(p)
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+        # attach the instance 'p' to instance 'msg'
+        msg.attach(p)
+        # creates SMTP session
+        s = smtplib.SMTP("smtp.office365.com", 587)
+        # start TLS for security
+        s.starttls()
+        # Authentication
+        s.login(fromaddr, password)
+        # Converts the Multipart msg into a string
+        text = msg.as_string()
+        # sending the mail
+        s.sendmail(fromaddr, toaddr, text)
+        # terminating the session
+        s.quit()
+        
+    from sklearn.model_selection import train_test_split, cross_val_score
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import accuracy_score
+
+    # Prepare the data
+    features = data[['AskOpen', 'AskHigh', 'AskLow', 'AskClose', 'Volume']]
+    labels = tick
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+    # Scale the features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create and train the machine learning model with hyperparameter tuning
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    cross_val_scores = cross_val_score(model, X_train_scaled, y_train, cv=5)  # Cross-validation
+    model.fit(X_train_scaled, y_train)
+
+    # Make predictions on the test set
+    predictions = model.predict(X_test_scaled)
+
+    # Evaluate the model
+    accuracy = accuracy_score(y_test, predictions)
+    print(f"Accuracy: {accuracy}")
+    print(f"Cross-Validation Scores: {cross_val_scores}")
+        
+    #try:
+    #     sendemail(attach='rsi_algorithm.png', subject_mail=str(tick), body_mail=str(tick) + 'rsi_algorithm.png')
+    #except Exception as e:
+    #    print("issue with mails for " + tick)
+    #    print("Exception: " + str(e))
 
 def main():
-    currentDateAndTime = datetime.now()
-
-    print(str(currentDateAndTime.strftime("%H:%M:%S")))
+    print(str(datetime.now().strftime("%H:%M:%S")))
     with ForexConnect() as fx:
-        try:
-            fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
-                     Dict['FXCM']['str_connection'], Dict['FXCM']['str_session_id'], Dict['FXCM']['str_pin'],
-                     session_status_callback=session_status_changed)
-            login_rules = fx.login_rules
-            trading_settings_provider = login_rules.trading_settings_provider
+        #try:
+        fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
+                 Dict['FXCM']['str_connection'], Dict['FXCM']['str_session_id'], Dict['FXCM']['str_pin'],
+                 session_status_callback=session_status_changed)
+        login_rules = fx.login_rules
+        trading_settings_provider = login_rules.trading_settings_provider
+        for l0 in range(1,len(Dict['instrument'])):
+            FX = Dict['instrument'][l0]['FX']
+            
             for l1 in range(0, len(FX)):
-                #hours = fx.getTradingHours(FX[l1])
                 if trading_settings_provider.get_market_status(FX[l1])==fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
+                    tick=FX[l1]
                     print(FX[l1])
                     #H1
-                    df = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                    df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
                     if len(df) < 7*5*3:
                         df = pd.DataFrame(
                             fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6), Dict['indicators']['ed']))
                     # If there is history data
                     # Add all the indicators needed
+
+                    window_of_interest=27
+                    margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
+                    df.iloc[-window_of_interest:-2]['AskLow'])))
+                    
+                        
                     df = indicators(df)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
-                        df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
-                            open_trade(df, fx, FX[l1],trading_settings_provider,dj)
+                        if df.iloc[-2]['AskHigh']+margin>df.iloc[-3]['AskLow']:
+                            if l0 == 1 and int(datetime.now().strftime("%d")) == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                                print('forex not hour')
+                            elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                                print('other not hour')
+                            else:
+                                df, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                                    open_trade(df, fx, FX[l1],trading_settings_provider,dj)
+                                df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
-                        df, tick, type_signal, index, box_def, high_box, low_box, tp, sl = \
-                            close_trade(df, fx, FX[l1], dj)
-                    df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
-
-        except Exception as e:
-            print("Exception: " + str(e))
-        try:
-            fx.logout()
-        except Exception as e:
-            print("Exception: " + str(e))
+                        df, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                            close_trade(df, fx, FX[l1], dj,l0)
+                        df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
+                        #rsi_algorithm(df,FX[l1])
+            # except Exception as e:
+            #     print("Exception: " + str(e))
+            # try:
+            #     fx.logout()
+            # except Exception as e:
+            #     print("Exception: " + str(e))
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
