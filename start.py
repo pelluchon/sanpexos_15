@@ -706,18 +706,19 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     tp = 0
     sl = 0
     df = analysis(df, open_rev_index,tick)
-    window_of_interest=27
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(df.iloc[-window_of_interest:-2]['AskLow'])))
-    open_price = df.iloc[-2]['AskClose']
     #BUY
     if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['macd'] < 0 \
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['kijun_avg']\
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
         and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-        tp = df.iloc[-2]['kijun_avg']
-        sl = df.iloc[-2]['AskClose']-(df.iloc[-2]['tenkan_avg']-df.iloc[-2]['AskClose'])
-        if (tp-open_price) / (open_price - sl)>=2:
+        min_gain=(df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])
+        if min_gain>=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
                 type_signal = ' BUY rsi ratio: '+ str((tp-open_price) / (open_price - sl))
@@ -727,8 +728,6 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     BUY_SELL=fxcorepy.Constants.BUY,
                     AMOUNT=amount,
                     SYMBOL=tick,
-                    RATE_STOP=sl-margin,
-                    RATE_LIMIT=tp-margin,
                 )
                 fx.send_request(request)
             except Exception as e:
@@ -738,10 +737,13 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])\
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['macd'] > 0 \
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['kijun_avg']\
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
         and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-        tp = df.iloc[-2]['kijun_avg']
-        sl = df.iloc[-2]['AskClose']+(df.iloc[-2]['AskClose']-df.iloc[-2]['tenkan_avg'])
-        if (open_price- tp)/(sl - open_price)>2:
+        min_gain=(df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose'])
+        if min_gain >= 2:
             try:
                 amount = set_amount(int(Dict['amount']), dj)
                 type_signal = ' Sell rsi ratio: '+ str((open_price- tp)/(sl - open_price))
@@ -751,49 +753,6 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     BUY_SELL=fxcorepy.Constants.SELL,
                     AMOUNT=amount,
                     SYMBOL=tick,
-                    RATE_STOP=sl+margin,
-                    RATE_LIMIT=tp+margin,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
-
-    if df.iloc[-2]['Signal'] == 1:
-        tp = df.iloc[-2]['AskClose']+20*margin
-        sl = df.iloc[-2]['AskClose']-10*margin
-        if (tp-open_price) / (open_price - sl)>=2:
-            try:
-                amount=set_amount(int(Dict['amount']), dj)
-                type_signal = ' BUY mean ratio: '+ str((tp-open_price) / (open_price - sl))
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.BUY,
-                    AMOUNT=amount,
-                    SYMBOL=tick,
-                    RATE_STOP=sl,
-                    RATE_LIMIT=tp,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
-                pass
-    #SELL
-    elif df.iloc[-2]['Signal'] == -1:
-        tp = df.iloc[-2]['AskClose']-20*margin
-        sl = df.iloc[-2]['AskClose']+10*margin
-        if (open_price- tp)/(sl - open_price)>2:
-            try:
-                amount = set_amount(int(Dict['amount']), dj)
-                type_signal = ' Sell mean ratio: '+ str((open_price- tp)/(sl - open_price))
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=amount,
-                    SYMBOL=tick,
-                    RATE_STOP=sl,
-                    RATE_LIMIT=tp,
                 )
                 fx.send_request(request)
             except Exception as e:
@@ -803,8 +762,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     
 def close_trade(df, fx, tick,dj,l0):
     try:
-        open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][
-            0]
+        open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][0]
     except:
         open_rev_index = 1
     type_signal = 'No'
@@ -831,201 +789,71 @@ def close_trade(df, fx, tick,dj,l0):
         if open_rev_index<1:
                 print('open_rev_index too small')
         else:
-            # if was buy
-            if l0==1 and Dict['instrument'][l0]['day_close'] == date.weekday() and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
-                try:
-                    type_signal = ' Close Forex for End of day trading ' + str(current_ratio)
-                    request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                    OFFER_ID=offer.offer_id,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=buy_sell,
-                    AMOUNT=int(dj.loc[0, 'tick_amount']),
-                    TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if l0>1 and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
-                try:
-                    type_signal = ' Close for End of day trading ' + str(current_ratio)
-                    request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                    OFFER_ID=offer.offer_id,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=buy_sell,
-                    AMOUNT=int(dj.loc[0, 'tick_amount']),
-                    TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
+            #BUY CONDIDITIONS
             if dj.loc[0,'tick_type'] == 'B':
-                if (df.iloc[-2]['signal'] > df.iloc[-2]['macd'] and candle_2 <-0.1):
+                if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] > 0 :
                     try:
-                        type_signal = ' Buy : adjust for Signal higher than MACD ' + str(current_ratio)
-                        sl = df.iloc[-2]['AskLow']-margin
-                        tp = df.iloc[-2]['AskHigh']+margin
+                        type_signal = ' Buy : Close for RSI above 70 ' + str(current_ratio)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            RATE_LIMIT=tp,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
+                            TRADE_ID=dj.loc[0, 'tick_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg']:
+                if df.iloc[-2]['macd'] < df.iloc[-2]['signal']  :
                     try:
-                        type_signal = ' Buy : adjust for higher than tenkan ' + str(current_ratio)
-                        sl = df.iloc[-3]['AskLow']-margin
-                        
+                        type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                        
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
+                            TRADE_ID=dj.loc[0, 'tick_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if (abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['AskClose'] < df.iloc[-3]['AskClose']):
-                    if current_ratio>0.2:
-                        try:
-                            type_signal = ' Buy : Close for stalling and positive  ' + str(current_ratio)
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id']
-                            )
-                            resp = fx.send_request(request)
-                        except Exception as e:
-                            type_signal = type_signal + ' not working for ' + str(e)
-                            pass
-                    elif (abs(df.iloc[-3]['Delta']) < abs(df.iloc[-4]['Delta']) and df.iloc[-3]['AskClose'] > df.iloc[-4]['AskClose']):
-                        try:
-                            type_signal = ' Buy : Adjust for stalling ' + str(current_ratio)
-                            sl = df.iloc[-2]['AskLow']-margin
-                            tp = df.iloc[-2]['AskHigh']+margin
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.LIMIT,
-                                command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id'],
-                                RATE=sl,
-                                RATE_LIMIT=tp,
-                                ORDER_ID=dj.loc[0, 'order_stop_id']
-                            )
-                            resp = fx.send_request(request)
-                        except Exception as e:
-                            type_signal = type_signal + ' not working for ' + str(e)
-                            pass
             # if was sell
             if dj.loc[0,'tick_type'] == 'S':
-                # signal cross macd sell
-                if (df.iloc[-2]['signal'] < df.iloc[-2]['macd'] and candle_2>0.1):
+                if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] < 0  :
                     try:
-                        type_signal = ' adjust : Close for Signal MACD ' + str(current_ratio)
-                        sl = df.iloc[-2]['AskHigh']+margin
-                        tp = df.iloc[-2]['AskLow']-margin
+                        type_signal = ' Sell : Close for RSI below 30 ' + str(current_ratio)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            RATE_LIMIT=tp,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
+                            TRADE_ID=dj.loc[0, 'tick_id']
                         )
-                        
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg']:
+                if df.iloc[-2]['macd'] > df.iloc[-2]['signal']  :
                     try:
-                        type_signal = ' adjust : Close for Signal MACD ' + str(current_ratio)
-                        sl = df.iloc[-3]['AskHigh']+margin
-                        
+                        type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
+                            TRADE_ID=dj.loc[0, 'tick_id']
                         )
-                        
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if (abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['AskClose'] > df.iloc[-3]['AskClose']):
-                    if current_ratio > 0.2:
-                        try:
-                            type_signal = ' Sell : Close for stalling and positive ' + str(current_ratio)
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id']
-                            )
-                            resp = fx.send_request(request)
-                        except Exception as e:
-                            type_signal = type_signal + ' not working for ' + str(e)
-                            pass
-                    elif (abs(df.iloc[-3]['Delta']) < abs(df.iloc[-4]['Delta']) and df.iloc[-3]['AskClose'] > df.iloc[-4]['AskClose']):
-                        try:
-                            type_signal = ' Sell : Adjust for stalling ' + str(current_ratio)
-                            sl = df.iloc[-2]['AskHigh']+2*margin
-                            tp = df.iloc[-2]['AskLow']-2*margin
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.LIMIT,
-                                command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id'],
-                                RATE=sl,
-                                RATE_LIMIT=tp,
-                                ORDER_ID=dj.loc[0, 'order_stop_id']
-                            )
-                            resp = fx.send_request(request)
-                        except Exception as e:
-                            type_signal = type_signal + ' not working for ' + str(e)
-                            pass
-            # if now in range --> Sell
+
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
 
 def rsi_algorithm(data,tick):
