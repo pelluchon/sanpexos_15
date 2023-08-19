@@ -623,13 +623,15 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
         ax2.set(xlabel=None)
-
+        
+        ###AX3
         ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
-        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
+        ax3.bar(df.index[-min_x:], df['Signal'][-min_x:], color='red')
+        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:],df['Signal'][-min_x:]), np.nanmax(df['Delta'][-min_x:],df['Signal'][-min_x:]))
         ax3.grid()
         ax3.set(xlabel=None)
 
-        ###AX3
+        ###AX4
         ax4.plot(df.index[-min_x:], df['rsi'][-min_x:], color='black')
         ax4.axhline(y=30, color='grey', linestyle='-.')
         ax4.axhline(y=70, color='grey', linestyle='-.')
