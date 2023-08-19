@@ -40,8 +40,8 @@ Dict = {
         1:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
             'hour_close':21,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
+            'day_open':6, # 6 is Sunday
+            'day_close':4, # 4 is Friday
             'FX':['AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
       'CAD/CHF', 'CAD/JPY', 'CHF/JPY',
       'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY',
@@ -60,8 +60,6 @@ Dict = {
         2:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
             'hour_close':6,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':[
       'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
       'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
@@ -71,8 +69,6 @@ Dict = {
         3:{
             'hour_open': 7,#opening time in UTC (for midnight put 24)
             'hour_close':15,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
       'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
       'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
@@ -81,8 +77,6 @@ Dict = {
         4:{
             'hour_open': 14,#opening time in UTC (for midnight put 24)
             'hour_close':20,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
       'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
       'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
@@ -101,8 +95,6 @@ Dict = {
         5:{
             'hour_open': 2,#opening time in UTC (for midnight put 24)
             'hour_close':8,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
       'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
       'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
@@ -112,8 +104,6 @@ Dict = {
         6:{
             'hour_open': 7,#opening time in UTC (for midnight put 24)
             'hour_close':15,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
       'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
       'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
@@ -121,8 +111,6 @@ Dict = {
         7:{
             'hour_open': 7,#opening time in UTC (for midnight put 24)
             'hour_close':15,#closing time in UTC
-            'day_open':1, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
       'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
       'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
@@ -131,36 +119,26 @@ Dict = {
         8:{
             'hour_open': 6,#opening time in UTC (for midnight put 24)
             'hour_close':20,#closing time in UTC
-            'day_open':7, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['EUSTX50','FRA40']},
 
         9:{
             'hour_open': 6,#opening time in UTC (for midnight put 24)
             'hour_close':18,#closing time in UTC
-            'day_open':7, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['ESP35','Bund']},
 
         10:{
             'hour_open': 1,#opening time in UTC (for midnight put 24)
             'hour_close':19,#closing time in UTC
-            'day_open':7, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['GER30','HKG33','CHN50','UK100']},
 
         11:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
             'hour_close':18,#closing time in UTC
-            'day_open':7, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['SOYF', 'WHEATF','CORNF']},
 
         12:{
             'hour_open': 14,#opening time in UTC (for midnight put 24)
             'hour_close':20,#closing time in UTC
-            'day_open':7, # 7 is Sunday
-            'day_close':5, #5 is Friday
             'FX':['ESPORTS', 'BIOTECH','FAANG',
                   'CHN.TECH', 'CHN.ECOMM',
                   'AIRLINES','CASINOS', 
@@ -854,7 +832,7 @@ def close_trade(df, fx, tick,dj,l0):
                 print('open_rev_index too small')
         else:
             # if was buy
-            if l0==1 and Dict['instrument'][l0]['day_close'] == int(datetime.now().strftime("%d")) and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
+            if l0==1 and Dict['instrument'][l0]['day_close'] == date.weekday() and Dict['instrument'][l0]['hour_close'] == int(datetime.now().strftime("%H"))-1 and current_ratio >0.05:
                 try:
                     type_signal = ' Close Forex for End of day trading ' + str(current_ratio)
                     request = fx.create_order_request(
@@ -1164,9 +1142,9 @@ def main():
                     # if status not open then check if to open
                     if open_pos_status == 'No':
                         if df.iloc[-2]['AskHigh']+margin>df.iloc[-3]['AskLow']:
-                            if l0 == 1 and int(datetime.now().strftime("%d")) == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                            if l0 == 1 and date.weekday() == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('forex not hour')
-                            elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                            elif l0 > 1 and date.weekday() < Dict['instrument'][l0]['hour_open']:
                                 print('other not hour')
                             else:
                                 df, type_signal, index, box_def, high_box, low_box, tp, sl = \
