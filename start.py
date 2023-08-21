@@ -627,7 +627,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         ###AX3
         ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
         ax3.bar(df.index[-min_x:], df['Signal'][-min_x:], color='red')
-        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:],df['Signal'][-min_x:]), np.nanmax(df['Delta'][-min_x:],df['Signal'][-min_x:]))
+        ax3.set_ylim(min(np.nanmin(df['Delta'][-min_x:]),np.nanmin(df['Signal'][-min_x:])), max(np.nanmax(df['Delta'][-min_x:]),np.nanmax(df['Signal'][-min_x:])))
         ax3.grid()
         ax3.set(xlabel=None)
 
@@ -709,7 +709,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     sl = 0
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
-    margin = abs(0.2 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(df.iloc[-window_of_interest:-2]['AskLow'])))
+    margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
     #BUY
     if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
     and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
@@ -719,11 +719,11 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
     and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
     and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-        min_gain=float((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow']))
+        min_gain=float((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])))
         if min_gain >= 2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
-                type_signal = ' BUY rsi ratio: '+ str((tp-open_price) / (open_price - sl))
+                type_signal = ' BUY rsi ratio: '+ str(min_gain)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -748,7 +748,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         if min_gain >= 2:
             try:
                 amount = set_amount(int(Dict['amount']), dj)
-                type_signal = ' Sell rsi ratio: '+ str((open_price- tp)/(sl - open_price))
+                type_signal = ' Sell rsi ratio: '+ str(min_gain)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -972,9 +972,9 @@ def main():
                     # if status not open then check if to open
                     if open_pos_status == 'No':
                         if df.iloc[-2]['AskHigh']+margin>df.iloc[-3]['AskLow']:
-                            if l0 == 1 and date.weekday() == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('forex not hour')
-                            elif l0 > 1 and date.weekday() < Dict['instrument'][l0]['hour_open']:
+                            elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('other not hour')
                             else:
                                 df, type_signal, index, box_def, high_box, low_box, tp, sl = \
