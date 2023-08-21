@@ -712,53 +712,53 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     margin = abs(0.2 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(df.iloc[-window_of_interest:-2]['AskLow'])))
     #BUY
     if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-        and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['macd'] < 0 \
-        and df.iloc[-27]['chikou'] <  df.iloc[-27]['kijun_avg']\
-        and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
-        and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
-        and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-            min_gain=(df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])
-            if min_gain > 2:
-                try:
-                    amount=set_amount(int(Dict['amount']), dj)
-                    type_signal = ' BUY rsi ratio: '+ str((tp-open_price) / (open_price - sl))
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=fxcorepy.Constants.BUY,
-                        AMOUNT=amount,
-                        SYMBOL=tick,
-                    )
-                    fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
+    and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+    and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+    and df.iloc[-2]['macd'] < 0 \
+    and df.iloc[-27]['chikou'] <  df.iloc[-27]['kijun_avg']\
+    and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
+    and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
+    and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
+        min_gain=float((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow']))
+        if min_gain >= 2:
+            try:
+                amount=set_amount(int(Dict['amount']), dj)
+                type_signal = ' BUY rsi ratio: '+ str((tp-open_price) / (open_price - sl))
+                request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=fxcorepy.Constants.BUY,
+                    AMOUNT=amount,
+                    SYMBOL=tick,
+                )
+                fx.send_request(request)
+            except Exception as e:
+                type_signal = type_signal + ' not working for ' + str(e)
+                pass
     #SELL
-    elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])\
-        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-        and df.iloc[-2]['macd'] > 0 \
-        and df.iloc[-27]['chikou'] >  df.iloc[-27]['kijun_avg']\
-        and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
-        and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
-        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-            min_gain=(df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose'])
-            if min_gain > 2:
-                try:
-                    amount = set_amount(int(Dict['amount']), dj)
-                    type_signal = ' Sell rsi ratio: '+ str((open_price- tp)/(sl - open_price))
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=fxcorepy.Constants.SELL,
-                        AMOUNT=amount,
-                        SYMBOL=tick,
-                    )
-                    fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
+    elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+    and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+    and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+    and df.iloc[-2]['macd'] > 0 \
+    and df.iloc[-27]['chikou'] >  df.iloc[-27]['kijun_avg']\
+    and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
+    and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
+    and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
+        min_gain=float((df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose']))
+        if min_gain >= 2:
+            try:
+                amount = set_amount(int(Dict['amount']), dj)
+                type_signal = ' Sell rsi ratio: '+ str((open_price- tp)/(sl - open_price))
+                request = fx.create_order_request(
+                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                    BUY_SELL=fxcorepy.Constants.SELL,
+                    AMOUNT=amount,
+                    SYMBOL=tick,
+                )
+                fx.send_request(request)
+            except Exception as e:
+                type_signal = type_signal + ' not working for ' + str(e)
      
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
                     
