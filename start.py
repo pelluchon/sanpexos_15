@@ -786,6 +786,7 @@ def close_trade(df, fx, tick,dj,l0):
     margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
         df.iloc[-window_of_interest:-2]['AskLow'])))
 
+
     if df['ychannelmin'].dropna().size != 0:
         # if market was in range
         if open_rev_index<1:
@@ -793,7 +794,7 @@ def close_trade(df, fx, tick,dj,l0):
         else:
             #BUY CONDIDITIONS
             if dj.loc[0,'tick_type'] == 'B':
-                if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] > 0 :
+                if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] > 0:
                     try:
                         type_signal = ' Buy : Close for RSI above 70 ' + str(current_ratio)
                         request = fx.create_order_request(
@@ -808,7 +809,7 @@ def close_trade(df, fx, tick,dj,l0):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if df.iloc[-2]['macd'] < df.iloc[-2]['signal']  :
+                if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['AskLow'] < :
                     try:
                         type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
                         request = fx.create_order_request(
@@ -825,7 +826,7 @@ def close_trade(df, fx, tick,dj,l0):
                         pass
             # if was sell
             if dj.loc[0,'tick_type'] == 'S':
-                if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] < 0  :
+                if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] < 0:
                     try:
                         type_signal = ' Sell : Close for RSI below 30 ' + str(current_ratio)
                         request = fx.create_order_request(
@@ -840,7 +841,7 @@ def close_trade(df, fx, tick,dj,l0):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if df.iloc[-2]['macd'] > df.iloc[-2]['signal']  :
+                if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['macd'] < 0:
                     try:
                         type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
                         request = fx.create_order_request(
