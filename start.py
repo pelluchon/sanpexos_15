@@ -626,8 +626,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         
         ###AX3
         ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
-        ax3.bar(df.index[-min_x:], df['Signal'][-min_x:], color='red')
-        ax3.set_ylim(min(np.nanmin(df['Delta'][-min_x:]),np.nanmin(df['Signal'][-min_x:])), max(np.nanmax(df['Delta'][-min_x:]),np.nanmax(df['Signal'][-min_x:])))
+        ax3_0=ax3.twinx()
+        ax3_0.bar(df.index[-min_x:], df['Signal'][-min_x:], color='red')
+        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
         ax3.grid()
         ax3.set(xlabel=None)
 
@@ -710,6 +711,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
+    df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose']
+
     #BUY
     if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
     and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
@@ -719,11 +722,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
     and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
     and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-        min_gain=float((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])))
-        if min_gain >= 2:
+        min_gain=round((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])),2)
+        min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
+        if min_gain >= 2 and min_entry >=2:
             try:
                 amount=set_amount(int(Dict['amount']), dj)
-                type_signal = ' BUY rsi ratio: '+ str(min_gain)
+                type_signal = ' BUY rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -744,11 +748,13 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
     and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
     and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
-        min_gain=float((df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose']))
-        if min_gain >= 2:
+        min_gain=round((df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose']),2)
+        min_entry = round((max(df.iloc[-27:-2]['AskHigh'])-df.iloc[-2]['kijun_avg']) / (
+            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
+        if min_gain >= 2 and min_entry >=2:
             try:
                 amount = set_amount(int(Dict['amount']), dj)
-                type_signal = ' Sell rsi ratio: '+ str(min_gain)
+                type_signal = ' Sell rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
