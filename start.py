@@ -799,157 +799,155 @@ def close_trade(df, fx, tick,dj,l0):
         df.iloc[-window_of_interest:-2]['AskLow'])))
 
 
-    if df['ychannelmin'].dropna().size != 0:
-        # if market was in range
-        if open_rev_index<1:
-                print('open_rev_index too small')
-        else:
+    if open_rev_index<1:
+            print('open_rev_index too small')
+    else:
 
 
-            #BUY CONDIDITIONS
-            if dj.loc[0,'tick_type'] == 'B':
-                # END OF DAY CONDITIONS
-                if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
-                        int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
-                    try:
-                        type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                        sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
-                    try:
-                        type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                        sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] > 0:
-                    try:
-                        type_signal = ' Buy : Close for RSI above 70 ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['macd'] > 0:
-                    try:
-                        type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-            # if was sell
-            if dj.loc[0,'tick_type'] == 'S':
-                # END OF DAY CONDITIONS
-                if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
-                        int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
-                    try:
-                        type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                        sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
-                    try:
-                        type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                        sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.EDIT_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            ORDER_ID=dj.loc[0, 'order_stop_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] < 0:
-                    try:
-                        type_signal = ' Sell : Close for RSI below 30 ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-                if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['macd'] < 0:
-                    try:
-                        type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+        #BUY CONDIDITIONS
+        if dj.loc[0,'tick_type'] == 'B':
+            # END OF DAY CONDITIONS
+            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
+                    int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
+                try:
+                    type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
+                    sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
+                try:
+                    type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
+                    sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] > 0:
+                try:
+                    type_signal = ' Buy : Close for RSI above 60 ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['macd'] > 0:
+                try:
+                    type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+        # if was sell
+        if dj.loc[0,'tick_type'] == 'S':
+            # END OF DAY CONDITIONS
+            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
+                    int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
+                try:
+                    type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
+                    sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
+                try:
+                    type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
+                    sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) and df.iloc[-2]['macd'] < 0:
+                try:
+                    type_signal = ' Sell : Close for RSI below 40 ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['macd'] < 0:
+                try:
+                    type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
 
