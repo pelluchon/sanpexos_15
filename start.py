@@ -573,8 +573,10 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         ax1.plot(df.index[-min_x:], df['senkou_a'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
-        ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
-        ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
+        if tp != 0:
+            ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
+        if sl != 0:
+            ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.plot([df.loc[3, 'slope'],df.loc[4, 'slope']],[df.loc[1, 'slope'],df.loc[2, 'slope']],linewidth=2, color= 'yellow', marker='s')
