@@ -811,7 +811,7 @@ def close_trade(df, fx, tick,dj,l0):
                     int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
                     type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                    sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
+                    sl = min(df.iloc[-open_rev_index:-1]['AskLow']) - margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -830,7 +830,7 @@ def close_trade(df, fx, tick,dj,l0):
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
                     type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                    sl = df.iloc[-open_rev_index:-2]['AskLow'] - margin
+                    sl = min(df.iloc[-open_rev_index:-1]['AskLow']) - margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -883,7 +883,7 @@ def close_trade(df, fx, tick,dj,l0):
                     int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
                     type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                    sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
+                    sl = max(df.iloc[-open_rev_index:-1]['AskHigh']) + margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -902,7 +902,7 @@ def close_trade(df, fx, tick,dj,l0):
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
                     type_signal = ' Buy: Adjust for End of Day ' + str(current_ratio)
-                    sl = df.iloc[-open_rev_index:-2]['AskHigh'] + margin
+                    sl = max(df.iloc[-open_rev_index:-1]['AskHigh']) + margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
