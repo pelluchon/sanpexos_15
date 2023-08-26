@@ -14,6 +14,7 @@ from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
 import math
+import close
 
 #### All hours in GMT
 
@@ -33,7 +34,7 @@ Dict = {
             'ed': datetime.now(),
         },
     'channel_length':27*3,
-    'amount':1,
+    'amount':2,
     'instrument':
         {
         
@@ -1034,6 +1035,8 @@ def rsi_algorithm(data,tick):
 
 def main():
     print(str(datetime.now().strftime("%H:%M:%S")))
+    print('launch close')
+    close.main()
     with ForexConnect() as fx:
         #try:
         fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
