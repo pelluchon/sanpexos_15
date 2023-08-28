@@ -718,7 +718,6 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
-    df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose']
 
     #BUY
     if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
