@@ -20,14 +20,14 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71533239',
-            'str_password': 'qivV5',
+            'str_user_i_d': '51706888',
+            'str_password': 'uzNo9',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_connection': 'Demo',
             'str_session_id': None,
             'str_pin': None,
             'str_table': 'orders',
-            'str_account': '71533239',
+            'str_account': '51706888',
         },
     'indicators': {
             'sd': datetime.now() - relativedelta(weeks=16),
@@ -1035,8 +1035,8 @@ def rsi_algorithm(data,tick):
 
 def main():
     print(str(datetime.now().strftime("%H:%M:%S")))
-    print('launch close')
-    close.main()
+    #print('launch close')
+    #close.main()
     with ForexConnect() as fx:
         #try:
         fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
