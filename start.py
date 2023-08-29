@@ -20,14 +20,14 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '51706888',
-            'str_password': 'uzNo9',
+            'str_user_i_d': '71578754',
+            'str_password': 'zac5kib',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_connection': 'Demo',
             'str_session_id': None,
             'str_pin': None,
             'str_table': 'orders',
-            'str_account': '51706888',
+            'str_account': '71578754',
         },
     'indicators': {
             'sd': datetime.now() - relativedelta(weeks=16),
