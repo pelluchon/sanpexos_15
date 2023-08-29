@@ -16,6 +16,7 @@ from forexconnect import fxcorepy, ForexConnect, Common
 import math
 import sys
 import close
+import traceback
 
 #### All hours in GMT
 
@@ -744,7 +745,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 )
                 fx.send_request(request)
             except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                 pass
     #SELL
     elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
@@ -771,7 +772,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 )
                 fx.send_request(request)
             except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
      
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
                     
@@ -826,7 +827,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
@@ -876,7 +877,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
         # if was sell
         if dj.loc[0,'tick_type'] == 'S':
@@ -899,7 +900,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
@@ -918,7 +919,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
             if df.iloc[-2]['rsi'] <= 45 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
                     and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
@@ -934,7 +935,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
             if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 60:
                 try:
@@ -949,7 +950,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
                     pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
