@@ -14,9 +14,7 @@ from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
 import math
-import sys
 import close
-import traceback
 
 #### All hours in GMT
 
@@ -461,7 +459,7 @@ def analysis(df, ind,tick):
         #    sendemail(attach='mean_reversion.png', subject_mail=str(tick), body_mail=str(tick) + 'mean_reversion')
         #except Exception as e:
         #    print("issue with mails for " + tick)
-        #    print("Exception: " + str(sys.exc_info()))
+        #    print("Exception: " + str(e))
         plt.close()
         return data
 
@@ -657,7 +655,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
             sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
         except Exception as e:
             print("issue with mails for " + tick)
-            print("Exception: " + str(sys.exc_info()))
+            print("Exception: " + str(e))
         plt.close()
 
 def session_status_changed(session: fxcorepy.O2GSession,
@@ -720,9 +718,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
-
     #BUY
-    if df.iloc[-2]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
+    if df.iloc[-2]['rsi'] <= 30 and df.iloc[-3]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
     and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
     and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
     and df.iloc[-2]['macd'] < 0 \
@@ -745,10 +742,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 )
                 fx.send_request(request)
             except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif df.iloc[-2]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+    elif df.iloc[-2]['rsi'] >= 70 and df.iloc[-3]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
     and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
     and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
     and df.iloc[-2]['macd'] > 0 \
@@ -772,7 +769,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 )
                 fx.send_request(request)
             except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
      
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
                     
@@ -827,7 +824,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
@@ -846,7 +843,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             if df.iloc[-2]['rsi'] >= 55 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
                     and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
@@ -862,7 +859,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(sys.exc_info())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] >= 40:
                 try:
@@ -877,7 +874,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
         # if was sell
         if dj.loc[0,'tick_type'] == 'S':
@@ -900,7 +897,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             elif l0 > 1 and int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
                 try:
@@ -919,7 +916,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             if df.iloc[-2]['rsi'] <= 45 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
                     and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
@@ -935,7 +932,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
             if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 60:
                 try:
@@ -950,7 +947,7 @@ def close_trade(df, fx, tick,dj,l0):
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(traceback.print_exc())
+                    type_signal = type_signal + ' not working for ' + str(e)
                     pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
@@ -1032,7 +1029,7 @@ def rsi_algorithm(data,tick):
     #     sendemail(attach='rsi_algorithm.png', subject_mail=str(tick), body_mail=str(tick) + 'rsi_algorithm.png')
     #except Exception as e:
     #    print("issue with mails for " + tick)
-    #    print("Exception: " + str(sys.exc_info()))
+    #    print("Exception: " + str(e))
 
 def main():
     print(str(datetime.now().strftime("%H:%M:%S")))
@@ -1086,11 +1083,11 @@ def main():
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
                         #rsi_algorithm(df,FX[l1])
             # except Exception as e:
-            #     print("Exception: " + str(sys.exc_info()))
+            #     print("Exception: " + str(e))
             # try:
             #     fx.logout()
             # except Exception as e:
-            #     print("Exception: " + str(sys.exc_info()))
+            #     print("Exception: " + str(e))
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
