@@ -881,13 +881,15 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Buy : Adjust for wrong tenkan sense ' + str(current_ratio)
                     request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE = df.iloc[-27:-2]['AskLow'].min(),
+                        RATE=df.iloc[-27:-2]['AskLow'].min(),
+                        ORDER_ID=dj.loc[0, 'order_stop_id'],
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -971,13 +973,15 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Sell : Adjust for wrong tenkan sense ' + str(current_ratio)
                     request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE = df.iloc[-27:-2]['AskHigh'].max(),
+                        RATE=df.iloc[-27:-2]['AskHigh'].max(),
+                        ORDER_ID=dj.loc[0, 'order_stop_id'],
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
