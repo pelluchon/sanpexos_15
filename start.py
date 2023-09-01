@@ -719,7 +719,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
     #BUY
-    if df.iloc[-2]['rsi'] <= 29 and df.iloc[-3]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
+    if df.iloc[-2]['rsi'] <= 29 and df.iloc[-3]['rsi'] <= 29 \
+        and abs(df.iloc[-4:-2]['Delta'].mean()) < abs(df.iloc[-5:-3]['Delta'].mean())  \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['macd'] < 0 \
@@ -746,7 +747,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif df.iloc[-2]['rsi'] >= 69 and df.iloc[-3]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+    elif df.iloc[-2]['rsi'] >= 69 and df.iloc[-3]['rsi'] >= 69 \
+        and abs(df.iloc[-4:-2]['Delta'].mean()) < abs(df.iloc[-5:-3]['Delta'].mean()) \
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['macd'] > 0 \
