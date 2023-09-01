@@ -719,14 +719,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
     #BUY
-    if df.iloc[-2]['rsi'] <= 30 and df.iloc[-3]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
-    and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-    and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-    and df.iloc[-2]['macd'] < 0 \
-    and df.iloc[-27]['chikou'] <  df.iloc[-27]['kijun_avg']\
-    and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
-    and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
-    and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
+    if df.iloc[-2]['rsi'] <= 29 and df.iloc[-3]['rsi'] <= 30 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta'])  \
+        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['macd'] < 0 \
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['kijun_avg']\
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['tenkan_avg']\
+        and df.iloc[-27]['chikou'] <  df.iloc[-27]['AskLow']\
+        and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
+        and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
         min_gain=round((df.iloc[-2]['kijun_avg']-df.iloc[-2]['AskClose'])/(df.iloc[-2]['AskClose']-min(df.iloc[-27:-2]['AskLow'])),2)
         min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
@@ -745,14 +746,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif df.iloc[-2]['rsi'] >= 70 and df.iloc[-3]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
-    and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-    and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-    and df.iloc[-2]['macd'] > 0 \
-    and df.iloc[-27]['chikou'] >  df.iloc[-27]['kijun_avg']\
-    and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
-    and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
-    and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b']):
+    elif df.iloc[-2]['rsi'] >= 69 and df.iloc[-3]['rsi'] >= 70 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['macd'] > 0 \
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['kijun_avg']\
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['tenkan_avg']\
+        and df.iloc[-27]['chikou'] >  df.iloc[-27]['AskHigh']\
+        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
+        and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
         min_gain=round((df.iloc[-2]['AskClose']- df.iloc[-2]['kijun_avg'])/(max(df.iloc[-27:-2]['AskHigh']) - df.iloc[-2]['AskClose']),2)
         min_entry = round((max(df.iloc[-27:-2]['AskHigh'])-df.iloc[-2]['kijun_avg']) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
@@ -799,10 +801,8 @@ def close_trade(df, fx, tick,dj,l0):
 
 
     if open_rev_index<1:
-            print('open_rev_index too small')
+        print('open_rev_index too small')
     else:
-
-
         #BUY CONDIDITIONS
         if dj.loc[0,'tick_type'] == 'B':
             # END OF DAY CONDITIONS
@@ -845,7 +845,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['rsi'] >= 55 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+            if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
                     and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
                 try:
                     type_signal = ' Buy : Close for RSI above 60 ' + str(current_ratio)
@@ -871,6 +871,23 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['rsi'] >= 40 and df.iloc[-4:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() and \
+                    df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg']:
+                try:
+                    type_signal = ' Buy : Adjust for wrong tenkan sense ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE = df.iloc[-27:-2]['AskLow'].min(),
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -918,7 +935,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['rsi'] <= 45 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
+            if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
                     and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
                 try:
                     type_signal = ' Sell : Close for RSI below 40 ' + str(current_ratio)
@@ -944,6 +961,23 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['rsi'] <= 60 and df.iloc[-4:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean() and \
+                    df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg']:
+                try:
+                    type_signal = ' Sell : Adjust for wrong tenkan sense ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE = df.iloc[-27:-2]['AskHigh'].max(),
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
