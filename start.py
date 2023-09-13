@@ -719,7 +719,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
     #BUY
-    if df.iloc[-2]['rsi'] <= 29 and df.iloc[-3]['rsi'] <= 29 \
+    if df.iloc[-4:-2]['rsi'].mean() <= 29 \
         and abs(df.iloc[-4:-2]['Delta'].mean()) < abs(df.iloc[-5:-3]['Delta'].mean())  \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
@@ -747,7 +747,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif df.iloc[-2]['rsi'] >= 69 and df.iloc[-3]['rsi'] >= 69 \
+    elif df.iloc[-4:-2]['rsi'].mean() >= 69 \
         and abs(df.iloc[-4:-2]['Delta'].mean()) < abs(df.iloc[-5:-3]['Delta'].mean()) \
         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
@@ -865,7 +865,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] >= 40:
+            if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] >= 40 and current_ratio>0:
                 try:
                     type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
                     request = fx.create_order_request(
@@ -957,7 +957,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 60:
+            if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 60 and current_ratio>0:
                 try:
                     type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
                     request = fx.create_order_request(
