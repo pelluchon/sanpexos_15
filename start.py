@@ -849,8 +849,8 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
-                    and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
+            if df.iloc[-2]['rsi'] >= 60 and abs(df.iloc[-5:-2]['Delta'].mean()) < abs(df.iloc[-6:-3]['Delta'].mean()) \
+                    and abs(df.iloc[-5:-2]['macd'].mean()-df.iloc[-6:-3]['macd'].mean()) < abs(df.iloc[-6:-3]['macd'].mean()-df.iloc[-7:-4]['macd'].mean()):
                 try:
                     type_signal = ' Buy : Close for RSI above 60 ' + str(current_ratio)
                     request = fx.create_order_request(
@@ -941,8 +941,8 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-2]['Delta']) < abs(df.iloc[-3]['Delta']) \
-                    and abs(df.iloc[-2]['macd']-df.iloc[-3]['macd']) < abs(df.iloc[-3]['macd']-df.iloc[-4]['macd']):
+            if df.iloc[-2]['rsi'] <= 40 and abs(df.iloc[-5:-2]['Delta'].mean()) < abs(df.iloc[-6:-3]['Delta'].mean()) \
+                    and abs(df.iloc[-5:-2]['macd'].mean()-df.iloc[-6:-3]['macd'].mean()) < abs(df.iloc[-6:-3]['macd'].mean()-df.iloc[-7:-4]['macd'].mean()):
                 try:
                     type_signal = ' Sell : Close for RSI below 40 ' + str(current_ratio)
                     request = fx.create_order_request(
