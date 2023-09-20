@@ -34,7 +34,7 @@ Dict = {
             'ed': datetime.now(),
         },
     'channel_length':27*3,
-    'amount':0.1,
+    'amount':1,
     'instrument':
         {
         
@@ -58,6 +58,7 @@ Dict = {
                   'VOLX', 'US2000','AUS200','UKOil','USOil',
                   'USOilSpot', 'UKOilSpot','EMBasket','USDOLLAR',
                   'JPYBasket', 'CryptoMajor']},
+
         2:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
             'hour_close':6,#closing time in UTC
@@ -704,8 +705,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
-        if amount == 0 : amount=1
+        amount = math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
+        #amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
+        #if amount == 0 : amount=1
         return amount
 
     open_rev_index = 1
@@ -733,7 +735,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-                amount=set_amount(Dict['amount'], dj)
+                amount=(set_amount(Dict['amount'], dj))
                 type_signal = ' BUY rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
@@ -762,7 +764,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-                amount = set_amount(Dict['amount'], dj)
+                amount = (set_amount(Dict['amount'], dj))
                 type_signal = ' Sell rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
