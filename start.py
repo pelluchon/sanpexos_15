@@ -20,21 +20,21 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71578754',
-            'str_password': 'zac5kib',
+            'str_user_i_d': '87053959',
+            'str_password': 'S4Tpj3P!zz.Mm2p',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
-            'str_connection': 'Demo',
+            'str_connection': 'Real',
             'str_session_id': None,
             'str_pin': None,
             'str_table': 'orders',
-            'str_account': '71578754',
+            'str_account': '87053959',
         },
     'indicators': {
             'sd': datetime.now() - relativedelta(weeks=16),
             'ed': datetime.now(),
         },
     'channel_length':27*3,
-    'amount':2,
+    'amount':0.1,
     'instrument':
         {
         
@@ -733,7 +733,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-                amount=set_amount(int(Dict['amount']), dj)
+                amount=set_amount(Dict['amount'], dj)
                 type_signal = ' BUY rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
@@ -762,7 +762,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-                amount = set_amount(int(Dict['amount']), dj)
+                amount = set_amount(Dict['amount'], dj)
                 type_signal = ' Sell rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
