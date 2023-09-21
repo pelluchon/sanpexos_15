@@ -34,7 +34,7 @@ Dict = {
             'ed': datetime.now(),
         },
     'channel_length':27*3,
-    'amount':1,
+    'amount':0.1,
     'instrument':
         {
         
@@ -44,20 +44,17 @@ Dict = {
             'day_open':6, # 6 is Sunday
             'day_close':4, # 4 is Friday
             'FX':['AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
-      'CAD/CHF', 'CAD/JPY', 'CHF/JPY',
-      'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY',
-      'EUR/NOK', 'EUR/NZD', 'EUR/SEK', 'EUR/TRY', 'EUR/USD',
-      'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/JPY', 'GBP/NZD',
-      'GBP/USD', 'NZD/CAD',
-      'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY',
-      'USD/CAD', 'USD/CHF', 'USD/CNH',
-      'USD/HKD', 'USD/JPY', 'USD/MXN', 'USD/NOK', 'USD/SEK',
-      'USD/ZAR', 'XAG/USD', 'XAU/USD', 'ZAR/JPY',
-      'USD/ILS','BTC/USD', 'BCH/USD', 'ETH/USD',
-      'LTC/USD', 'JPN225', 'NAS100', 'NGAS','SPX500', 'US30', 
-                  'VOLX', 'US2000','AUS200','UKOil','USOil',
-                  'USOilSpot', 'UKOilSpot','EMBasket','USDOLLAR',
-                  'JPYBasket', 'CryptoMajor']},
+                  'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'EUR/AUD', 'EUR/CAD',
+                  'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NOK', 'EUR/NZD',
+                  'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'GBP/AUD', 'GBP/CAD',
+                  'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
+                  'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
+                  'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
+                  'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
+                  'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD', 'LTC/USD',
+                  'JPN225', 'NAS100', 'NGAS','SPX500', 'US30', 'VOLX',
+                  'US2000','AUS200','UKOil','USOil', 'USOilSpot', 'UKOilSpot',
+                  'EMBasket','USDOLLAR','JPYBasket', 'CryptoMajor']},
 
         2:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
@@ -705,9 +702,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount = math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
+        amount = int(base_unit_size * lots/ dj.loc[0, 'pip_cost'])# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
         #amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
-        #if amount == 0 : amount=1
+        if amount == 0 : amount=1
         return amount
 
     open_rev_index = 1
@@ -736,7 +733,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         if min_gain >= 2 and min_entry >=2:
             try:
                 amount=(set_amount(Dict['amount'], dj))
-                type_signal = ' BUY rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
+                type_signal = ' BUY Amount:' + str(amount) + ' rsi ratio:' + str(min_gain) + ' Bid/Ask:' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -765,7 +762,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         if min_gain >= 2 and min_entry >=2:
             try:
                 amount = (set_amount(Dict['amount'], dj))
-                type_signal = ' Sell rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
+                type_signal = ' Sell Amount: ' + str(amount) +' rsi ratio: '+ str(min_gain) + ' Bid/Ask: ' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
