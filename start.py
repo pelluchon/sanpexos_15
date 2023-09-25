@@ -34,7 +34,7 @@ Dict = {
             'ed': datetime.now(),
         },
     'channel_length':27*3,
-    'amount':0.1,
+    'amount':1,
     'instrument':
         {
         
@@ -702,9 +702,12 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount = int(base_unit_size * lots/ dj.loc[0, 'pip_cost'])# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
+        amount = base_unit_size * lots# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
+        print(base_unit_size)
+        print(dj.loc[0, 'pip_cost'])
+        print(dj.loc[0, 'pip_size'])
         #amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
-        if amount == 0 : amount=1
+        #if amount == 0 : amount=1
         return amount
 
     open_rev_index = 1
@@ -732,8 +735,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-                amount=(set_amount(Dict['amount'], dj))
+
                 type_signal = ' BUY Amount:' + str(amount) + ' rsi ratio:' + str(min_gain) + ' Bid/Ask:' + str(min_entry)
+                amount =(set_amount(Dict['amount'], dj))
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
