@@ -736,9 +736,8 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         min_entry=round((df.iloc[-2]['kijun_avg']-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_gain >= 2 and min_entry >=2:
             try:
-
-                type_signal = ' BUY Amount:' + str(amount) + ' rsi ratio:' + str(min_gain) + ' Bid/Ask:' + str(min_entry)
                 amount =(set_amount(Dict['amount'], dj))
+                type_signal = ' BUY Amount:' + str(amount) + ' rsi ratio:' + str(min_gain) + ' Bid/Ask:' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
