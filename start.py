@@ -702,10 +702,11 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount = base_unit_size * lots# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
-        print(base_unit_size)
-        print(dj.loc[0, 'pip_cost'])
-        print(dj.loc[0, 'pip_size'])
+        amount=dj.loc[0, 'pip_size']*lots
+        #amount = base_unit_size * lots# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
+        print('base_unit_size'+str(base_unit_size))
+        print('pip_cost'+str(dj.loc[0, 'pip_cost']))
+        print('pip_size' + str(dj.loc[0, 'pip_size']))
         #amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
         #if amount == 0 : amount=1
         return amount
