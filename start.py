@@ -723,13 +723,13 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
 
     # Find the last time RSI went below 30
-    last_under31_index = df[df['RSI'] < 31].index[-1]
-    last_over69_index = df[df['RSI'] >69].index[-1]
+    last_under31_index = df[df['rsi'] < 31].index[-1]
+    last_over69_index = df[df['rsi'] >69].index[-1]
 
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if last_under31_index > last_over69_index \
-        and df.iloc[last_under31_index]['RSI']<df.iloc[-2]['RSI'] \
+        and df.iloc[last_under31_index]['rsi']<df.iloc[-2]['rsi'] \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['macd'] < 0 \
         and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
@@ -755,7 +755,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 pass
     #SELL
     elif last_under31_index < last_over69_index \
-        and df.iloc[last_over69_index]['RSI']>df.iloc[-2]['RSI'] \
+        and df.iloc[last_over69_index]['rsi']>df.iloc[-2]['rsi'] \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['macd'] > 0 \
         and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
