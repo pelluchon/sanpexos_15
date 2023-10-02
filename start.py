@@ -718,13 +718,14 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     type_signal = 'No'
     tp = 0
     sl = 0
+    last_under31_index=0
+    last_over69_index=0
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
 
-    # Find the last time RSI went below 30
-    last_under31_index = df[df['rsi'] < 31].index[-1]
-    last_over69_index = df[df['rsi'] >69].index[-1]
+    if not df[df['rsi'] < 31].empty:     last_under31_index = df[df['rsi'] < 31].index[-1]
+    if not df[df['rsi'] > 69].empty:     last_over69_index = df[df['rsi'] > 69].index[-1]
 
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
