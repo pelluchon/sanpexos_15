@@ -20,10 +20,13 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '87053959',
-            'str_password': 'S4Tpj3P!zz.Mm2p',
-            'str_url': "http://www.fxcorporate.com/Hosts.jsp",
+            'str_user_i_d': '71578754',
+            'str_password': 'zac5kib',
+            'str_connection': 'Demo',
+            #'str_user_i_d': '87053959',
+            #'str_password': 'S4Tpj3P!zz.Mm2p',
             'str_connection': 'Real',
+            'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_session_id': None,
             'str_pin': None,
             'str_table': 'orders',
@@ -321,7 +324,7 @@ def analysis(df, ind,tick):
 
         return df
 
-    def find_last_peaks(df, ind):
+    def find_last_peaks_old(df, ind):
         n = len(df)
         df['peaks'] = np.nan
         df['peaks_macd'] = np.nan
@@ -331,13 +334,10 @@ def analysis(df, ind,tick):
         for i in range(-ind-1,-n+1, -1):
             # peaks macd
             if abs(df.iloc[i]['macd'])>=abs(df.iloc[i]['signal']):
-                # if wants to have slopes on the same side
-                # if ((df['slminopt'].dropna()[0] > 0 or df['slmaxopt'].dropna()[0] > 0) and df.iloc[i]['macd'] > 0) or \
-                #         ((df['slminopt'].dropna()[0] < 0 or df['slmaxopt'].dropna()[0] < 0) and df.iloc[i]['macd'] < 0):
                 if (i ==-2) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i +1]['macd']):
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
                     df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
                     df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
                 elif (i < -2) and\
@@ -363,7 +363,52 @@ def analysis(df, ind,tick):
             df.loc[3, 'slope'] = temp['index'].iloc[-1]
             df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
             df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
+        return df
 
+    def find_last_peaks(df, ind):
+        n = len(df)
+        df['peaks'] = np.nan
+        df['peaks_macd'] = np.nan
+        df['slope'] = np.nan
+        df['slope_macd'] = np.nan
+        sign_first_peak=0
+        for i in range(-ind-1,-n+1, -1):
+            if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
+                if (i ==-2) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
+                    df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
+                    df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
+                    sign_first_peak=np.sign(df.iloc[i]['macd'])
+                elif (i < -2) and\
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
+                    if sign_first_peak == 0:
+                        df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                        df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+                        sign_first_peak = np.sign(df.iloc[i]['macd'])
+                    elif sign_first_peak == np.sign(df.iloc[i]['macd']):
+                        df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
+                        df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
+        # slope definition & remove all the nans
+        if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
+                df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
+                df['peaks_macd'].dropna().iloc[-1] != df['peaks_macd'].dropna().iloc[-2]:
+            temp = df['peaks'].dropna().reset_index()
+            tempm = df['peaks_macd'].dropna().reset_index()
+            df.loc[2, 'slope_macd'] = tempm['peaks_macd'].iloc[-2]
+            df.loc[4, 'slope_macd'] = tempm['index'].iloc[-2]
+            df.loc[2, 'slope'] = temp['peaks'].iloc[-2]
+            df.loc[4, 'slope'] = temp['index'].iloc[-2]
+            df.loc[1, 'slope_macd'] = tempm['peaks_macd'].iloc[-1]
+            df.loc[3, 'slope_macd'] = tempm['index'].iloc[-1]
+            df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
+            df.loc[3, 'slope'] = temp['index'].iloc[-1]
+            df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
+            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
         return df
 
     def find_limit(df):
@@ -702,13 +747,13 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount=dj.loc[0, 'pip_size']*lots
+        #amount=dj.loc[0, 'pip_size']*lots
         #amount = base_unit_size * lots# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
         print('base_unit_size'+str(base_unit_size))
         print('pip_cost'+str(dj.loc[0, 'pip_cost']))
         print('pip_size' + str(dj.loc[0, 'pip_size']))
-        #amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
-        #if amount == 0 : amount=1
+        amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
+        if amount == 0 : amount=1
         return amount
 
     open_rev_index = 1
@@ -732,9 +777,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     if last_under31_index > last_over69_index \
         and df.iloc[last_under31_index]['rsi'] < (31+15) \
         and df.iloc[last_under31_index]['rsi']<df.iloc[-2]['rsi'] \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['macd'] < 0 \
-        and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
+        and df.loc[0, 'slope_macd'] > 0\
+        and df.iloc[last_under31_index]['kijun_avg'] < min(df.iloc[last_under31_index]['senkou_a'],df.iloc[last_under31_index]['senkou_b'])\
         and df.iloc[last_under31_index]['tenkan_avg'] < df.iloc[last_under31_index]['kijun_avg'] \
         and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['AskHigh'] \
         and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['tenkan_avg']\
@@ -759,9 +804,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     elif last_under31_index < last_over69_index \
         and df.iloc[last_under31_index]['rsi'] < (69 - 15) \
         and df.iloc[last_over69_index]['rsi']>df.iloc[-2]['rsi'] \
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+        and df.loc[0, 'slope_macd'] < 0\
         and df.iloc[-2]['macd'] > 0 \
-        and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'],df.iloc[-2]['senkou_b'])\
+        and df.iloc[last_over69_index]['kijun_avg'] > max(df.iloc[last_over69_index]['senkou_a'],df.iloc[last_over69_index]['senkou_b'])\
         and df.iloc[last_over69_index]['tenkan_avg'] > df.iloc[last_over69_index]['kijun_avg'] \
         and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['AskHigh'] \
         and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['tenkan_avg']\
