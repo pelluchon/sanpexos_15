@@ -20,17 +20,18 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71578754',
-            'str_password': 'zac5kib',
+            'str_user_i_d': '71581198',
+            'str_password': '8ylyjhu',
             'str_connection': 'Demo',
+            'str_account': '71581198',
             #'str_user_i_d': '87053959',
             #'str_password': 'S4Tpj3P!zz.Mm2p',
-            'str_connection': 'Real',
+            #'str_connection': 'Real',
+            # 'str_account': '87053959',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_session_id': None,
             'str_pin': None,
             'str_table': 'orders',
-            'str_account': '87053959',
         },
     'indicators': {
             'sd': datetime.now() - relativedelta(weeks=16),
@@ -747,13 +748,13 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     def set_amount(lots,dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        #amount=dj.loc[0, 'pip_size']*lots
+        amount=dj.loc[0, 'pip_size']*lots
         #amount = base_unit_size * lots# math.ceil((lots / dj.loc[0, 'pip_cost'] / 100) * base_unit_size)  # int(base_unit_size * lots)#/ pip_cost)
         print('base_unit_size'+str(base_unit_size))
         print('pip_cost'+str(dj.loc[0, 'pip_cost']))
         print('pip_size' + str(dj.loc[0, 'pip_size']))
-        amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
-        if amount == 0 : amount=1
+        # amount = int(math.ceil(lots/(dj.loc[0, 'pip_cost']/dj.loc[0, 'pip_size']))*base_unit_size)#int(base_unit_size * lots)
+        if amount < 0.01 : amount=0.01
         return amount
 
     open_rev_index = 1
@@ -775,10 +776,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if last_under31_index > last_over69_index \
-        and df.iloc[last_under31_index]['rsi'] < (31+15) \
         and df.iloc[last_under31_index]['rsi']<df.iloc[-2]['rsi'] \
-        and df.iloc[-2]['macd'] < 0 \
-        and df.loc[0, 'slope_macd'] > 0\
+        and df.iloc[-2]['macd'] > 0 \
+        and df.iloc[-2]['slope_macd'] > 0 \
+        and df.iloc[-2]['AskClose'] > df.iloc[last_under31_index:-2]['AskClose'].max() \
         and df.iloc[last_under31_index]['kijun_avg'] < min(df.iloc[last_under31_index]['senkou_a'],df.iloc[last_under31_index]['senkou_b'])\
         and df.iloc[last_under31_index]['tenkan_avg'] < df.iloc[last_under31_index]['kijun_avg'] \
         and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['AskHigh'] \
@@ -802,10 +803,10 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 pass
     #SELL
     elif last_under31_index < last_over69_index \
-        and df.iloc[last_under31_index]['rsi'] < (69 - 15) \
         and df.iloc[last_over69_index]['rsi']>df.iloc[-2]['rsi'] \
-        and df.loc[0, 'slope_macd'] < 0\
-        and df.iloc[-2]['macd'] > 0 \
+        and df.iloc[-2]['AskClose'] < df.iloc[last_over69_index:-2]['AskClose'].min() \
+        and df.iloc[-2]['macd'] < 0 \
+        and df.iloc[-2]['slope_macd'] < 0 \
         and df.iloc[last_over69_index]['kijun_avg'] > max(df.iloc[last_over69_index]['senkou_a'],df.iloc[last_over69_index]['senkou_b'])\
         and df.iloc[last_over69_index]['tenkan_avg'] > df.iloc[last_over69_index]['kijun_avg'] \
         and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['AskHigh'] \
@@ -917,21 +918,21 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            # if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] >= 40 and current_ratio>0:
-            #     try:
-            #         type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
-            #         request = fx.create_order_request(
-            #             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-            #             OFFER_ID=offer.offer_id,
-            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
-            #             BUY_SELL=buy_sell,
-            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
-            #             TRADE_ID=dj.loc[0, 'tick_id']
-            #         )
-            #         resp = fx.send_request(request)
-            #     except Exception as e:
-            #         type_signal = type_signal + ' not working for ' + str(e)
-            #         pass
+            if df.iloc[-2]['macd'] < df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] >= 65 and current_ratio>0:
+                try:
+                    type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
             # if df.iloc[-2]['rsi'] >= 40 and df.iloc[-4:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() and \
             #         df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
             #         and df.iloc[-open_rev_index:-2]['AskClose'].max()>df.iloc[-open_rev_index:-2]['tenkan_avg'].max() \
@@ -1010,21 +1011,21 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            # if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 60 and current_ratio>0:
-            #     try:
-            #         type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
-            #         request = fx.create_order_request(
-            #             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-            #             OFFER_ID=offer.offer_id,
-            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
-            #             BUY_SELL=buy_sell,
-            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
-            #             TRADE_ID=dj.loc[0, 'tick_id']
-            #         )
-            #         resp = fx.send_request(request)
-            #     except Exception as e:
-            #         type_signal = type_signal + ' not working for ' + str(e)
-            #         pass
+            if df.iloc[-2]['macd'] > df.iloc[-2]['signal'] and df.iloc[-2]['rsi'] <= 35 and current_ratio>0:
+                try:
+                    type_signal = ' Sell : Close for Macd over signal ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
             # if df.iloc[-2]['rsi'] <= 60 and df.iloc[-4:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean() and \
             #         df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
             #         and df.iloc[-open_rev_index:-2]['AskClose'].min()<df.iloc[-open_rev_index:-2]['tenkan_avg'].min() \
