@@ -793,7 +793,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
                     BUY_SELL=fxcorepy.Constants.BUY,
-                    AMOUNT=amount,
+                    AMOUNT=round(amount,2),
                     SYMBOL=tick,
                 )
                 fx.send_request(request)
@@ -820,7 +820,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
                     BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=amount,
+                    AMOUNT=round(amount,2),
                     SYMBOL=tick,
                 )
                 fx.send_request(request)
