@@ -779,6 +779,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if last_under31_index > last_over69_index \
         and df.iloc[last_under31_index]['rsi']<df.iloc[-2]['rsi'] \
+        and df.iloc[-2]['rsi'] < 60\
         and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[last_under31_index]['macd'])) \
         and df.iloc[-2]['AskClose'] > df.iloc[last_under31_index:-2]['AskClose'].max() \
         and df.iloc[last_under31_index]['kijun_avg'] < min(df.iloc[last_under31_index]['senkou_a'],df.iloc[last_under31_index]['senkou_b'])\
@@ -805,6 +806,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     #SELL
     elif last_under31_index < last_over69_index \
         and df.iloc[last_over69_index]['rsi']>df.iloc[-2]['rsi'] \
+        and df.iloc[-2]['rsi'] > 40 \
         and df.iloc[-2]['AskClose'] < df.iloc[last_over69_index:-2]['AskClose'].min() \
         and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd']<df.iloc[last_under31_index]['macd'])) \
         and df.iloc[last_over69_index]['kijun_avg'] > max(df.iloc[last_over69_index]['senkou_a'],df.iloc[last_over69_index]['senkou_b'])\
