@@ -692,9 +692,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax4.set_ylim((0, 100))
-        ax4.axhline(y=float(df.iloc[-index_peak]['RSI']), color='black', linewidth=1, linestyle='-.')
-        ax4.plot(df.iloc[-index_peak]['index'], df.iloc[-index_peak]['RSI'], 'black', marker='s')
-        ax4.axvline(x=df.iloc[-index_peak]['RSI'], color='black', linewidth=1, linestyle='-.')
+        ax4.axhline(y=float(df.iloc[-index_peak]['rsi']), color='black', linewidth=1, linestyle='-.')
+        ax4.plot(df.iloc[-index_peak]['index'], df.iloc[-index_peak]['rsi'], 'black', marker='s')
+        ax4.axvline(x=df.iloc[-index_peak]['rsi'], color='black', linewidth=1, linestyle='-.')
         ax4.grid()
 
         #plt.show()
