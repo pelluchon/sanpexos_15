@@ -914,7 +914,8 @@ def close_trade(df, fx, tick,dj,l0):
                         except Exception as e:
                             type_signal = type_signal + ' not working for ' + str(e)
                             pass
-                if df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg'] and current_ratio>0:
+                if df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg'] and current_ratio>0 and \
+                        df.iloc[-2]['AskLow']<df.iloc[-2]['tenkan_avg']:
                     try:
                         type_signal = ' Buy : Close for tenkan over kijun' + str(current_ratio)
                         request = fx.create_order_request(
@@ -1010,7 +1011,8 @@ def close_trade(df, fx, tick,dj,l0):
                         except Exception as e:
                             type_signal = type_signal + ' not working for ' + str(e)
                             pass
-                if df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg'] and current_ratio>0:
+                if df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg'] and current_ratio>0 and \
+                        df.iloc[-2]['AskHigh']>df.iloc[-2]['tenkan_avg']:
                     try:
                         type_signal = ' Buy : Close for tenkan over kijun' + str(current_ratio)
                         request = fx.create_order_request(
