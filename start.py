@@ -552,7 +552,7 @@ def box(df, index):
             box_def == False
     return low_box, high_box, box_def
 
-def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
+def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak):
     def sendemail(attach, subject_mail, body_mail):
         fromaddr = 'sanpexos@hotmail.com'
         toaddr = 'paul.pelluchon.doc@gmail.com'
@@ -624,6 +624,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
             ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
+        ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax1.plot([df.loc[3, 'slope'],df.loc[4, 'slope']],[df.loc[1, 'slope'],df.loc[2, 'slope']],linewidth=2, color= 'yellow', marker='s')
         ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
                   df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
@@ -641,7 +642,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
                          color='lightcoral')
         quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
-        ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
+
         # Range_box
         if box_def == True:
             xmin = df['AskLow'][-27 - index:-1 - index].idxmin()
@@ -691,6 +692,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl):
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax4.set_ylim((0, 100))
+        ax4.axhline(y=float(df.iloc[-index_peak]['RSI']), color='black', linewidth=1, linestyle='-.')
+        ax4.plot(df.iloc[-index_peak]['index'], df.iloc[-index_peak]['RSI'], 'black', marker='s')
+        ax4.axvline(x=df.iloc[-index_peak]['RSI'], color='black', linewidth=1, linestyle='-.')
         ax4.grid()
 
         #plt.show()
@@ -758,27 +762,53 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     type_signal = 'No'
     tp = 0
     sl = 0
-    last_under31_index=0
-    last_over69_index=0
+    index_peak = None
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
 
-    if not df[df['rsi'] < 31].empty:     last_under31_index = df[df['rsi'] < 31].index[-1]
-    if not df[df['rsi'] > 69].empty:     last_over69_index = df[df['rsi'] > 69].index[-1]
+    for i in range(-2,-len(df)+1, -1):
+        if df.iloc[i]['rsi'] < 31:
+            if (i == -2) and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi']:
+                index_peak=i
+                break
+            elif (i < -2) and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 2]['rsi']:
+                index_peak=i
+                break
+        elif df.iloc[i]['rsi'] > 69:
+            if (i == -2) and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi']:
+                index_peak=i
+                break
+            elif (i < -2) and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 2]['rsi']:
+                index_peak=i
+                break
+
 
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
-    if last_under31_index > last_over69_index \
-        and df.iloc[last_under31_index]['rsi']<df.iloc[-2]['rsi'] \
+    if index_peak is not None and df.iloc[-index_peak]['rsi']<df.iloc[-2]['rsi'] \
         and df.iloc[-2]['rsi'] < 60\
-        and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[last_under31_index]['macd'])) \
-        and df.iloc[-2]['AskClose'] > df.iloc[last_under31_index:-2]['AskClose'].max() \
-        and df.iloc[last_under31_index]['kijun_avg'] < min(df.iloc[last_under31_index]['senkou_a'],df.iloc[last_under31_index]['senkou_b'])\
-        and df.iloc[last_under31_index]['tenkan_avg'] < df.iloc[last_under31_index]['kijun_avg'] \
-        and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['AskHigh'] \
-        and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['tenkan_avg']\
-        and df.iloc[last_under31_index-27]['chikou'] < df.iloc[last_under31_index-27]['kijun_avg']:
+        and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[-index_peak]['macd'])) \
+        and df.iloc[-2]['AskClose'] > df.iloc[-index_peak:-2]['AskClose'].max() \
+        and df.iloc[-index_peak]['kijun_avg'] < min(df.iloc[-index_peak]['senkou_a'],df.iloc[-index_peak]['senkou_b'])\
+        and df.iloc[-index_peak]['tenkan_avg'] < df.iloc[-index_peak]['kijun_avg'] \
+        and df.iloc[-index_peak-27]['chikou'] < df.iloc[-index_peak-27]['AskHigh'] \
+        and df.iloc[-index_peak-27]['chikou'] < df.iloc[-index_peak-27]['tenkan_avg']\
+        and df.iloc[-index_peak-27]['chikou'] < df.iloc[-index_peak-27]['kijun_avg']:
         min_entry=round((max(df.iloc[-27:-2]['kijun_avg'])-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
         if min_entry >=2:
             try:
@@ -796,16 +826,15 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif last_under31_index < last_over69_index \
-        and df.iloc[last_over69_index]['rsi']>df.iloc[-2]['rsi'] \
+    elif index_peak is not None and df.iloc[-index_peak]['rsi']>df.iloc[-2]['rsi'] \
         and df.iloc[-2]['rsi'] > 40 \
-        and df.iloc[-2]['AskClose'] < df.iloc[last_over69_index:-2]['AskClose'].min() \
+        and df.iloc[-2]['AskClose'] < df.iloc[-index_peak:-2]['AskClose'].min() \
         and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd']<df.iloc[last_under31_index]['macd'])) \
-        and df.iloc[last_over69_index]['kijun_avg'] > max(df.iloc[last_over69_index]['senkou_a'],df.iloc[last_over69_index]['senkou_b'])\
-        and df.iloc[last_over69_index]['tenkan_avg'] > df.iloc[last_over69_index]['kijun_avg'] \
-        and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['AskHigh'] \
-        and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['tenkan_avg']\
-        and df.iloc[last_over69_index-27]['chikou'] > df.iloc[last_over69_index-27]['kijun_avg']:
+        and df.iloc[-index_peak]['kijun_avg'] > max(df.iloc[-index_peak]['senkou_a'],df.iloc[-index_peak]['senkou_b'])\
+        and df.iloc[-index_peak]['tenkan_avg'] > df.iloc[-index_peak]['kijun_avg'] \
+        and df.iloc[-index_peak-27]['chikou'] > df.iloc[-index_peak-27]['AskHigh'] \
+        and df.iloc[-index_peak-27]['chikou'] > df.iloc[-index_peak-27]['tenkan_avg']\
+        and df.iloc[-index_peak-27]['chikou'] > df.iloc[-index_peak-27]['kijun_avg']:
         min_entry = round((max(df.iloc[-27:-2]['AskHigh'])-min(df.iloc[-27:-2]['kijun_avg'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
         if min_entry >=2:
@@ -823,7 +852,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
             except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
      
-    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
                     
 def close_trade(df, fx, tick,dj,l0):
     try:
@@ -836,6 +865,7 @@ def close_trade(df, fx, tick,dj,l0):
     box_def = False
     high_box = 0
     low_box = 0
+    index_peak=None
     df = analysis(df, open_rev_index,tick)
     tp = dj.loc[0,'tick_limit']
     sl = dj.loc[0,'tick_stop']
@@ -847,6 +877,36 @@ def close_trade(df, fx, tick,dj,l0):
     window_of_interest=27
     margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
         df.iloc[-window_of_interest:-2]['AskLow'])))
+
+    for i in range(-open_rev_index,-len(df)+1, -1):
+        if df.iloc[i]['rsi'] < 31:
+            if (i == -2) and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi']:
+                index_peak=i
+                break
+            elif (i < -2) and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi'] and \
+                    df.iloc[i]['rsi'] <= df.iloc[i + 2]['rsi']:
+                index_peak=i
+                break
+        elif df.iloc[i]['rsi'] > 69:
+            if (i == -2) and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi']:
+                index_peak=i
+                break
+            elif (i < -2) and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi'] and \
+                    df.iloc[i]['rsi'] >= df.iloc[i + 2]['rsi']:
+                index_peak=i
+                break
 
     if open_rev_index<1:
         print('open_rev_index too small')
@@ -1047,7 +1107,7 @@ def close_trade(df, fx, tick,dj,l0):
             #         type_signal = type_signal + ' not working for ' + str(e)
             #         pass
 
-    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl
+    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
 def rsi_algorithm(data,tick):
     def sendemail(attach, subject_mail, body_mail):
@@ -1170,14 +1230,14 @@ def main():
                             elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('other not hour')
                             else:
-                                df, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                                df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                                     open_trade(df, fx, FX[l1],trading_settings_provider,dj)
-                                df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
+                                df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
-                        df, type_signal, index, box_def, high_box, low_box, tp, sl = \
+                        df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj,l0)
-                        df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl)
+                        df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                         #rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
