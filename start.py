@@ -995,7 +995,7 @@ def close_trade(df, fx, tick,dj,l0):
                         pass
             if df.iloc[-2]['rsi']<df.iloc[-3]['rsi'] and df.iloc[-2]['tenkan_avg']<df.iloc[-3]['tenkan_avg'] \
                 and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] and candle_2 < -0.25\
-                and df.iloc[-2]['kijun_avg']<df.iloc[-3]['kijun_avg'] and df.iloc[-2]['AskLow']<df.iloc[-open_rev_index:-2]['AskLow']:
+                and df.iloc[-2]['kijun_avg']<df.iloc[-3]['kijun_avg'] and df.iloc[-2]['AskLow']<df.iloc[-open_rev_index:-2]['AskLow'].min():
                 try:
                     type_signal = ' Buy : Close for wrong direction' + str(current_ratio)
                     request = fx.create_order_request(
@@ -1110,7 +1110,7 @@ def close_trade(df, fx, tick,dj,l0):
                 if df.iloc[-2]['rsi'] > df.iloc[-3]['rsi'] and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg'] \
                         and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] and candle_2 > 0.25\
                         and df.iloc[-2]['kijun_avg'] > df.iloc[-3]['kijun_avg'] and df.iloc[-2]['AskHigh'] > \
-                        df.iloc[-open_rev_index:-2]['AskHigh']:
+                        df.iloc[-open_rev_index:-2]['AskHigh'].max():
                     try:
                         type_signal = ' Sell : Close for wrong direction' + str(current_ratio)
                         request = fx.create_order_request(
