@@ -762,7 +762,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     type_signal = 'No'
     tp = 0
     sl = 0
-    index_peak = None
+    index_peak = 0
     df = analysis(df, open_rev_index,tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
@@ -800,7 +800,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
 
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
-    if index_peak is not None and df.iloc[-index_peak]['rsi']<df.iloc[-2]['rsi'] \
+    if index_peak > 0 and df.iloc[-index_peak]['rsi']<df.iloc[-2]['rsi'] \
         and df.iloc[-2]['rsi'] < 60\
         and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[-index_peak]['macd'])) \
         and df.iloc[-2]['AskClose'] > df.iloc[-index_peak:-2]['AskClose'].max() \
@@ -826,7 +826,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     #SELL
-    elif index_peak is not None and df.iloc[-index_peak]['rsi']>df.iloc[-2]['rsi'] \
+    elif index_peak > 0  and df.iloc[-index_peak]['rsi']>df.iloc[-2]['rsi'] \
         and df.iloc[-2]['rsi'] > 40 \
         and df.iloc[-2]['AskClose'] < df.iloc[-index_peak:-2]['AskClose'].min() \
         and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd']<df.iloc[last_under31_index]['macd'])) \
