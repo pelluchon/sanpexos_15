@@ -993,21 +993,25 @@ def close_trade(df, fx, tick,dj,l0):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-            if df.iloc[-7:-2]['rsi'].mean()<df.iloc[-8:-3]['rsi'].mean() \
-                and df.iloc[-7:-2]['tenkan_avg'].mean() <df.iloc[-8:-3]['tenkan_avg'].mean() \
+            if df.iloc[-5:-2]['rsi'].mean()<df.iloc[-6:-3]['rsi'].mean() \
+                and df.iloc[-5:-2]['tenkan_avg'].mean() <df.iloc[-6:-3]['tenkan_avg'].mean() \
                 and df.iloc[-2]['tenkan_avg'] <= df.iloc[-2]['kijun_avg']\
                 and candle_2 < -0.25\
-                and df.iloc[-7:-2]['kijun_avg'].mean() <df.iloc[-8:-3]['kijun_avg'].mean() \
+                and df.iloc[-5:-2]['kijun_avg'].mean() <df.iloc[-6:-3]['kijun_avg'].mean() \
                 and df.iloc[-2]['AskLow']<df.iloc[-open_rev_index:-2]['AskLow'].min():
                 try:
-                    type_signal = ' Buy : Close for wrong direction' + str(current_ratio)
+                    type_signal = ' Buy : Adjust for wrong direction ' + str(current_ratio)
+                    tp = df.iloc[-2]['kijun_avg'] - margin
                     request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE_LIMIT=tp,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -1111,20 +1115,24 @@ def close_trade(df, fx, tick,dj,l0):
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
             if df.iloc[-7:-2]['rsi'].mean() > df.iloc[-8:-3]['rsi'].mean() \
-                and df.iloc[-7:-2]['tenkan_avg'].mean() > df.iloc[-8:-3]['tenkan_avg'].mean() \
+                and df.iloc[-5:-2]['tenkan_avg'].mean() > df.iloc[-6:-3]['tenkan_avg'].mean() \
                 and df.iloc[-2]['tenkan_avg'] >= df.iloc[-2]['kijun_avg'] \
                 and candle_2 > 0.25\
-                and df.iloc[-7:-2]['kijun_avg'].mean() > df.iloc[-8:-3]['kijun_avg'].mean()\
+                and df.iloc[-5:-2]['kijun_avg'].mean() > df.iloc[-6:-3]['kijun_avg'].mean()\
                 and df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max():
                 try:
-                    type_signal = ' Sell : Close for wrong direction' + str(current_ratio)
+                    type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
+                    tp = df.iloc[-2]['kijun_avg'] + margin
                     request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        order_type=fxcorepy.Constants.Orders.LIMIT,
+                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE_LIMIT=tp,
+                        ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
