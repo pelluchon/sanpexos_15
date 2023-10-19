@@ -726,6 +726,7 @@ def check_trades(tick, fx):
             k=k+1
             if row.instrument == tick:
                 dj.loc[0,'order_stop_id'] = row.stop_order_id
+                dj.loc[0, 'order_limit_id'] = row.limit_order_id
                 open_pos_status = 'Yes'
                 dj.loc[0, 'tick_time'] = row.open_time
                 dj.loc[0, 'tick_id'] = row.trade_id
@@ -1002,18 +1003,15 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Buy : Adjust for wrong direction ' + str(current_ratio)
                     sl = df.iloc[-2]['kijun_avg'] - margin
-                    tp = df.iloc[-7:-2]['AskHigh'].max()
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
-                        RATE_LIMIT=tp,
-                        ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -1125,18 +1123,15 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
                     sl = df.iloc[-2]['kijun_avg'] + margin
-                    tp = df.iloc[-7:-2]['AskLow'].min()
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
                         OFFER_ID=offer.offer_id,
                         ACCOUNT_ID=Dict['FXCM']['str_account'],
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
-                        RATE_LIMIT=tp,
-                        ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
