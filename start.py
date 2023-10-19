@@ -1003,6 +1003,7 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Buy : Adjust for wrong direction ' + str(current_ratio)
                     sl = df.iloc[-2]['kijun_avg'] - margin
+                    tp = df.iloc[-open_rev_index:-2]['AskHigh'].max() + margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -1012,6 +1013,7 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
+                        RATE_LIMIT=tp,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -1123,6 +1125,7 @@ def close_trade(df, fx, tick,dj,l0):
                 try:
                     type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
                     sl = df.iloc[-2]['kijun_avg'] + margin
+                    tp = df.iloc[-open_rev_index:-2]['AskLow'].min() - margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -1132,6 +1135,7 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
+                        RATE_LIMIT=tp,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
