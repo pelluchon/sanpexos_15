@@ -1001,7 +1001,7 @@ def close_trade(df, fx, tick,dj,l0):
                 and df.iloc[-2]['AskLow']<df.iloc[-open_rev_index:-2]['AskLow'].min():
                 try:
                     type_signal = ' Buy : Adjust for wrong direction ' + str(current_ratio)
-                    tp = df.iloc[-2]['kijun_avg'] - margin
+                    sl = df.iloc[-2]['kijun_avg'] - margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -1010,7 +1010,7 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE_LIMIT=tp,
+                        RATE=sl,
                         ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
@@ -1122,7 +1122,7 @@ def close_trade(df, fx, tick,dj,l0):
                 and df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max():
                 try:
                     type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
-                    tp = df.iloc[-2]['kijun_avg'] + margin
+                    sl = df.iloc[-2]['kijun_avg'] + margin
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
                         command=fxcorepy.Constants.Commands.EDIT_ORDER,
@@ -1131,7 +1131,7 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE_LIMIT=tp,
+                        RATE=sl,
                         ORDER_ID=dj.loc[0, 'order_stop_id']
                     )
                     resp = fx.send_request(request)
