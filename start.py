@@ -808,6 +808,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
         and df.iloc[-2]['rsi'] < 60\
         and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[index_peak]['macd'])) \
         and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskClose'].max() \
+        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['tenkan_avg'] >= df.iloc[-2]['kijun_avg'] \
         and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'],df.iloc[index_peak]['senkou_b'])\
         and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
         and df.iloc[index_peak-27]['chikou'] < df.iloc[index_peak-27]['AskHigh'] \
@@ -833,6 +836,9 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     elif index_peak < 0  and df.iloc[index_peak]['rsi']>df.iloc[-2]['rsi'] \
         and df.iloc[-2]['rsi'] > 40 \
         and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskClose'].min() \
+        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+        and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
+        and df.iloc[-2]['tenkan_avg'] <= df.iloc[-2]['kijun_avg'] \
         and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd']<df.iloc[index_peak]['macd'])) \
         and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'],df.iloc[index_peak]['senkou_b'])\
         and df.iloc[index_peak]['tenkan_avg'] > df.iloc[index_peak]['kijun_avg'] \
@@ -994,50 +1000,44 @@ def close_trade(df, fx, tick,dj,l0):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-            if df.iloc[-5:-2]['rsi'].mean()<df.iloc[-6:-3]['rsi'].mean() \
-                and df.iloc[-5:-2]['tenkan_avg'].mean() <df.iloc[-6:-3]['tenkan_avg'].mean() \
-                and df.iloc[-2]['tenkan_avg'] <= df.iloc[-2]['kijun_avg']\
-                and candle_2 < -0.25\
-                and df.iloc[-5:-2]['kijun_avg'].mean() <df.iloc[-6:-3]['kijun_avg'].mean() \
-                and df.iloc[-2]['AskLow']<df.iloc[-open_rev_index:-2]['AskLow'].min():
-                try:
-                    type_signal = ' Buy : Adjust for wrong direction ' + str(current_ratio)
-                    sl = df.iloc[-2]['kijun_avg'] - margin
-                    tp = df.iloc[-open_rev_index:-2]['AskHigh'].max() + margin
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=sl,
-                        RATE_LIMIT=tp,
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            # if df.iloc[-2]['rsi'] >= 40 and df.iloc[-4:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() and \
-            #         df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-            #         and df.iloc[-open_rev_index:-2]['AskClose'].max()>df.iloc[-open_rev_index:-2]['tenkan_avg'].max() \
-            #         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            #         and current_ratio>0 and open_rev_index>7:
-            #     try:
-            #         type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
-            #         request = fx.create_order_request(
-            #             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-            #             OFFER_ID=offer.offer_id,
-            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
-            #             BUY_SELL=buy_sell,
-            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
-            #             TRADE_ID=dj.loc[0, 'tick_id']
-            #         )
-            #         resp = fx.send_request(request)
-            #     except Exception as e:
-            #         type_signal = type_signal + ' not working for ' + str(e)
-            #         pass
+                if df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max() \
+                    and df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg'] and current_ratio>0:
+                    try:
+                        type_signal = ' Buy : Adjust for being safe ' + str(current_ratio)
+                        sl = open_price
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+                # if df.iloc[-2]['rsi'] >= 40 and df.iloc[-4:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() and \
+                #         df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+                #         and df.iloc[-open_rev_index:-2]['AskClose'].max()>df.iloc[-open_rev_index:-2]['tenkan_avg'].max() \
+                #         and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+                #         and current_ratio>0 and open_rev_index>7:
+                #     try:
+                #         type_signal = ' Buy : Close for Signal over macd ' + str(current_ratio)
+                #         request = fx.create_order_request(
+                #             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                #             OFFER_ID=offer.offer_id,
+                #             ACCOUNT_ID=Dict['FXCM']['str_account'],
+                #             BUY_SELL=buy_sell,
+                #             AMOUNT=int(dj.loc[0, 'tick_amount']),
+                #             TRADE_ID=dj.loc[0, 'tick_id']
+                #         )
+                #         resp = fx.send_request(request)
+                #     except Exception as e:
+                #         type_signal = type_signal + ' not working for ' + str(e)
+                #         pass
         # if was sell
         if dj.loc[0,'tick_type'] == 'S':
             current_ratio = (open_price-price) / (df.iloc[-open_rev_index:-2]['AskHigh'].max()-open_price)
@@ -1100,47 +1100,50 @@ def close_trade(df, fx, tick,dj,l0):
                         except Exception as e:
                             type_signal = type_signal + ' not working for ' + str(e)
                             pass
-                if df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg'] and current_ratio>0 and \
-                        df.iloc[-2]['AskHigh']>df.iloc[-2]['tenkan_avg'] and candle_2>0.25:
+                if df.iloc[-2]['AskLow'] < df.iloc[-open_rev_index:-2]['AskLow'].min() \
+                    and df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg'] and current_ratio>0:
                     try:
-                        type_signal = ' Sell : Close for tenkan over kijun' + str(current_ratio)
+                        type_signal = ' Sell : Adjust for being safe' + str(current_ratio)
+                        sl = open_price
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                            order_type=fxcorepy.Constants.Orders.LIMIT,
+                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
                             OFFER_ID=offer.offer_id,
                             ACCOUNT_ID=Dict['FXCM']['str_account'],
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-            if df.iloc[-7:-2]['rsi'].mean() > df.iloc[-8:-3]['rsi'].mean() \
-                and df.iloc[-5:-2]['tenkan_avg'].mean() > df.iloc[-6:-3]['tenkan_avg'].mean() \
-                and df.iloc[-2]['tenkan_avg'] >= df.iloc[-2]['kijun_avg'] \
-                and candle_2 > 0.25\
-                and df.iloc[-5:-2]['kijun_avg'].mean() > df.iloc[-6:-3]['kijun_avg'].mean()\
-                and df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max():
-                try:
-                    type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
-                    sl = df.iloc[-2]['kijun_avg'] + margin
-                    tp = df.iloc[-open_rev_index:-2]['AskLow'].min() - margin
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=sl,
-                        RATE_LIMIT=tp,
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
+            # if df.iloc[-7:-2]['rsi'].mean() > df.iloc[-8:-3]['rsi'].mean() \
+            #     and df.iloc[-5:-2]['tenkan_avg'].mean() > df.iloc[-6:-3]['tenkan_avg'].mean() \
+            #     and df.iloc[-2]['tenkan_avg'] >= df.iloc[-2]['kijun_avg'] \
+            #     and candle_2 > 0.25\
+            #     and df.iloc[-5:-2]['kijun_avg'].mean() > df.iloc[-6:-3]['kijun_avg'].mean()\
+            #     and df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max():
+            #     try:
+            #         type_signal = ' Sell : Adjust for wrong direction ' + str(current_ratio)
+            #         sl = df.iloc[-2]['kijun_avg'] + margin
+            #         tp = df.iloc[-open_rev_index:-2]['AskLow'].min() - margin
+            #         request = fx.create_order_request(
+            #             order_type=fxcorepy.Constants.Orders.LIMIT,
+            #             command=fxcorepy.Constants.Commands.CREATE_ORDER,
+            #             OFFER_ID=offer.offer_id,
+            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
+            #             BUY_SELL=buy_sell,
+            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
+            #             TRADE_ID=dj.loc[0, 'tick_id'],
+            #             RATE=sl,
+            #             RATE_LIMIT=tp,
+            #         )
+            #         resp = fx.send_request(request)
+            #     except Exception as e:
+            #         type_signal = type_signal + ' not working for ' + str(e)
+            #         pass
             # if df.iloc[-2]['rsi'] <= 60 and df.iloc[-4:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean() and \
             #         df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
             #         and df.iloc[-open_rev_index:-2]['AskClose'].min()<df.iloc[-open_rev_index:-2]['tenkan_avg'].min() \
