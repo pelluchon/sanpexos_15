@@ -1000,11 +1000,9 @@ def close_trade(df, fx, tick,dj,l0):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                if df.iloc[-2]['AskHigh'] > df.iloc[-open_rev_index:-2]['AskHigh'].max() \
-                    and df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg'] and current_ratio>0:
+                if (df.iloc[-2]['kijun_avg'] - margin )> df.iloc[-open_rev_index]['BidClose'] and current_ratio>0:
                     try:
                         type_signal = ' Buy : Adjust for being safe ' + str(current_ratio)
-                        sl = open_price
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -1013,7 +1011,7 @@ def close_trade(df, fx, tick,dj,l0):
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
                             TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
+                            RATE=(df.iloc[-2]['kijun_avg'] - margin ),
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -1100,11 +1098,26 @@ def close_trade(df, fx, tick,dj,l0):
                         except Exception as e:
                             type_signal = type_signal + ' not working for ' + str(e)
                             pass
-                if df.iloc[-2]['AskLow'] < df.iloc[-open_rev_index:-2]['AskLow'].min() \
-                    and df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg'] and current_ratio>0:
+                if df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] and current_ratio > 0 and \
+                        df.iloc[-2]['AskHigh'] > df.iloc[-2]['tenkan_avg'] and candle_2 > 0.25:
                     try:
-                        type_signal = ' Sell : Adjust for being safe' + str(current_ratio)
-                        sl = open_price
+                        type_signal = ' Sell : Close for tenkan over kijun' + str(current_ratio)
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id']
+                        )
+                        resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
+
+                if (df.iloc[-2]['kijun_avg'] + margin ) < df.iloc[-open_rev_index]['BidClose'] and current_ratio>0:
+                    try:
+                        type_signal = ' Sell : Adjust for being safe ' + str(current_ratio)
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -1113,7 +1126,7 @@ def close_trade(df, fx, tick,dj,l0):
                             BUY_SELL=buy_sell,
                             AMOUNT=int(dj.loc[0, 'tick_amount']),
                             TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
+                            RATE=(df.iloc[-2]['kijun_avg'] + margin ),
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
