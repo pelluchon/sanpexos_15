@@ -60,86 +60,86 @@ Dict = {
                   'US2000','AUS200','UKOil','USOil', 'USOilSpot', 'UKOilSpot',
                   'EMBasket','USDOLLAR','JPYBasket', 'CryptoMajor']},
 
-        2:{
-            'hour_open': 0,#opening time in UTC (for midnight put 24)
-            'hour_close':6,#closing time in UTC
-            'FX':[
-      'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
-      'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
-      'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
-      'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
+      #   2:{
+      #       'hour_open': 0,#opening time in UTC (for midnight put 24)
+      #       'hour_close':6,#closing time in UTC
+      #       'FX':[
+      # 'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
+      # 'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
+      # 'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
+      # 'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
     
-        3:{
-            'hour_open': 7,#opening time in UTC (for midnight put 24)
-            'hour_close':15,#closing time in UTC
-            'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
-      'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
-      'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
-      'VOW.de','VNA.de','ENR.de','CBK.de', 'DHER.de']},
+      #   3:{
+      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+      #       'hour_close':15,#closing time in UTC
+      #       'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
+      # 'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
+      # 'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
+      # 'VOW.de','VNA.de','ENR.de','CBK.de', 'DHER.de']},
 
-        4:{
-            'hour_open': 14,#opening time in UTC (for midnight put 24)
-            'hour_close':20,#closing time in UTC
-            'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
-      'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
-      'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
-      'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
-      'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
-      'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
-      'SONY.us','BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
-      'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
-      'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
-      'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
-      'SBUX.us','BABA.us', 'DAL.us',
-      'NFLX.us', 'TSLA.us','SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
-      'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
-      'CPNG.us', 'NET.us', 'RBLX.us', 'COIN.us']},
+      #   4:{
+      #       'hour_open': 14,#opening time in UTC (for midnight put 24)
+      #       'hour_close':20,#closing time in UTC
+      #       'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
+      # 'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
+      # 'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
+      # 'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
+      # 'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
+      # 'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
+      # 'SONY.us','BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
+      # 'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
+      # 'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
+      # 'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
+      # 'SBUX.us','BABA.us', 'DAL.us',
+      # 'NFLX.us', 'TSLA.us','SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
+      # 'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
+      # 'CPNG.us', 'NET.us', 'RBLX.us', 'COIN.us']},
             
-        5:{
-            'hour_open': 2,#opening time in UTC (for midnight put 24)
-            'hour_close':8,#closing time in UTC
-            'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
-      'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
-      'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
-      'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
-      'BYDE.hk','AskU.hk']}, 
+      #   5:{
+      #       'hour_open': 2,#opening time in UTC (for midnight put 24)
+      #       'hour_close':8,#closing time in UTC
+      #       'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
+      # 'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
+      # 'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
+      # 'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
+      # 'BYDE.hk','AskU.hk']},
 
-        6:{
-            'hour_open': 7,#opening time in UTC (for midnight put 24)
-            'hour_close':15,#closing time in UTC
-            'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
-      'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
-      'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
+      #   6:{
+      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+      #       'hour_close':15,#closing time in UTC
+      #       'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
+      # 'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
+      # 'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
 
-        7:{
-            'hour_open': 7,#opening time in UTC (for midnight put 24)
-            'hour_close':15,#closing time in UTC
-            'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
-      'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
-      'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
-       'BT.A.uk', 'NWG.uk','TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
+      #   7:{
+      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+      #       'hour_close':15,#closing time in UTC
+      #       'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
+      # 'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
+      # 'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
+      #  'BT.A.uk', 'NWG.uk','TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
             
-        8:{
+        2:{
             'hour_open': 6,#opening time in UTC (for midnight put 24)
             'hour_close':20,#closing time in UTC
             'FX':['EUSTX50','FRA40']},
 
-        9:{
+        3:{
             'hour_open': 6,#opening time in UTC (for midnight put 24)
             'hour_close':18,#closing time in UTC
             'FX':['ESP35','Bund']},
 
-        10:{
+        4:{
             'hour_open': 1,#opening time in UTC (for midnight put 24)
             'hour_close':19,#closing time in UTC
             'FX':['GER30','HKG33','CHN50','UK100']},
 
-        11:{
+        5:{
             'hour_open': 0,#opening time in UTC (for midnight put 24)
             'hour_close':18,#closing time in UTC
             'FX':['SOYF', 'WHEATF','CORNF']},
 
-        12:{
+        6:{
             'hour_open': 14,#opening time in UTC (for midnight put 24)
             'hour_close':20,#closing time in UTC
             'FX':['ESPORTS', 'BIOTECH','FAANG',
