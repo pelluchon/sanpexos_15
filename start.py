@@ -805,7 +805,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if index_peak < 0 and df.iloc[index_peak]['rsi']<df.iloc[-2]['rsi'] \
-        and df.iloc[-5:-2]['rsi']. mean() < 60\
+        and df.iloc[-7:-2]['rsi']. mean() < 60\
         and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[index_peak]['macd'])) \
         and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
@@ -834,7 +834,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 pass
     #SELL
     elif index_peak < 0  and df.iloc[index_peak]['rsi']>df.iloc[-2]['rsi'] \
-        and df.iloc[-5:-2]['rsi']. mean() > 40 \
+        and df.iloc[-7:-2]['rsi']. mean() > 40 \
         and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskLow'].mean() \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
@@ -1016,6 +1016,28 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
+            if df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg']\
+                and df.iloc[-2]['AskClose']<df.iloc[-2]['tenkan_avg']\
+                and df.iloc[-7:-2]['rsi'].mean()<40\
+                and df.iloc[-2]['signal']<df.iloc[-2]['macd']\
+                and df.iloc[-3:-2]['macd'].mean() < df.iloc[-5:-3]['macd'].mean()\
+                and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean()\
+                and df.iloc[-3:-2]['tenkan_avg'].mean() < df.iloc[-5:-3]['tenkan_avg'].mean()\
+                and df.iloc[-3:-2]['kijun_avg'].mean() < df.iloc[-5:-3]['kijun_avg'].mean():
+                try:
+                    type_signal = ' Buy : Close for bad ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
                 # if df.iloc[-2]['rsi'] >= 40 and df.iloc[-4:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() and \
                 #         df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
                 #         and df.iloc[-open_rev_index:-2]['AskClose'].max()>df.iloc[-open_rev_index:-2]['tenkan_avg'].max() \
@@ -1125,6 +1147,28 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=(df.iloc[-2]['kijun_avg'] + margin ),
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg']\
+                and df.iloc[-2]['AskClose']>df.iloc[-2]['tenkan_avg']\
+                and df.iloc[-7:-2]['rsi'].mean()>60\
+                and df.iloc[-2]['signal']>df.iloc[-2]['macd']\
+                and df.iloc[-3:-2]['macd'].mean() > df.iloc[-5:-3]['macd'].mean()\
+                and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean()\
+                and df.iloc[-3:-2]['tenkan_avg'].mean() > df.iloc[-5:-3]['tenkan_avg'].mean()\
+                and df.iloc[-3:-2]['kijun_avg'].mean() > df.iloc[-5:-3]['kijun_avg'].mean():
+                try:
+                    type_signal = ' Sell : Close for bad ' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
