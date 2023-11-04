@@ -805,7 +805,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     #BUY
     #if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if index_peak < 0 and df.iloc[index_peak]['rsi']<df.iloc[-2]['rsi'] \
-        and df.iloc[-2]['rsi'] < 60\
+        and df.iloc[-5:-2]['rsi']. mean() < 60\
         and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[index_peak]['macd'])) \
         and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
         and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
@@ -834,7 +834,7 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                 pass
     #SELL
     elif index_peak < 0  and df.iloc[index_peak]['rsi']>df.iloc[-2]['rsi'] \
-        and df.iloc[-2]['rsi'] > 40 \
+        and df.iloc[-5:-2]['rsi']. mean() > 40 \
         and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskLow'].mean() \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
         and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
