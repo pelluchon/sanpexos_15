@@ -1010,7 +1010,7 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE_LIMIT=(df.iloc[-2]['kijun_avg'] - margin ),
+                        RATE=(df.iloc[-2]['kijun_avg'] - margin ),
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -1146,7 +1146,7 @@ def close_trade(df, fx, tick,dj,l0):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE_LIMIT=(df.iloc[-2]['kijun_avg'] + margin ),
+                        RATE=(df.iloc[-2]['kijun_avg'] + margin ),
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
