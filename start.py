@@ -999,7 +999,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if (df.iloc[-2]['kijun_avg'] -  margin )> df.iloc[-open_rev_index]['BidClose'] and current_ratio>0:
+            if (df.iloc[-2]['kijun_avg'] -  margin )> open_price and current_ratio>0:
                 try:
                     type_signal = ' Buy : Adjust for being safe ' + str(current_ratio)
                     request = fx.create_order_request(
@@ -1135,7 +1135,7 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if (df.iloc[-2]['kijun_avg'] + margin ) < df.iloc[-open_rev_index]['BidClose'] and current_ratio>0:
+            if (df.iloc[-2]['kijun_avg'] + margin ) < open_price and current_ratio>0:
                 try:
                     type_signal = ' Sell : Adjust for being safe ' + str(current_ratio)
                     request = fx.create_order_request(
