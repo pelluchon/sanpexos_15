@@ -1012,6 +1012,7 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
+                        RATE_LIMIT=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -1149,6 +1150,7 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
+                        RATE_LIMIT=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
