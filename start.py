@@ -20,137 +20,138 @@ import close
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71583266',
-            'str_password': 'lq1vbhs',
-            'str_connection': 'Demo',
-            'str_account': '71583266',
-            #'str_user_i_d': '87053959',
-            #'str_password': 'S4Tpj3P!zz.Mm2p',
-            #'str_connection': 'Real',
-            # 'str_account': '87053959',
-            'str_url': "http://www.fxcorporate.com/Hosts.jsp",
-            'str_session_id': None,
-            'str_pin': None,
-            'str_table': 'orders',
-        },
+        'str_user_i_d': '71583266',
+        'str_password': 'lq1vbhs',
+        'str_connection': 'Demo',
+        'str_account': '71583266',
+        # 'str_user_i_d': '87053959',
+        # 'str_password': 'S4Tpj3P!zz.Mm2p',
+        # 'str_connection': 'Real',
+        # 'str_account': '87053959',
+        'str_url': "http://www.fxcorporate.com/Hosts.jsp",
+        'str_session_id': None,
+        'str_pin': None,
+        'str_table': 'orders',
+    },
     'indicators': {
-            'sd': datetime.now() - relativedelta(weeks=16),
-            'ed': datetime.now(),
-        },
-    'channel_length':27*3,
-    'amount':1,
+        'sd': datetime.now() - relativedelta(weeks=16),
+        'ed': datetime.now(),
+    },
+    'channel_length': 27 * 3,
+    'amount': 1,
     'instrument':
         {
-        
-        1:{
-            'hour_open': 0,#opening time in UTC (for midnight put 24)
-            'hour_close':21,#closing time in UTC
-            'day_open':6, # 6 is Sunday
-            'day_close':4, # 4 is Friday
-            'FX':['UK100','AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
-                  'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'EUR/AUD', 'EUR/CAD',
-                  'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NOK', 'EUR/NZD',
-                  'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'GBP/AUD', 'GBP/CAD',
-                  'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
-                  'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
-                  'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
-                  'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
-                  'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD', 'LTC/USD',
-                  'JPN225', 'NAS100', 'NGAS','SPX500', 'US30', 'VOLX',
-                  'US2000','AUS200','UKOil','USOil', 'USOilSpot', 'UKOilSpot',
-                  'EMBasket','USDOLLAR','JPYBasket', 'CryptoMajor']},
 
-      #   2:{
-      #       'hour_open': 0,#opening time in UTC (for midnight put 24)
-      #       'hour_close':6,#closing time in UTC
-      #       'FX':[
-      # 'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
-      # 'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
-      # 'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
-      # 'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
-    
-      #   3:{
-      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
-      #       'hour_close':15,#closing time in UTC
-      #       'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
-      # 'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
-      # 'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
-      # 'VOW.de','VNA.de','ENR.de','CBK.de', 'DHER.de']},
+            1: {
+                'hour_open': 0,  # opening time in UTC (for midnight put 24)
+                'hour_close': 21,  # closing time in UTC
+                'day_open': 6,  # 6 is Sunday
+                'day_close': 4,  # 4 is Friday
+                'FX': ['UK100', 'AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
+                       'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'EUR/AUD', 'EUR/CAD',
+                       'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NOK', 'EUR/NZD',
+                       'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'GBP/AUD', 'GBP/CAD',
+                       'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
+                       'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
+                       'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
+                       'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
+                       'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD', 'LTC/USD',
+                       'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
+                       'US2000', 'AUS200', 'UKOil', 'USOil', 'USOilSpot', 'UKOilSpot',
+                       'EMBasket', 'USDOLLAR', 'JPYBasket', 'CryptoMajor']},
 
-      #   4:{
-      #       'hour_open': 14,#opening time in UTC (for midnight put 24)
-      #       'hour_close':20,#closing time in UTC
-      #       'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
-      # 'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
-      # 'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
-      # 'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
-      # 'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
-      # 'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
-      # 'SONY.us','BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
-      # 'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
-      # 'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
-      # 'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
-      # 'SBUX.us','BABA.us', 'DAL.us',
-      # 'NFLX.us', 'TSLA.us','SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
-      # 'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
-      # 'CPNG.us', 'NET.us', 'RBLX.us', 'COIN.us']},
-            
-      #   5:{
-      #       'hour_open': 2,#opening time in UTC (for midnight put 24)
-      #       'hour_close':8,#closing time in UTC
-      #       'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
-      # 'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
-      # 'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
-      # 'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
-      # 'BYDE.hk','AskU.hk']},
+            #   2:{
+            #       'hour_open': 0,#opening time in UTC (for midnight put 24)
+            #       'hour_close':6,#closing time in UTC
+            #       'FX':[
+            # 'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
+            # 'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
+            # 'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
+            # 'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
 
-      #   6:{
-      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
-      #       'hour_close':15,#closing time in UTC
-      #       'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
-      # 'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
-      # 'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
+            #   3:{
+            #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+            #       'hour_close':15,#closing time in UTC
+            #       'FX':['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
+            # 'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
+            # 'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
+            # 'VOW.de','VNA.de','ENR.de','CBK.de', 'DHER.de']},
 
-      #   7:{
-      #       'hour_open': 7,#opening time in UTC (for midnight put 24)
-      #       'hour_close':15,#closing time in UTC
-      #       'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
-      # 'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
-      # 'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
-      #  'BT.A.uk', 'NWG.uk','TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
-            
-        2:{
-            'hour_open': 6,#opening time in UTC (for midnight put 24)
-            'hour_close':20,#closing time in UTC
-            'FX':['EUSTX50','FRA40']},
+            #   4:{
+            #       'hour_open': 14,#opening time in UTC (for midnight put 24)
+            #       'hour_close':20,#closing time in UTC
+            #       'FX':['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
+            # 'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
+            # 'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
+            # 'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
+            # 'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
+            # 'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
+            # 'SONY.us','BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
+            # 'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
+            # 'PFE.us', 'PG.us', 'SE.us', 'T.us', 'TGT.us', 'V.us', 'XOM.us',
+            # 'AAPL.us', 'AMZN.us', 'AskU.us', 'GOOG.us', 'INTC.us', 'MSFT.us',
+            # 'SBUX.us','BABA.us', 'DAL.us',
+            # 'NFLX.us', 'TSLA.us','SQ.us', 'LYFT.us', 'UAL.us', 'DKNG.us', 'SHOP.us', 'BYND.us',
+            # 'UBER.us', 'ZM.us', 'LCID.us', 'HOOD.us', 'CRWD.us', 'BEKE.us',
+            # 'CPNG.us', 'NET.us', 'RBLX.us', 'COIN.us']},
 
-        3:{
-            'hour_open': 6,#opening time in UTC (for midnight put 24)
-            'hour_close':18,#closing time in UTC
-            'FX':['ESP35','Bund']},
+            #   5:{
+            #       'hour_open': 2,#opening time in UTC (for midnight put 24)
+            #       'hour_close':8,#closing time in UTC
+            #       'FX':['TENC.hk', 'MEIT.hk', 'BYDC.hk', 'XIAO.hk', 'BABA.hk',
+            # 'AIA.hk', 'HSBC.hk', 'WUXI.hk', 'HKEX.hk', 'GELY.hk', 'JD.hk',
+            # 'NETE.hk', 'PING.hk', 'SMIC.hk', 'SBIO.hk', 'GALA.hk', 'KIDE.hk',
+            # 'ALIH.hk', 'ICBC.hk', 'FLAT.hk', 'KSOF.hk', 'SMOO.hk', 'SUNN.hk',
+            # 'BYDE.hk','AskU.hk']},
 
-        4:{
-            'hour_open': 1,#opening time in UTC (for midnight put 24)
-            'hour_close':19,#closing time in UTC
-            'FX':['GER30','HKG33','CHN50','UK100']},
+            #   6:{
+            #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+            #       'hour_close':15,#closing time in UTC
+            #       'FX':['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
+            # 'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
+            # 'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr','TTE.fr', 'ENGI.fr','STM.fr', 'STLA.fr']},
 
-        5:{
-            'hour_open': 0,#opening time in UTC (for midnight put 24)
-            'hour_close':18,#closing time in UTC
-            'FX':['SOYF', 'WHEATF','CORNF']},
+            #   7:{
+            #       'hour_open': 7,#opening time in UTC (for midnight put 24)
+            #       'hour_close':15,#closing time in UTC
+            #       'FX':['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
+            # 'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
+            # 'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk','GLEN.uk',
+            #  'BT.A.uk', 'NWG.uk','TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
 
-        6:{
-            'hour_open': 14,#opening time in UTC (for midnight put 24)
-            'hour_close':20,#closing time in UTC
-            'FX':['ESPORTS', 'BIOTECH','FAANG',
-                  'CHN.TECH', 'CHN.ECOMM',
-                  'AIRLINES','CASINOS', 
-                  'TRAVEL', 'US.ECOMM', 
-                  'US.BANKS','US.AUTO', 
-                  'WFH','URANIUM']},
-            
+            2: {
+                'hour_open': 6,  # opening time in UTC (for midnight put 24)
+                'hour_close': 20,  # closing time in UTC
+                'FX': ['EUSTX50', 'FRA40']},
+
+            3: {
+                'hour_open': 6,  # opening time in UTC (for midnight put 24)
+                'hour_close': 18,  # closing time in UTC
+                'FX': ['ESP35', 'Bund']},
+
+            4: {
+                'hour_open': 1,  # opening time in UTC (for midnight put 24)
+                'hour_close': 19,  # closing time in UTC
+                'FX': ['GER30', 'HKG33', 'CHN50', 'UK100']},
+
+            5: {
+                'hour_open': 0,  # opening time in UTC (for midnight put 24)
+                'hour_close': 18,  # closing time in UTC
+                'FX': ['SOYF', 'WHEATF', 'CORNF']},
+
+            6: {
+                'hour_open': 14,  # opening time in UTC (for midnight put 24)
+                'hour_close': 20,  # closing time in UTC
+                'FX': ['ESPORTS', 'BIOTECH', 'FAANG',
+                       'CHN.TECH', 'CHN.ECOMM',
+                       'AIRLINES', 'CASINOS',
+                       'TRAVEL', 'US.ECOMM',
+                       'US.BANKS', 'US.AUTO',
+                       'WFH', 'URANIUM']},
+
         },
 }
+
 
 def indicators(df):
     def ichimoku(df):
@@ -240,7 +241,8 @@ def indicators(df):
 
     return (df)
 
-def analysis(df, ind,tick):
+
+def analysis(df, ind, tick):
     def chikou_signal(df):
 
         # Check the Chikou
@@ -332,22 +334,22 @@ def analysis(df, ind,tick):
         df['slope'] = np.nan
         df['slope_macd'] = np.nan
         # peaks definition
-        for i in range(-ind-1,-n+1, -1):
+        for i in range(-ind - 1, -n + 1, -1):
             # peaks macd
-            if abs(df.iloc[i]['macd'])>=abs(df.iloc[i]['signal']):
-                if (i ==-2) and \
+            if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
+                if (i == -2) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
-                    df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
-                elif (i < -2) and\
+                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+                elif (i < -2) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
-                    df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
+                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
         # slope definition & remove all the nans
         if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
                 df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
@@ -363,7 +365,8 @@ def analysis(df, ind,tick):
             df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
             df.loc[3, 'slope'] = temp['index'].iloc[-1]
             df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
-            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
+            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (
+                        df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
         return df
 
     def find_last_peaks(df, ind):
@@ -372,28 +375,28 @@ def analysis(df, ind,tick):
         df['peaks_macd'] = np.nan
         df['slope'] = np.nan
         df['slope_macd'] = np.nan
-        sign_first_peak=0
-        for i in range(-ind-1,-n+1, -1):
+        sign_first_peak = 0
+        for i in range(-ind - 1, -n + 1, -1):
             if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
-                if (i ==-2) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
-                    df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
-                    sign_first_peak=np.sign(df.iloc[i]['macd'])
-                elif (i < -2) and\
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
+                if (i == -2) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
+                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+                    sign_first_peak = np.sign(df.iloc[i]['macd'])
+                elif (i < -2) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
                     if sign_first_peak == 0:
                         df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
                         df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
                         sign_first_peak = np.sign(df.iloc[i]['macd'])
                     elif sign_first_peak == np.sign(df.iloc[i]['macd']):
-                        df.loc[n+i, 'peaks_macd'] = df.iloc[i]['macd']
-                        df.loc[n+i, 'peaks'] = df.iloc[i]['AskClose']
+                        df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                        df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
         # slope definition & remove all the nans
         if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
                 df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
@@ -409,15 +412,16 @@ def analysis(df, ind,tick):
             df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
             df.loc[3, 'slope'] = temp['index'].iloc[-1]
             df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
-            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
+            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (
+                        df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
         return df
 
     def find_limit(df):
         df.iloc[-2]['AskClose']
 
-    def mean_reversion(data,tick):
+    def mean_reversion(data, tick):
         def sendemail(attach, subject_mail, body_mail):
-            
+
             fromaddr = 'sanpexos@hotmail.com'
             toaddr = 'paul.pelluchon.doc@gmail.com'
             password = '@c<Md5&$gzGNU<('
@@ -458,7 +462,7 @@ def analysis(df, ind,tick):
             s.sendmail(fromaddr, toaddr, text)
             # terminating the session
             s.quit()
-        
+
         # Calculate the rolling mean and standard deviation
         window = 20
         data['RollingMean'] = data['AskClose'].rolling(window=window).mean()
@@ -474,17 +478,17 @@ def analysis(df, ind,tick):
 
         # Generate trading signals
         for i in range(window, len(data)):
-            if data.iloc[i]['ZScore'] > entry_threshold and data.iloc[i-1]['ZScore'] <= entry_threshold:
-                data.loc[i,'Signal'] = -1  # Short position
-            elif data.iloc[i]['ZScore'] < -entry_threshold and data.iloc[i-1]['ZScore'] >= -entry_threshold:
-                data.loc[i,'Signal'] = 1  # Long position
-        
+            if data.iloc[i]['ZScore'] > entry_threshold and data.iloc[i - 1]['ZScore'] <= entry_threshold:
+                data.loc[i, 'Signal'] = -1  # Short position
+            elif data.iloc[i]['ZScore'] < -entry_threshold and data.iloc[i - 1]['ZScore'] >= -entry_threshold:
+                data.loc[i, 'Signal'] = 1  # Long position
+
         # Apply signals to positions
         for i in range(window, len(data)):
             if data.iloc[i]['Signal'] == 1:
-                data.loc[i,'Position'] = 1  # Long position
+                data.loc[i, 'Position'] = 1  # Long position
             elif data.iloc[i]['Signal'] == -1:
-                data.loc[i,'Position'] = -1  # Short position
+                data.loc[i, 'Position'] = -1  # Short position
 
         # Calculate strategy returns
         data['Returns'] = data['Position'].shift() * data['AskClose'].pct_change()
@@ -493,29 +497,29 @@ def analysis(df, ind,tick):
         data['CumulativeReturns'] = (1 + data['Returns']).cumprod()
 
         # Plotting
-        fig=plt.figure(figsize=(12, 6))
+        fig = plt.figure(figsize=(12, 6))
         plt.plot(data.index, data['CumulativeReturns'])
         plt.xlabel('Date')
         plt.ylabel('Cumulative Returns')
         plt.title('Mean Reversion Strategy')
         fig.savefig('mean_reversion.png')
-        #try:
+        # try:
         #    sendemail(attach='mean_reversion.png', subject_mail=str(tick), body_mail=str(tick) + 'mean_reversion')
-        #except Exception as e:
+        # except Exception as e:
         #    print("issue with mails for " + tick)
         #    print("Exception: " + str(e))
         plt.close()
         return data
 
-
     df = chikou_signal(df)
     # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
     # backcandles i ma reday to follow 1 week so 5 days
-    df = trend_channels(df, 27*3, 3, len(df) - 4 - ind, 5, False)
+    df = trend_channels(df, 27 * 3, 3, len(df) - 4 - ind, 5, False)
     df = find_last_peaks(df, ind)
-    df = mean_reversion(df,tick)
+    df = mean_reversion(df, tick)
     return df
+
 
 def box(df, index):
     low_box = -1
@@ -551,6 +555,7 @@ def box(df, index):
         else:
             box_def == False
     return low_box, high_box, box_def
+
 
 def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak):
     def sendemail(attach, subject_mail, body_mail):
@@ -603,7 +608,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         #     df = df.iloc[-100:-1]
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
-        min_x= 27*10
+        min_x = 27 * 10
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
@@ -626,7 +631,8 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
-        ax1.plot([df.loc[3, 'slope'],df.loc[4, 'slope']],[df.loc[1, 'slope'],df.loc[2, 'slope']],linewidth=2, color= 'yellow', marker='s')
+        ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
+                 color='yellow', marker='s')
         ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
                   df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
                  [df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[0]) + df['adjintercmin'].dropna(),
@@ -637,9 +643,11 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
                  [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
                   df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
                  linewidth=2, color='red')
-        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:], where=df['senkou_a'][-min_x:] >= df['senkou_b'][-min_x:],
+        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:],
+                         where=df['senkou_a'][-min_x:] >= df['senkou_b'][-min_x:],
                          color='lightgreen')
-        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:], where=df['senkou_a'][-min_x:] < df['senkou_b'][-min_x:],
+        ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:],
+                         where=df['senkou_a'][-min_x:] < df['senkou_b'][-min_x:],
                          color='lightcoral')
         quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
@@ -659,28 +667,29 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
             ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
                        linestyle='-.')
         ax1.grid()
-        low_limit=np.nanmin(df['AskLow'][-min_x:])
+        low_limit = np.nanmin(df['AskLow'][-min_x:])
         high_limit = np.nanmax(df['AskHigh'][-min_x:])
-        ax1.set_ylim(low_limit-0.1*(high_limit-low_limit),high_limit+0.1*(high_limit-low_limit))
+        ax1.set_ylim(low_limit - 0.1 * (high_limit - low_limit), high_limit + 0.1 * (high_limit - low_limit))
         ax1.set_xlim(np.nanmin(df['index'][-min_x:]), np.nanmax(df['index'][-min_x:]))
         ax1.set(xlabel=None)
 
         ###AX2
         ax2.bar(df.index[-min_x:], df['macd'][-min_x:], color='grey')
         ax2.plot(df.index[-min_x:], df['signal'][-min_x:], color='red')
-        ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']], linewidth=2,
+        ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']],
+                 linewidth=2,
                  color='yellow', marker='s')
         ax2.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
         ax2.set(xlabel=None)
-        
+
         ###AX3
         ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
         ax3.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
-        ax3_0=ax3.twinx()
+        ax3_0 = ax3.twinx()
         ax3_0.bar(df.index[-min_x:], df['Signal'][-min_x:], color='red')
         ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
         ax3.grid()
@@ -700,7 +709,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax4.grid()
 
-        #plt.show()
+        # plt.show()
         fig.savefig('filename.png')
         try:
             sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
@@ -709,9 +718,11 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
             print("Exception: " + str(e))
         plt.close()
 
+
 def session_status_changed(session: fxcorepy.O2GSession,
                            status: fxcorepy.AO2GSessionStatus.O2GSessionStatus):
     print("Trading session status: " + str(status))
+
 
 def check_trades(tick, fx):
     ## improve check trades : Common.convert_row_to_dataframe()
@@ -721,11 +732,11 @@ def check_trades(tick, fx):
     offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
     dj = pd.DataFrame(dtype="string")
     if len(orders_table) != 0:
-        k=0
+        k = 0
         for row in orders_table:
-            k=k+1
+            k = k + 1
             if row.instrument == tick:
-                dj.loc[0,'order_stop_id'] = row.stop_order_id
+                dj.loc[0, 'order_stop_id'] = row.stop_order_id
                 dj.loc[0, 'order_limit_id'] = row.limit_order_id
                 open_pos_status = 'Yes'
                 dj.loc[0, 'tick_time'] = row.open_time
@@ -739,7 +750,7 @@ def check_trades(tick, fx):
                 dj.loc[0, 'profit_loss'] = row.pl
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-    #get the pip size in all cases
+    # get the pip size in all cases
     k = 0
     for row in offers_table:
         k = k + 1
@@ -752,11 +763,12 @@ def check_trades(tick, fx):
                 dj.loc[0, 'pip_size'] = 1
     return open_pos_status, dj
 
-def open_trade(df, fx, tick, trading_settings_provider,dj):
-    def set_amount(lots,dj):
+
+def open_trade(df, fx, tick, trading_settings_provider, dj):
+    def set_amount(lots, dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
-        amount= base_unit_size*Dict['amount']
+        amount = base_unit_size * Dict['amount']
         return amount
 
     open_rev_index = 1
@@ -767,87 +779,88 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
     tp = 0
     sl = 0
     index_peak = 0
-    df = analysis(df, open_rev_index,tick)
+    df = analysis(df, open_rev_index, tick)
     candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
     margin = abs(0.2 * (np.nanmax(df.iloc[-27:-2]['AskHigh']) - np.nanmin(df.iloc[-27:-2]['AskLow'])))
 
-    #peak of RSI
-    for i in range(-2,-len(df)+1, -1):
+    # peak of RSI
+    for i in range(-2, -len(df) + 1, -1):
         if df.iloc[i]['rsi'] < 31:
             if (i == -2) and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
             elif (i < -2) and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 2]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
         elif df.iloc[i]['rsi'] > 69:
             if (i == -2) and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
             elif (i < -2) and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 2]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
 
-    #BUY
-    #if index of under 31 is the highest, means the latest down (under 31) is after the last high
-    if index_peak < 0 and df.iloc[index_peak]['rsi']<df.iloc[-2]['rsi'] \
-        and df.iloc[-7:-2]['rsi']. mean() < 60\
-        and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd']>df.iloc[index_peak]['macd'])) \
-        and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-        and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-        and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'],df.iloc[index_peak]['senkou_b'])\
-        and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
-        and df.iloc[index_peak-27]['chikou'] < df.iloc[index_peak-27]['AskHigh'] \
-        and df.iloc[index_peak-27]['chikou'] < df.iloc[index_peak-27]['tenkan_avg']\
-        and df.iloc[index_peak-27]['chikou'] < df.iloc[index_peak-27]['kijun_avg']:
-        min_entry=round((max(df.iloc[-27:-2]['kijun_avg'])-min(df.iloc[-27:-2]['AskLow']))/(abs(df.iloc[-2]['BidClose']-df.iloc[-2]['AskClose'])),2)
-        if min_entry >=2:
+    # BUY
+    # if index of under 31 is the highest, means the latest down (under 31) is after the last high
+    if index_peak < 0 and df.iloc[index_peak]['rsi'] < df.iloc[-2]['rsi'] \
+            and df.iloc[-7:-2]['rsi'].mean() < 60 \
+            and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd'] > df.iloc[index_peak]['macd'])) \
+            and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
+            and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+            and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
+            and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
+            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['AskHigh'] \
+            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['tenkan_avg'] \
+            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['kijun_avg']:
+        min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
+            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+        if min_entry >= 2:
             try:
-                amount =(set_amount(Dict['amount'], dj))
+                amount = (set_amount(Dict['amount'], dj))
                 type_signal = ' BUY Amount:' + str(amount) + ' Bid/Ask:' + str(min_entry)
                 request = fx.create_order_request(
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
                     BUY_SELL=fxcorepy.Constants.BUY,
-                    AMOUNT=round(amount,2),
+                    AMOUNT=round(amount, 2),
                     SYMBOL=tick,
                 )
                 fx.send_request(request)
             except Exception as e:
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
-    #SELL
-    elif index_peak < 0  and df.iloc[index_peak]['rsi']>df.iloc[-2]['rsi'] \
-        and df.iloc[-7:-2]['rsi']. mean() > 40 \
-        and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskLow'].mean() \
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-        and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-        and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-        and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd']<df.iloc[index_peak]['macd'])) \
-        and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'],df.iloc[index_peak]['senkou_b'])\
-        and df.iloc[index_peak]['tenkan_avg'] > df.iloc[index_peak]['kijun_avg'] \
-        and df.iloc[index_peak-27]['chikou'] > df.iloc[index_peak-27]['AskHigh'] \
-        and df.iloc[index_peak-27]['chikou'] > df.iloc[index_peak-27]['tenkan_avg']\
-        and df.iloc[index_peak-27]['chikou'] > df.iloc[index_peak-27]['kijun_avg']:
-        min_entry = round((max(df.iloc[-27:-2]['AskHigh'])-min(df.iloc[-27:-2]['kijun_avg'])) / (
-            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])),2)
-        if min_entry >=2:
+    # SELL
+    elif index_peak < 0 and df.iloc[index_peak]['rsi'] > df.iloc[-2]['rsi'] \
+            and df.iloc[-7:-2]['rsi'].mean() > 40 \
+            and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskLow'].mean() \
+            and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+            and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd'] < df.iloc[index_peak]['macd'])) \
+            and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
+            and df.iloc[index_peak]['tenkan_avg'] > df.iloc[index_peak]['kijun_avg'] \
+            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['AskHigh'] \
+            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['tenkan_avg'] \
+            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['kijun_avg']:
+        min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
+            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+        if min_entry >= 2:
             try:
                 amount = (set_amount(Dict['amount'], dj))
                 type_signal = ' Sell Amount: ' + str(amount) + ' Bid/Ask: ' + str(min_entry)
@@ -855,74 +868,76 @@ def open_trade(df, fx, tick, trading_settings_provider,dj):
                     order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                     ACCOUNT_ID=Dict['FXCM']['str_account'],
                     BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=round(amount,2),
+                    AMOUNT=round(amount, 2),
                     SYMBOL=tick,
                 )
                 fx.send_request(request)
             except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-     
+                type_signal = type_signal + ' not working for ' + str(e)
+
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
-                    
-def close_trade(df, fx, tick,dj,l0):
+
+
+def close_trade(df, fx, tick, dj, l0):
     try:
-        open_rev_index = [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0,'tick_time'].strftime("%m%d%Y%H")]][0][0]
+        open_rev_index = \
+        [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0, 'tick_time'].strftime("%m%d%Y%H")]][0][0]
     except:
         open_rev_index = 1
     type_signal = 'No'
-    open_price = dj.loc[0,'tick_open_price']
-    price = dj.loc[0,'tick_price']
+    open_price = dj.loc[0, 'tick_open_price']
+    price = dj.loc[0, 'tick_price']
     box_def = False
     high_box = 0
     low_box = 0
-    index_peak=None
-    df = analysis(df, open_rev_index,tick)
-    tp = dj.loc[0,'tick_limit']
-    sl = dj.loc[0,'tick_stop']
+    index_peak = None
+    df = analysis(df, open_rev_index, tick)
+    tp = dj.loc[0, 'tick_limit']
+    sl = dj.loc[0, 'tick_stop']
     offer = Common.get_offer(fx, tick)
     buy = fxcorepy.Constants.BUY
     sell = fxcorepy.Constants.SELL
-    buy_sell = sell if dj.loc[0,'tick_type'] == buy else buy
-    candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen'])/(df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
-    window_of_interest=27
+    buy_sell = sell if dj.loc[0, 'tick_type'] == buy else buy
+    candle_2 = (df.iloc[-2]['AskClose'] - df.iloc[-2]['AskOpen']) / (df.iloc[-2]['AskHigh'] - df.iloc[-2]['AskLow'])
+    window_of_interest = 27
     margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
         df.iloc[-window_of_interest:-2]['AskLow'])))
 
-    for i in range(-open_rev_index,-len(df)+1, -1):
+    for i in range(-open_rev_index, -len(df) + 1, -1):
         if df.iloc[i]['rsi'] < 31:
             if (i == -2) and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
             elif (i < -2) and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 1]['rsi'] and \
                     df.iloc[i]['rsi'] <= df.iloc[i + 2]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
         elif df.iloc[i]['rsi'] > 69:
             if (i == -2) and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
             elif (i < -2) and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i - 2]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 1]['rsi'] and \
                     df.iloc[i]['rsi'] >= df.iloc[i + 2]['rsi']:
-                index_peak=i
+                index_peak = i
                 break
 
-    if open_rev_index<1:
+    if open_rev_index < 1:
         print('open_rev_index too small')
     else:
-        #BUY CONDIDITIONS
-        if dj.loc[0,'tick_type'] == 'B':
+        # BUY CONDIDITIONS
+        if dj.loc[0, 'tick_type'] == 'B':
             current_ratio = (price - open_price) / (open_price - df.iloc[-open_rev_index:-2]['AskLow'].min())
             # END OF DAY CONDITIONS
             # if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
@@ -966,25 +981,25 @@ def close_trade(df, fx, tick,dj,l0):
             #     except Exception as e:
             #         type_signal = type_signal + ' not working for ' + str(e)
             #         pass
-            if df.iloc[-2]['AskClose']<df.iloc[-2]['tenkan_avg'] and candle_2<-0.25\
-                and current_ratio>0 and df.iloc[-open_rev_index:-2][df['rsi']>65].size>0 and \
-                ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-5:-2]['macd'].mean()<df.iloc[-8:-5]['macd'].mean())):
-                    try:
-                        type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
-            if df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg'] and current_ratio>0 and \
-                    df.iloc[-2]['AskLow']<df.iloc[-2]['tenkan_avg'] and candle_2<-0.25:
+            if df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] and candle_2 < -0.25 \
+                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] > 65].size > 0 and \
+                ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-5:-2]['macd'].mean() < df.iloc[-8:-5]['macd'].mean())):
+                try:
+                    type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            if df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] and current_ratio > 0 and \
+                    df.iloc[-2]['AskLow'] < df.iloc[-2]['tenkan_avg'] and candle_2 < -0.25:
                 try:
                     type_signal = ' Buy : Close for tenkan over kijun' + str(current_ratio)
                     request = fx.create_order_request(
@@ -999,9 +1014,9 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if (df.iloc[-2]['kijun_avg'] -  margin )> open_price and current_ratio>0:
+            if (df.iloc[-2]['kijun_avg'] - margin) > open_price and (df.iloc[-2]['kijun_avg'] - margin) > df.iloc[-2]['AskClose'] and current_ratio > 0:
                 try:
-                    sl=df.iloc[-2]['kijun_avg'] -  margin 
+                    sl = df.iloc[-2]['kijun_avg'] - margin
                     type_signal = ' Buy : Adjust for being safe ' + str(current_ratio)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
@@ -1012,19 +1027,18 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
-                        RATE_LIMIT=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['tenkan_avg']<df.iloc[-2]['kijun_avg']\
-                and df.iloc[-2]['AskClose']<df.iloc[-2]['tenkan_avg']\
-                and df.iloc[-7:-2]['rsi'].mean()<40\
-                and df.iloc[-2]['signal']<df.iloc[-2]['macd']\
-                and df.iloc[-3:-2]['macd'].mean() < df.iloc[-5:-3]['macd'].mean()\
-                and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean()\
-                and df.iloc[-3:-2]['tenkan_avg'].mean() < df.iloc[-5:-3]['tenkan_avg'].mean()\
+            if df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+                and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
+                and df.iloc[-7:-2]['rsi'].mean() < 40 \
+                and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
+                and df.iloc[-3:-2]['macd'].mean() < df.iloc[-5:-3]['macd'].mean() \
+                and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() \
+                and df.iloc[-3:-2]['tenkan_avg'].mean() < df.iloc[-5:-3]['tenkan_avg'].mean() \
                 and df.iloc[-3:-2]['kijun_avg'].mean() < df.iloc[-5:-3]['kijun_avg'].mean():
                 try:
                     type_signal = ' Buy : Close for bad ' + str(current_ratio)
@@ -1060,8 +1074,8 @@ def close_trade(df, fx, tick,dj,l0):
                 #         type_signal = type_signal + ' not working for ' + str(e)
                 #         pass
         # if was sell
-        if dj.loc[0,'tick_type'] == 'S':
-            current_ratio = (open_price-price) / (df.iloc[-open_rev_index:-2]['AskHigh'].max()-open_price)
+        if dj.loc[0, 'tick_type'] == 'S':
+            current_ratio = (open_price - price) / (df.iloc[-open_rev_index:-2]['AskHigh'].max() - open_price)
             # END OF DAY CONDITIONS
             # if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_close'] and \
             #         int(datetime.now().strftime("%H")) == Dict['instrument'][l0]['hour_close'] - 1:
@@ -1104,25 +1118,25 @@ def close_trade(df, fx, tick,dj,l0):
             #         type_signal = type_signal + ' not working for ' + str(e)
             #         pass
 
-            if df.iloc[-2]['AskClose']>df.iloc[-2]['tenkan_avg'] and candle_2>0.25\
-                and current_ratio>0 and df.iloc[-open_rev_index:-2][df['rsi']<35].size>0 and \
-                ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-5:-2]['macd'].mean()>df.iloc[-8:-5]['macd'].mean())):
-                    try:
-                        type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id']
-                        )
-                        resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+            if df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] and candle_2 > 0.25 \
+                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] < 35].size > 0 and \
+                ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-5:-2]['macd'].mean() > df.iloc[-8:-5]['macd'].mean())):
+                try:
+                    type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id']
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
             if df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] and current_ratio > 0 and \
-                    df.iloc[-2]['AskHigh'] > df.iloc[-2]['tenkan_avg'] and candle_2 > 0.25:
+                df.iloc[-2]['AskHigh'] > df.iloc[-2]['tenkan_avg'] and candle_2 > 0.25:
                 try:
                     type_signal = ' Sell : Close for tenkan over kijun' + str(current_ratio)
                     request = fx.create_order_request(
@@ -1137,9 +1151,9 @@ def close_trade(df, fx, tick,dj,l0):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if (df.iloc[-2]['kijun_avg'] + margin ) < open_price and current_ratio>0:
+            if (df.iloc[-2]['kijun_avg'] + margin) < open_price and (df.iloc[-2]['kijun_avg'] + margin) < df.iloc[-2]['AskClose'] and current_ratio > 0:
                 try:
-                    sl=(df.iloc[-2]['kijun_avg'] + margin )
+                    sl = (df.iloc[-2]['kijun_avg'] + margin)
                     type_signal = ' Sell : Adjust for being safe ' + str(current_ratio)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.LIMIT,
@@ -1150,19 +1164,18 @@ def close_trade(df, fx, tick,dj,l0):
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
                         RATE=sl,
-                        RATE_LIMIT=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
-            if df.iloc[-2]['tenkan_avg']>df.iloc[-2]['kijun_avg']\
-                and df.iloc[-2]['AskClose']>df.iloc[-2]['tenkan_avg']\
-                and df.iloc[-7:-2]['rsi'].mean()>60\
-                and df.iloc[-2]['signal']>df.iloc[-2]['macd']\
-                and df.iloc[-3:-2]['macd'].mean() > df.iloc[-5:-3]['macd'].mean()\
-                and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean()\
-                and df.iloc[-3:-2]['tenkan_avg'].mean() > df.iloc[-5:-3]['tenkan_avg'].mean()\
+            if df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+                and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
+                and df.iloc[-7:-2]['rsi'].mean() > 60 \
+                and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
+                and df.iloc[-3:-2]['macd'].mean() > df.iloc[-5:-3]['macd'].mean() \
+                and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean() \
+                and df.iloc[-3:-2]['tenkan_avg'].mean() > df.iloc[-5:-3]['tenkan_avg'].mean() \
                 and df.iloc[-3:-2]['kijun_avg'].mean() > df.iloc[-5:-3]['kijun_avg'].mean():
                 try:
                     type_signal = ' Sell : Close for bad ' + str(current_ratio)
@@ -1225,7 +1238,8 @@ def close_trade(df, fx, tick,dj,l0):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def rsi_algorithm(data,tick):
+
+def rsi_algorithm(data, tick):
     def sendemail(attach, subject_mail, body_mail):
         fromaddr = 'sanpexos@hotmail.com'
         toaddr = 'paul.pelluchon.doc@gmail.com'
@@ -1267,7 +1281,7 @@ def rsi_algorithm(data,tick):
         s.sendmail(fromaddr, toaddr, text)
         # terminating the session
         s.quit()
-        
+
     from sklearn.model_selection import train_test_split, cross_val_score
     from sklearn.preprocessing import StandardScaler
     from sklearn.ensemble import RandomForestClassifier
@@ -1297,70 +1311,73 @@ def rsi_algorithm(data,tick):
     accuracy = accuracy_score(y_test, predictions)
     print(f"Accuracy: {accuracy}")
     print(f"Cross-Validation Scores: {cross_val_scores}")
-        
-    #try:
+
+    # try:
     #     sendemail(attach='rsi_algorithm.png', subject_mail=str(tick), body_mail=str(tick) + 'rsi_algorithm.png')
-    #except Exception as e:
+    # except Exception as e:
     #    print("issue with mails for " + tick)
     #    print("Exception: " + str(e))
 
+
 def main():
     print(str(datetime.now().strftime("%H:%M:%S")))
-    #print('launch close')
-    #close.main()
+    # print('launch close')
+    # close.main()
     with ForexConnect() as fx:
-        #try:
+        # try:
         fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
                  Dict['FXCM']['str_connection'], Dict['FXCM']['str_session_id'], Dict['FXCM']['str_pin'],
                  session_status_callback=session_status_changed)
         login_rules = fx.login_rules
         trading_settings_provider = login_rules.trading_settings_provider
-        for l0 in range(1,len(Dict['instrument'])):
+        for l0 in range(1, len(Dict['instrument'])):
             FX = Dict['instrument'][l0]['FX']
-            
+
             for l1 in range(0, len(FX)):
-                if trading_settings_provider.get_market_status(FX[l1])==fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
-                    tick=FX[l1]
+                if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
+                    tick = FX[l1]
                     print(FX[l1])
-                    #H1
+                    # H1
                     df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                    if len(df) < 7*5*3:
+                    if len(df) < 7 * 5 * 3:
                         df = pd.DataFrame(
-                            fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6), Dict['indicators']['ed']))
+                            fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6),
+                                           Dict['indicators']['ed']))
                     # If there is history data
                     # Add all the indicators needed
 
-                    window_of_interest=27
+                    window_of_interest = 27
                     margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
-                    df.iloc[-window_of_interest:-2]['AskLow'])))
-                    
-                        
+                        df.iloc[-window_of_interest:-2]['AskLow'])))
+
                     df = indicators(df)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
-                        if df.iloc[-2]['AskHigh']+margin>df.iloc[-3]['AskLow']:
-                            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                        if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
+                            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
+                                    datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('forex not hour')
                             elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('other not hour')
                             else:
                                 df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                                    open_trade(df, fx, FX[l1],trading_settings_provider,dj)
+                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj)
                                 df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                            close_trade(df, fx, FX[l1], dj,l0)
+                            close_trade(df, fx, FX[l1], dj, l0)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                        #rsi_algorithm(df,FX[l1])
+                        # rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
             # try:
             #     fx.logout()
             # except Exception as e:
             #     print("Exception: " + str(e))
+
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
@@ -1379,5 +1396,5 @@ if __name__ == "__main__":
     #     schedule.run_pending()
     #     time.sleep(60)
 
-#For next improvement
-    #How    to    use    this    fxcorepy.Constants.SystemProperties.END_TRADING_DAY ?
+# For next improvement
+# How    to    use    this    fxcorepy.Constants.SystemProperties.END_TRADING_DAY ?
