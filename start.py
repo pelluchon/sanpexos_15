@@ -982,7 +982,7 @@ def close_trade(df, fx, tick, dj, l0):
             #         type_signal = type_signal + ' not working for ' + str(e)
             #         pass
             if df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] and candle_2 < -0.25 \
-                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] > 65].size > 0 and \
+                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] > 65].size > 0 and df.iloc[-2]['tenkan_avg'] < df.iloc[-3]['tenkan_avg'] and \
                 ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-4:-2]['macd'].mean() < df.iloc[-6:-4]['macd'].mean())):
                 try:
                     type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
@@ -1119,8 +1119,9 @@ def close_trade(df, fx, tick, dj, l0):
             #         pass
 
             if df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] and candle_2 > 0.25 \
-                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] < 35].size > 0 and \
-                ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-4:-2]['macd'].mean() > df.iloc[-6:-4]['macd'].mean())):
+                and current_ratio > 0 and df.iloc[-open_rev_index:-2][df['rsi'] < 35].size > 0 \
+                and df.iloc[-2]['tenkan_avg'] > df.iloc[-3]['tenkan_avg'] \
+                and ((abs(df.iloc[-2]['macd']) < abs(df.iloc[-2]['signal'])) or (df.iloc[-4:-2]['macd'].mean() > df.iloc[-6:-4]['macd'].mean())):
                 try:
                     type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
                     request = fx.create_order_request(
