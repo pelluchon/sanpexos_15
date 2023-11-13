@@ -1034,12 +1034,12 @@ def close_trade(df, fx, tick, dj, l0):
                     pass
             if df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
                 and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-                and df.iloc[-5:-2]['rsi'].mean() < 50 \
-                and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
-                and df.iloc[-3:-2]['macd'].mean() < df.iloc[-5:-3]['macd'].mean() \
-                and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-5:-3]['rsi'].mean() \
-                and df.iloc[-3:-2]['tenkan_avg'].mean() < df.iloc[-5:-3]['tenkan_avg'].mean() \
-                and df.iloc[-3:-2]['kijun_avg'].mean() < df.iloc[-5:-3]['kijun_avg'].mean():
+                and df.iloc[-4:-2]['rsi'].mean() < 40 \
+                and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
+                and df.iloc[-3:-2]['macd'].mean() < df.iloc[-4:-3]['macd'].mean() \
+                and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-4:-3]['rsi'].mean() \
+                and df.iloc[-3:-2]['tenkan_avg'].mean() < df.iloc[-4:-3]['tenkan_avg'].mean() \
+                and df.iloc[-3:-2]['kijun_avg'].mean() < df.iloc[-4:-3]['kijun_avg'].mean():
                 try:
                     type_signal = ' Buy : Close for bad ' + str(current_ratio)
                     request = fx.create_order_request(
@@ -1172,12 +1172,12 @@ def close_trade(df, fx, tick, dj, l0):
                     pass
             if df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
                 and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-                and df.iloc[-5:-2]['rsi'].mean() > 50 \
-                and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
-                and df.iloc[-3:-2]['macd'].mean() > df.iloc[-5:-3]['macd'].mean() \
-                and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-5:-3]['rsi'].mean() \
-                and df.iloc[-3:-2]['tenkan_avg'].mean() > df.iloc[-5:-3]['tenkan_avg'].mean() \
-                and df.iloc[-3:-2]['kijun_avg'].mean() > df.iloc[-5:-3]['kijun_avg'].mean():
+                and df.iloc[-4:-2]['rsi'].mean() > 60 \
+                and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
+                and df.iloc[-3:-2]['macd'].mean() > df.iloc[-4:-3]['macd'].mean() \
+                and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-4:-3]['rsi'].mean() \
+                and df.iloc[-3:-2]['tenkan_avg'].mean() > df.iloc[-4:-3]['tenkan_avg'].mean() \
+                and df.iloc[-3:-2]['kijun_avg'].mean() > df.iloc[-4:-3]['kijun_avg'].mean():
                 try:
                     type_signal = ' Sell : Close for bad ' + str(current_ratio)
                     request = fx.create_order_request(
