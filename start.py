@@ -1034,7 +1034,6 @@ def close_trade(df, fx, tick, dj, l0):
                     pass
             if df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
                 and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-                and df.iloc[-4:-2]['rsi'].mean() < 40 \
                 and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
                 and df.iloc[-3:-2]['macd'].mean() < df.iloc[-4:-3]['macd'].mean() \
                 and df.iloc[-3:-2]['rsi'].mean() < df.iloc[-4:-3]['rsi'].mean() \
@@ -1171,8 +1170,7 @@ def close_trade(df, fx, tick, dj, l0):
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
             if df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-                and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-                and df.iloc[-4:-2]['rsi'].mean() > 60 \
+                and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg']\
                 and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
                 and df.iloc[-3:-2]['macd'].mean() > df.iloc[-4:-3]['macd'].mean() \
                 and df.iloc[-3:-2]['rsi'].mean() > df.iloc[-4:-3]['rsi'].mean() \
