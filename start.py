@@ -20,14 +20,14 @@ import close
 
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71583266',
-        'str_password': 'lq1vbhs',
-        'str_connection': 'Demo',
-        'str_account': '71583266',
-        #'str_user_i_d': '87053959',
-        #'str_password': 'S4Tpj3P!zz.Mm2p',
-        #'str_connection': 'Real',
-        #'str_account': '87053959',
+        # 'str_user_i_d': '71583266',
+        # 'str_password': 'lq1vbhs',
+        # 'str_connection': 'Demo',
+        # 'str_account': '71583266',
+        'str_user_i_d': '87053959',
+        'str_password': 'S4Tpj3P!zz.Mm2p',
+        'str_connection': 'Real',
+        'str_account': '87053959',
         'str_url': "http://www.fxcorporate.com/Hosts.jsp",
         'str_session_id': None,
         'str_pin': None,
@@ -820,9 +820,9 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
             and df.iloc[-7:-2]['rsi'].mean() < 50 \
             and df.iloc[index_peak:-2]['rsi'].mean() < 50\
             and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd'] > df.iloc[index_peak]['macd'])) \
-            and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['AskLow'] > df.iloc[index_peak:-2]['AskHigh'].mean() \
+            and df.iloc[-2]['AskLow'] > df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskLow'] > df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
             and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
@@ -850,9 +850,9 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
     elif index_peak < 0 and df.iloc[index_peak]['rsi'] > df.iloc[-2]['rsi'] \
             and df.iloc[-7:-2]['rsi'].mean() > 50 \
             and df.iloc[index_peak:-2]['rsi'].mean() > 50 \
-            and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskLow'].mean() \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-2]['AskHigh'] < df.iloc[index_peak:-2]['AskLow'].mean() \
+            and df.iloc[-2]['AskHigh'] < df.iloc[-2]['tenkan_avg'] \
+            and df.iloc[-2]['AskHigh'] < df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
             and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd'] < df.iloc[index_peak]['macd'])) \
             and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
