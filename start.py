@@ -20,14 +20,14 @@ import close
 
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71583266',
-        'str_password': 'lq1vbhs',
+        'str_user_i_d': '71585261',
+        'str_password': 'ugpj7fu',
         'str_connection': 'Demo',
-        'str_account': '71583266',
-        #'str_user_i_d': '87053959',
-        #'str_password': 'S4Tpj3P!zz.Mm2p',
-        #'str_connection': 'Real',
-        #'str_account': '87053959',
+        'str_account': '71585261',
+        # 'str_user_i_d': '87053959',
+        # 'str_password': 'S4Tpj3P!zz.Mm2p',
+        # 'str_connection': 'Real',
+        # 'str_account': '87053959',
         'str_url': "http://www.fxcorporate.com/Hosts.jsp",
         'str_session_id': None,
         'str_pin': None,
