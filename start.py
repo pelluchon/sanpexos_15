@@ -1322,6 +1322,204 @@ def rsi_algorithm(data, tick):
     #    print("Exception: " + str(e))
 
 
+def kmeans(data, tick):
+    import numpy as np
+    import pandas as pd
+    from sklearn.cluster import KMeans
+    from sklearn.preprocessing import StandardScaler
+    import matplotlib.pyplot as plt
+
+    # This code first loads candle stick data, calculates MACD, RSI, and Ichimoku indicators, and combines and standardizes the data. Then, it performs K-means clustering on the standardized data and assigns cluster labels to the data. Finally, it makes trading decisions based on the cluster labels.
+    #
+    # Please note that this is just a basic example of how to use the K-means algorithm for trading. In practice, you would need to develop a more sophisticated trading system that takes into account other factors, such as market conditions and risk management.
+
+    def MACD(close, fastperiod=12, slowperiod=26, signalperiod=9):
+        """Calcualtes the MACD indicator."""
+        # Calculate the MACD
+        macd = pd.Series(close.ewm(span=fastperiod, min_periods=fastperiod - 1).mean(), name='MACD_Fast')
+        ema_slow = pd.Series(close.ewm(span=slowperiod, min_periods=slowperiod - 1).mean(), name='MACD_Slow')
+        macd_diff = macd - ema_slow
+        ema_signal = pd.Series(macd_diff.ewm(span=signalperiod, min_periods=signalperiod - 1).mean(),
+                               name='MACD_Signal')
+
+        # Calculate the MACD histogram
+        macd_hist = macd_diff - ema_signal
+
+        return macd, macd_diff, macd_signal, macd_hist
+
+    def RelativeStrengthIndex(close, timeperiod=14):
+        """Calculates the Relative Strength Index (RSI) indicator."""
+        # Calculate the difference between the close price and the maximum price
+        up = close.diff(1)
+        up = up[up > 0]
+        down = -close.diff(1)
+        down = down[down > 0]
+
+        # Calculate the average up and down price movements
+        up_avg = up.ewm(span=timeperiod, min_periods=timeperiod - 1).mean()
+        down_avg = down.ewm(span=timeperiod, min_periods=timeperiod - 1).mean()
+
+        # Calculate the relative strength index
+        relative_strength = up_avg / down_avg
+        rsi = 100 - (100 / (1 + relative_strength))
+
+        return rsi
+
+    def IchimokuIndicator(open, high, low, close, fastperiod=9, slowperiod=26, signalperiod=5,
+                          conversionlineperiod=9, ):
+        """Calculates the Ichimoku Kinko Hyo (Ichimoku) indicator."""
+
+        # Calculate the Tenkan-sen (Conversion Line)
+        tenkan_sen = (high + low) / 2
+        tenkan_sen = tenkan_sen.ewm(span=conversionlineperiod, min_periods=conversionlineperiod - 1).mean()
+
+        # Calculate the Kijun-sen (Base Line)
+        kijun_sen = (high + low) / 2
+        kijun_sen = kijun_sen.ewm(span=slowperiod, min_periods=slowperiod - 1).mean()
+
+        # Calculate the Senkou Span A (Leading Span A)
+        senkou_span_a_a = (tenkan_sen + kijun_sen) / 2
+        senkou_span_a = senkou_span_a_a.ewm(span=signalperiod, min_periods=signalperiod - 1).mean()
+
+        # Calculate the Senkou Span B (Leading Span B)
+        senkou_span_b_a = high.ewm(span=52, min_periods=52 - 1).mean()
+        senkou_span_b = senkou_span_b_a.shift(26)
+
+        # Calculate the Chikou Span (Lagging Span)
+        chikou_span = close.shift(9)
+
+        return tenkan_sen, kijun_sen, senkou_span_a, senkou_span_b, chikou_span
+
+    def sendemail(attach, subject_mail, body_mail):
+        fromaddr = 'sanpexos@hotmail.com'
+        toaddr = 'paul.pelluchon.doc@gmail.com'
+        password = '@c<Md5&$gzGNU<('
+
+        # instance of MIMEMultipart
+        msg = MIMEMultipart()
+        # storing the senders email address
+        msg['From'] = fromaddr
+        # storing the receivers email address
+        msg['To'] = toaddr
+        # storing the subject
+        msg['Subject'] = subject_mail
+        # string to store the body of the mail
+        body = body_mail
+        # attach the body with the msg instance
+        msg.attach(MIMEText(body, 'plain'))
+        # open the file to be sent
+        filename = attach
+        attachment = open(attach, 'rb')
+        # instance of MIMEBase and named as p
+        p = MIMEBase('application', 'octet-stream')
+        # To change the payload into encoded form
+        p.set_payload((attachment).read())
+        # encode into base64
+        encoders.encode_base64(p)
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+        # attach the instance 'p' to instance 'msg'
+        msg.attach(p)
+        # creates SMTP session
+        s = smtplib.SMTP("smtp.office365.com", 587)
+        # start TLS for security
+        s.starttls()
+        # Authentication
+        s.login(fromaddr, password)
+        # Converts the Multipart msg into a string
+        text = msg.as_string()
+        # sending the mail
+        s.sendmail(fromaddr, toaddr, text)
+        # terminating the session
+        s.quit()
+
+    # Calculate MACD
+    macd = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
+    macd_diff = macd.MACDDiff()
+    macd_signal = macd.MACDSignal()
+
+    # Calculate RSI
+    rsi = RelativeStrengthIndex(data['AskClose'], timeperiod=14)
+    rsi_values = rsi.RSI()
+
+    # Calculate Ichimoku
+    ichimoku = IchimokuIndicator(
+        data['AskOpen'], data['AskHigh'], data['AskLow'], data['AskClose']
+    )
+    i_tenkan_sen = ichimoku.TenkanSen()
+    i_kijun_sen = ichimoku.KijunSen()
+    i_senkou_span_a = ichimoku.SenkouSpanA()
+    i_senkou_span_b = ichimoku.SenkouSpanB()
+    i_chikou_span = ichimoku.ChikouSpan()
+
+    # Combine and standardize the data
+    data = np.column_stack(
+        [data['AskClose'], macd_diff, rsi_values, i_tenkan_sen, i_kijun_sen, i_senkou_span_a, i_senkou_span_b,
+         i_chikou_span])
+    scaler = StandardScaler()
+    data = scaler.fit_transform(data)
+
+    # Perform K-means clustering
+    kmeans = KMeans(n_clusters=3)
+    kmeans.fit(data)
+
+    # Assign cluster labels to the data
+    cluster_labels = kmeans.labels_
+
+    # Make trading decisions based on cluster labels
+    for i in range(len(cluster_labels)):
+        if cluster_labels[i] == 0:
+            # Buy
+            print('Buy signal')
+        elif cluster_labels[i] == 1:
+            # Hold
+            print('Hold signal')
+        else:
+            # Sell
+            print('Sell signal')
+
+    # Create a figure and axes
+    fig, axes = plt.subplots(5, 1)
+
+    # Plot candles
+    axes[0].plot(data['Date'], data['AskClose'], color='blue', label='Close')
+    axes[0].legend()
+
+    # Plot MACD
+    axes[1].plot(data['Date'], macd_diff, color='orange', label='MACD Diff')
+    axes[1].plot(data['Date'], macd_signal, color='green', label='MACD Signal')
+    axes[1].legend()
+
+    # Plot RSI
+    axes[2].plot(data['Date'], rsi_values, color='red', label='RSI')
+    axes[2].legend()
+
+    # Plot Ichimoku
+    axes[3].plot(data['Date'], i_tenkan_sen, color='purple', label='Tenkan-sen')
+    axes[3].plot(data['Date'], i_kijun_sen, color='cyan', label='Kijun-sen')
+    axes[3].plot(data['Date'], i_senkou_span_a, color='olive', label='Senkou Span A')
+    axes[3].plot(data['Date'], i_senkou_span_b, color='pink', label='Senkou Span B')
+    axes[3].plot(data['Date'], i_chikou_span, color='gray', label='Chikou Span')
+    axes[3].legend()
+
+    # Plot K-means predictions
+    axes[4].plot(data['Date'], cluster_labels, color='black', label='K-means Predictions')
+    axes[4].legend()
+
+    # Set the figure title and labels
+    fig.suptitle('Candles, MACD, RSI, Ichimoku, and K-means Predictions')
+    axes[0].set_xlabel('Date')
+    axes[0].set_ylabel('Close Price')
+    axes[1].set_ylabel('MACD Values')
+
+    # plt.show()
+    fig.savefig('k_means.png')
+    try:
+        sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + "k-means")
+    except Exception as e:
+        print("issue with mails for " + tick)
+        print("Exception: " + str(e))
+    plt.close()
+
 def main():
     print(str(datetime.now().strftime("%H:%M:%S")))
     # print('launch close')
@@ -1373,7 +1571,8 @@ def main():
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj, l0)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                        # rsi_algorithm(df,FX[l1])
+                        kmeans(df,FX[l1])
+                        #rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
             # try:
