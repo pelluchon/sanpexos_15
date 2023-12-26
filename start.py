@@ -1571,7 +1571,7 @@ def main():
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj, l0)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                        kmeans(df,FX[l1])
+                        #kmeans(df,FX[l1])
                         #rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
