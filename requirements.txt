@@ -6,3 +6,4 @@ mplfinance~=0.12.9b0
 schedule~=1.1.0
 pandas~=1.1.5
 forexconnect~=1.6.43
+scikit-learn~=0.24.2
