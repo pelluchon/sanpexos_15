@@ -1556,7 +1556,7 @@ def main():
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
-                        kmeans(df, FX[l1])
+                        #kmeans(df, FX[l1])
                         #if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
                         if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
                                 datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
