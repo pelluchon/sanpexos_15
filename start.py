@@ -817,13 +817,13 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
     # BUY
     # if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if index_peak < 0 and df.iloc[index_peak]['rsi'] < df.iloc[-2]['rsi'] \
-            and df.iloc[-7:-2]['rsi'].mean() < 70 \
-            and df.iloc[index_peak:-2]['rsi'].mean() < 65\
+            and df.iloc[-7:-2]['rsi'].mean() < 60 \
+            and df.iloc[index_peak:-2]['rsi'].mean() < 60\
             and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd'] > df.iloc[index_peak]['macd'])) \
             and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskClose'].mean() \
             and df.iloc[-2]['AskHigh'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskLow'] > max(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
+            and df.iloc[-2]['AskLow'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
             and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
@@ -849,12 +849,12 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
                 pass
     # SELL
     elif index_peak < 0 and df.iloc[index_peak]['rsi'] > df.iloc[-2]['rsi'] \
-            and df.iloc[-7:-2]['rsi'].mean() > 30 \
-            and df.iloc[index_peak:-2]['rsi'].mean() > 35 \
+            and df.iloc[-7:-2]['rsi'].mean() > 40 \
+            and df.iloc[index_peak:-2]['rsi'].mean() > 40 \
             and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskClose'].mean() \
             and df.iloc[-2]['AskLow'] < df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskHigh'] < min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']) \
+            and df.iloc[-2]['AskHigh'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
             and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd'] < df.iloc[index_peak]['macd'])) \
             and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
@@ -1512,7 +1512,7 @@ def kmeans(data, tick):
     axes[1].set_ylabel('MACD Values')
 
     # plt.show()
-    fig.savefig('k_means.png')
+    fig.savefig('k-means.png')
     try:
         sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + "k-means")
     except Exception as e:
@@ -1556,22 +1556,23 @@ def main():
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
-                        if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
-                            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
-                                    datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
-                                print('forex not hour')
-                            elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
-                                print('other not hour')
-                            else:
-                                df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj)
-                                df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                        kmeans(df, FX[l1])
+                        #if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
+                        if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
+                                datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                            print('forex not hour')
+                        elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                            print('other not hour')
+                        else:
+                            df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
+                                open_trade(df, fx, FX[l1], trading_settings_provider, dj)
+                            df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj, l0)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                        #kmeans(df,FX[l1])
+                        kmeans(df,FX[l1])
                         #rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
