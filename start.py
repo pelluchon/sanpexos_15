@@ -1560,7 +1560,7 @@ def main():
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
-                        kmeans(df, FX[l1])
+                        #kmeans(df, FX[l1])
                         #if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
                         if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
                                 datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
@@ -1576,7 +1576,7 @@ def main():
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj, l0)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                        kmeans(df,FX[l1])
+                        #kmeans(df,FX[l1])
                         #rsi_algorithm(df,FX[l1])
             # except Exception as e:
             #     print("Exception: " + str(e))
