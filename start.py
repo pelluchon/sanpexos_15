@@ -1435,9 +1435,11 @@ def kmeans(data, tick):
         s.quit()
 
     # Calculate MACD
+    macd=[]
+    macd_diff=[]
+    macd_signal=[]
+    macd_hist=[]
     macd, macd_diff, macd_signal, macd_hist = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
-    # Convert MACD signal to numeric values
-    macd_signal_values = macd_signal.values
     #macd_diff = macd.MACDDiff()
     #macd_signal = macd.MACDSignal()
 
