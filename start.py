@@ -820,7 +820,6 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
             and df.iloc[-7:-2]['ci'].mean() < 45\
             and df.iloc[-7:-2]['rsi'].mean() < 65 \
             and df.iloc[index_peak:-2]['rsi'].mean() < 65\
-            and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd'] > df.iloc[index_peak]['macd'])) \
             and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskClose'].mean() \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
             and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
@@ -858,7 +857,6 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
             and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
             and df.iloc[-2]['AskClose'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            and ((df.iloc[-2]['slope_macd'] < 0) or (df.iloc[-2]['macd'] < df.iloc[index_peak]['macd'])) \
             and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
             and df.iloc[index_peak]['tenkan_avg'] > df.iloc[index_peak]['kijun_avg'] \
             and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['AskHigh'] \
