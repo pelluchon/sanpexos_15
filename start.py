@@ -1332,7 +1332,10 @@ def kmeans(data, tick):
     # This code first loads candle stick data, calculates MACD, RSI, and Ichimoku indicators, and combines and standardizes the data. Then, it performs K-means clustering on the standardized data and assigns cluster labels to the data. Finally, it makes trading decisions based on the cluster labels.
     #
     # Please note that this is just a basic example of how to use the K-means algorithm for trading. In practice, you would need to develop a more sophisticated trading system that takes into account other factors, such as market conditions and risk management.
-
+    
+    # Calculate MACD
+    macd, macd_diff, macd_signal, macd_hist = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
+    
     def MACD(close, fastperiod=12, slowperiod=26, signalperiod=9):
         """Calcualtes the MACD indicator."""
         # Calculate the MACD
@@ -1434,6 +1437,8 @@ def kmeans(data, tick):
 
     # Calculate MACD
     macd, macd_diff, macd_signal, macd_hist = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
+    # Convert MACD signal to numeric values
+    #macd_signal_values = macd_signal.values
     #macd_diff = macd.MACDDiff()
     #macd_signal = macd.MACDSignal()
 
