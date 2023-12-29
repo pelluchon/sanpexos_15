@@ -1433,9 +1433,9 @@ def kmeans(data, tick):
         s.quit()
 
     # Calculate MACD
-    macd = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
-    macd_diff = macd.MACDDiff()
-    macd_signal = macd.MACDSignal()
+    macd, macd_diff, macd_signal, macd_hist = MACD(data['AskClose'], fastperiod=12, slowperiod=26, signalperiod=9)
+    #macd_diff = macd.MACDDiff()
+    #macd_signal = macd.MACDSignal()
 
     # Calculate RSI
     rsi = RelativeStrengthIndex(data['AskClose'], timeperiod=14)
