@@ -819,10 +819,8 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
     if df.iloc[-3:-2]['ci'].mean() < 39\
             and df.iloc[-3:-2]['rsi'].mean() < 31 \
             and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-27]['chikou'] < min(df.iloc[-27]['kijun_avg'],df.iloc[-27]['tenkan_avg'], df.iloc[-27]['AskHigh'])\
             and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
-            and df.iloc[-2]['macd'] > df.iloc[-3]['macd'] \
-            and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']):
+            and df.iloc[-2]['macd'] > df.iloc[-3]['macd']:
         min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
         if min_entry >= 2:
@@ -843,11 +841,9 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
     # SELL
     elif df.iloc[-3:-2]['ci'].mean() < 39\
             and df.iloc[-3:-2]['rsi'].mean() > 69 \
-            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-27]['chikou'] > max(df.iloc[-27]['kijun_avg'],df.iloc[-27]['tenkan_avg'], df.iloc[-27]['AskHigh'])\
+            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg']\
             and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
-            and df.iloc[-2]['macd'] < df.iloc[-3]['macd'] \
-            and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']):
+            and df.iloc[-2]['macd'] < df.iloc[-3]['macd'] :
         
         min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
