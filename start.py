@@ -817,7 +817,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
     # BUY
     # if index of under 31 is the highest, means the latest down (under 31) is after the last high
     if index_peak < 0 \
-            and df.iloc[-2]['ci'] < 38.2\
+            and df.iloc[-7:-2]['ci'].mean() < 45\
             and df.iloc[-7:-2]['rsi'].mean() < 65 \
             and df.iloc[index_peak:-2]['rsi'].mean() < 65\
             and ((df.iloc[-2]['slope_macd'] > 0) or (df.iloc[-2]['macd'] > df.iloc[index_peak]['macd'])) \
@@ -850,7 +850,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
                 pass
     # SELL
     elif index_peak < 0 \
-            and df.iloc[-2]['ci'] < 38.2\
+            and df.iloc[-7:-2]['ci'].mean() < 45\
             and df.iloc[-7:-2]['rsi'].mean() > 35 \
             and df.iloc[index_peak:-2]['rsi'].mean() > 35 \
             and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskClose'].mean() \
