@@ -816,20 +816,13 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
 
     # BUY
     # if index of under 31 is the highest, means the latest down (under 31) is after the last high
-    if index_peak < 0 \
-            and df.iloc[-7:-2]['ci'].mean() < 45\
-            and df.iloc[-7:-2]['rsi'].mean() < 65 \
-            and df.iloc[index_peak:-2]['rsi'].mean() < 65\
-            and df.iloc[-2]['AskClose'] > df.iloc[index_peak:-2]['AskClose'].mean() \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['tenkan_avg'] \
-            and df.iloc[-2]['AskClose'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
-            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
-            and df.iloc[index_peak]['kijun_avg'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
-            and df.iloc[index_peak]['tenkan_avg'] < df.iloc[index_peak]['kijun_avg'] \
-            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['AskHigh'] \
-            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['tenkan_avg'] \
-            and df.iloc[index_peak - 27]['chikou'] < df.iloc[index_peak - 27]['kijun_avg']:
+    if df.iloc[-3:-2]['ci'].mean() < 39\
+            and df.iloc[-3:-2]['rsi'].mean() < 31 \
+            and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-27]['chikou'] < min(df.iloc[-27]['kijun_avg'],df.iloc[-27]['tenkan_avg'], df.iloc[-27]['AskHigh'])\
+            and df.iloc[-2]['signal'] < df.iloc[-2]['macd'] \
+            and df.iloc[-2]['macd'] > df.iloc[-3]['macd'] \
+            and df.iloc[-2]['kijun_avg'] < min(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']):
         min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
         if min_entry >= 2:
@@ -848,20 +841,14 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
     # SELL
-    elif index_peak < 0 \
-            and df.iloc[-7:-2]['ci'].mean() < 45\
-            and df.iloc[-7:-2]['rsi'].mean() > 35 \
-            and df.iloc[index_peak:-2]['rsi'].mean() > 35 \
-            and df.iloc[-2]['AskClose'] < df.iloc[index_peak:-2]['AskClose'].mean() \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['tenkan_avg'] \
-            and df.iloc[-2]['AskClose'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[-2]['AskClose'] < min(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
-            and df.iloc[-2]['tenkan_avg'] < df.iloc[-2]['kijun_avg'] \
-            and df.iloc[index_peak]['kijun_avg'] > max(df.iloc[index_peak]['senkou_a'], df.iloc[index_peak]['senkou_b']) \
-            and df.iloc[index_peak]['tenkan_avg'] > df.iloc[index_peak]['kijun_avg'] \
-            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['AskHigh'] \
-            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['tenkan_avg'] \
-            and df.iloc[index_peak - 27]['chikou'] > df.iloc[index_peak - 27]['kijun_avg']:
+    elif df.iloc[-3:-2]['ci'].mean() < 39\
+            and df.iloc[-3:-2]['rsi'].mean() > 69 \
+            and df.iloc[-2]['tenkan_avg'] > df.iloc[-2]['kijun_avg'] \
+            and df.iloc[-27]['chikou'] > max(df.iloc[-27]['kijun_avg'],df.iloc[-27]['tenkan_avg'], df.iloc[-27]['AskHigh'])\
+            and df.iloc[-2]['signal'] > df.iloc[-2]['macd'] \
+            and df.iloc[-2]['macd'] < df.iloc[-3]['macd'] \
+            and df.iloc[-2]['kijun_avg'] > max(df.iloc[-2]['senkou_a'], df.iloc[-2]['senkou_b']):
+        
         min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
         if min_entry >= 2:
