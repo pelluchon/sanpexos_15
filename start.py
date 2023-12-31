@@ -1107,10 +1107,10 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    total_profit, average_profit, win_rate = backtest_strategy(df, TradingStrategy)
-                    print("Total profit:", total_profit)
-                    print("Average profit per trade:", average_profit)
-                    print("Win rate:", win_rate)
+                    #total_profit, average_profit, win_rate = backtest_strategy(df, TradingStrategy)
+                    #print("Total profit:", total_profit)
+                    #print("Average profit per trade:", average_profit)
+                    #print("Win rate:", win_rate)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
