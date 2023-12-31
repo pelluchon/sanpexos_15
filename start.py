@@ -366,14 +366,13 @@ def backtest_strategy(df,fx, tick, trading_settings_provider, dj):
     trades = []
 
     for i in range(3, len(df)):
-        previous_data = df.iloc[i - 1]
 
-        if should_open_buy_trade(df.iloc[i-3:i]):
+        if should_open_buy_trade(df,i):
             # Open a buy trade
             df, type_signal, _, _, _, _, _, _, _ = open_trade(df, fx, tick, trading_settings_provider, dj, i)
             trades.append((df.iloc[i]['Date'], 'Buy', type_signal))
 
-        elif should_open_sell_trade(df.iloc[i-3:i]):
+        elif should_open_sell_trade(df,i):
             # Open a sell trade
             df, type_signal, _, _, _, _, _, _, _ = open_trade(df, fx, tick, trading_settings_provider, dj, i)
             trades.append((df.iloc[i]['Date'], 'Sell', type_signal))
