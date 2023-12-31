@@ -112,14 +112,13 @@ def should_open_sell_trade(df):
         df.iloc[-2]['macd'] < df.iloc[-3]['macd']
     )
 
-def open_trade(df, fx, tick, trading_settings_provider, dj):
+def open_trade(df, fx, tick, trading_settings_provider, dj, open_rev_index):
     def set_amount(lots, dj):
         account = Common.get_account(fx, Dict['FXCM']['str_account'])
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
         amount = base_unit_size * Dict['amount']
         return amount
 
-    open_rev_index = 1
     box_def = False
     high_box = 0
     low_box = 0
@@ -168,13 +167,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def close_trade(df, fx, tick, dj, l0):
-    try:
-        open_rev_index = \
-            [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0, 'tick_time'].strftime("%m%d%Y%H")]][0][
-                0]
-    except:
-        open_rev_index = 1
+def close_trade(df, fx, tick, dj, open_rev_index):
     type_signal = 'No'
     open_price = dj.loc[0, 'tick_open_price']
     price = dj.loc[0, 'tick_price']
@@ -389,34 +382,33 @@ def close_trade(df, fx, tick, dj, l0):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def backtest_strategy(df):
+def backtest_strategy(df,fx, tick, trading_settings_provider, dj):
     trades = []
 
     for i in range(3, len(df)):
-        current_data = df.iloc[i]
         previous_data = df.iloc[i - 1]
 
         if should_open_buy_trade(df.iloc[i-3:i]):
             # Open a buy trade
-            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, None, None, None, None, current_data)
-            trades.append((current_data['Date'], 'Buy', type_signal))
+            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, fx, tick, trading_settings_provider, dj, i)
+            trades.append((df.iloc[i]['Date'], 'Buy', type_signal))
 
         elif should_open_sell_trade(df.iloc[i-3:i]):
             # Open a sell trade
-            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, None, None, None, None, current_data)
-            trades.append((current_data['Date'], 'Sell', type_signal))
+            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, fx, tick, trading_settings_provider, dj, i)
+            trades.append((df.iloc[i]['Date'], 'Sell', type_signal))
 
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
             last_trade_date, trade_type, _ = trades[-1]
-            if trade_type == 'Buy' and current_data['Date'] - last_trade_date >= pd.Timedelta(hours=5):
+            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
                 # Close the buy trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, None, None, None, current_data)
-                trades.append((current_data['Date'], 'Close Buy', type_signal))
-            elif trade_type == 'Sell' and current_data['Date'] - last_trade_date >= pd.Timedelta(hours=5):
+                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
+                trades.append((df.iloc[i]['Date'], 'Close Buy', type_signal))
+            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
                 # Close the sell trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, None, None, None, current_data)
-                trades.append((current_data['Date'], 'Close Sell', type_signal))
+                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
+                trades.append((df.iloc[i]['Date'], 'Close Sell', type_signal))
 
     return trades
 
@@ -1051,11 +1043,10 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    # Run the backtest
-                    # trades_history = backtest_strategy(df)
-                    # # Display the trades
-                    # for trade in trades_history:
-                    #     print(trade)
+                    trades_history = backtest_strategy(df)
+                    # Display the trades
+                    for trade in trades_history:
+                        print(trade)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
@@ -1068,12 +1059,12 @@ def main():
                             print('other not hour')
                         else:
                             df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                                open_trade(df, fx, FX[l1], trading_settings_provider, dj)
+                                open_trade(df, fx, FX[l1], trading_settings_provider, dj,1)
                             df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                            close_trade(df, fx, FX[l1], dj, l0)
+                            close_trade(df, fx, FX[l1], dj,1)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
 
 
