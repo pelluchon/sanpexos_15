@@ -93,68 +93,6 @@ Dict = {
         },
 }
 
-class Position:
-    def __init__(self, entry_price, position_size):
-        self.entry_price = entry_price
-        self.current_price = None
-        self.profit_loss = 0
-        self.exit_time = None
-        self.position_size = position_size
-
-    def update_price(self, price):
-        self.current_price = price
-        self.calculate_profit_loss()
-
-    def calculate_profit_loss(self):
-        if self.current_price is None:
-            return
-
-        price_change = self.current_price - self.entry_price
-        self.profit_loss = price_change * self.position_size
-
-    def exit(self, price):
-        self.exit_time = price.timestamp
-        self.update_price(price)
-
-    def close_at_market(self, price):
-        self.exit(price)
-        return self.profit_loss
-
-    def is_winner(self):
-        return self.profit_loss > 0
-
-class TradingStrategy:
-    def __init__(self, entry_price_threshold, exit_price_threshold):
-        self.entry_price_threshold = entry_price_threshold
-        self.exit_price_threshold = exit_price_threshold
-
-    def should_enter(self, data_point):
-        """Checks for a buy signal based on the current price."""
-        if data_point.price > self.entry_price_threshold:
-            return True
-        else:
-            return False
-
-    def should_exit(self, data_point):
-        """Checks for a sell signal based on the current price."""
-        if data_point.price < self.exit_price_threshold:
-            return True
-        else:
-            return False
-
-    def enter_long(self, data_point):
-        """Simulates entering a long position."""
-        position = Position(data_point.price, self.position_size)
-        return position
-
-    def exit(self, data_point):
-        """Simulates exiting the current position."""
-        if self.position:
-            position_profit = self.position.close_at_market(data_point)
-            self.position = None
-            return position_profit
-        else:
-            return 0
 
 def should_open_buy_trade(df):
     return (
@@ -451,30 +389,36 @@ def close_trade(df, fx, tick, dj, l0):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def backtest_strategy(historical_data, trading_strategy):
-    total_profit = 0
-    wins = 0
-    losses = 0
-    for data_point in historical_data:
-        # Check for entry and exit signals
-        if trading_strategy.should_enter(data_point):
-            # Simulate entering a long position
-            position = trading_strategy.enter_long(data_point)
-            if position.is_winner():
-                wins += 1
-                total_profit += position.profit
-            else:
-                losses += 1
-        elif trading_strategy.should_exit(data_point):
-            # Simulate exiting a position
-            position = trading_strategy.exit(data_point)
-        elif position and data_point.is_after(position.exit_time):
-            # Simulate closing a position at expiry
-            position = trading_strategy.close_at_expiry(data_point)
+def backtest_strategy(df):
+    trades = []
 
-    average_profit = total_profit / (wins + losses)
-    win_rate = wins / (wins + losses)
-    return total_profit, average_profit, win_rate
+    for i in range(3, len(df)):
+        current_data = df.iloc[i]
+        previous_data = df.iloc[i - 1]
+
+        if should_open_buy_trade(df.iloc[i-3:i]):
+            # Open a buy trade
+            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, None, None, None, None, current_data)
+            trades.append((current_data['Date'], 'Buy', type_signal))
+
+        elif should_open_sell_trade(df.iloc[i-3:i]):
+            # Open a sell trade
+            df, type_signal, _, _, _, _, _, _, _ = open_trade(df, None, None, None, None, current_data)
+            trades.append((current_data['Date'], 'Sell', type_signal))
+
+        # Assume closing a trade after a certain condition is met
+        if i > 5 and trades:
+            last_trade_date, trade_type, _ = trades[-1]
+            if trade_type == 'Buy' and current_data['Date'] - last_trade_date >= pd.Timedelta(hours=5):
+                # Close the buy trade
+                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, None, None, None, current_data)
+                trades.append((current_data['Date'], 'Close Buy', type_signal))
+            elif trade_type == 'Sell' and current_data['Date'] - last_trade_date >= pd.Timedelta(hours=5):
+                # Close the sell trade
+                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, None, None, None, current_data)
+                trades.append((current_data['Date'], 'Close Sell', type_signal))
+
+    return trades
 
 def indicators(df):
     def ichimoku(df):
@@ -1107,10 +1051,11 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    #total_profit, average_profit, win_rate = backtest_strategy(df, TradingStrategy)
-                    #print("Total profit:", total_profit)
-                    #print("Average profit per trade:", average_profit)
-                    #print("Win rate:", win_rate)
+                    # Run the backtest
+                    trades_history = backtest_strategy(df)
+                    # Display the trades
+                    for trade in trades_history:
+                        print(trade)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
