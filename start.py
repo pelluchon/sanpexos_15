@@ -1052,10 +1052,10 @@ def main():
                     df = indicators(df)
                     # back-test
                     # Run the backtest
-                    trades_history = backtest_strategy(df)
-                    # Display the trades
-                    for trade in trades_history:
-                        print(trade)
+                    # trades_history = backtest_strategy(df)
+                    # # Display the trades
+                    # for trade in trades_history:
+                    #     print(trade)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
