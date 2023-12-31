@@ -368,10 +368,10 @@ def backtest_strategy(df,fx, tick, trading_settings_provider, dj):
     for i in range(3, len(df)):
 
         if should_open_buy_trade(df,i):
-            trades.append((df.iloc[i]['Date'], 'Buy'))
+            trades.append((df.iloc[i]['Date'], 'Buy',i))
 
         elif should_open_sell_trade(df,i):
-            trades.append((df.iloc[i]['Date'], 'Sell'))
+            trades.append((df.iloc[i]['Date'], 'Sell',i))
 
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
