@@ -888,7 +888,7 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    trades_history = backtest_strategy(df)
+                    trades_history = backtest_strategy(df,fx, tick, trading_settings_provider, dj)
                     # Display the trades
                     for trade in trades_history:
                         print(trade)
