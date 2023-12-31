@@ -889,10 +889,10 @@ def main():
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # back-test
-                    trades_history = backtest_strategy(df,fx, tick, trading_settings_provider, dj)
-                    # Display the trades
-                    for trade in trades_history:
-                        print(trade)
+                    # trades_history = backtest_strategy(df,fx, tick, trading_settings_provider, dj)
+                    # # Display the trades
+                    # for trade in trades_history:
+                    #     print(trade)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
                         # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
