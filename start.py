@@ -727,7 +727,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
-        ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
+        #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
                  color='yellow', marker='s')
         ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
@@ -777,7 +777,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
                  linewidth=2,
                  color='yellow', marker='s')
         ax2.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
-        ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
+        #ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
         ax2.set(xlabel=None)
@@ -785,7 +785,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ###AX3
         ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
         ax3.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
-        ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
+        #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
         ax3.grid()
         ax3.set(xlabel=None)
@@ -799,9 +799,9 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         ax4.set_ylim((0, 100))
-        ax4.axhline(y=float(df.iloc[index_peak]['rsi']), color='red', linewidth=1, linestyle='-.')
-        ax4.plot(df.iloc[index_peak]['index'], df.iloc[index_peak]['rsi'], 'red', marker='s')
-        ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
+        #ax4.axhline(y=float(df.iloc[index_peak]['rsi']), color='red', linewidth=1, linestyle='-.')
+        #ax4.plot(df.iloc[index_peak]['index'], df.iloc[index_peak]['rsi'], 'red', marker='s')
+        #ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax4.grid()
 
         # plt.show()
