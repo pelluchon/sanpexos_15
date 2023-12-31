@@ -106,8 +106,8 @@ def should_open_buy_trade(df,idx):
     )
 
 def should_open_sell_trade(df,idx):
-    start=-(5-open_rev_index)
-    end=-(3-open_rev_index)
+    start=-(5-idx)
+    end=-(3-idx)
     return (
         df.iloc[start:end]['ci'].mean() < 39 and
         df.iloc[start:end]['rsi'].mean() > 69 and
@@ -132,7 +132,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     index_peak = 0
     df = analysis(df, idx, tick)
 
-    if should_open_buy_trade(df):
+    if should_open_buy_trade(df,idx):
         min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
         if min_entry >= 2:
@@ -150,7 +150,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
             except Exception as e:
                 type_signal = type_signal + ' not working for ' + str(e)
                 pass
-    elif should_open_sell_trade(df):
+    elif should_open_sell_trade(df,idx):
 
         min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
             abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
