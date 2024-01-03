@@ -220,7 +220,7 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'B':
             current_ratio = (price - open_price) / (open_price - df.iloc[-open_rev_index:-idx-1]['AskLow'].min())
 
-            if should_close_buy_trade and current_ratio > 0:
+            if should_close_buy_trade:# and current_ratio > 0:
                 try:
                     type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
                     request = fx.create_order_request(
@@ -240,7 +240,7 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'S':
             current_ratio = (open_price - price) / (df.iloc[-open_rev_index:-idx-1]['AskHigh'].max() - open_price)
 
-            if should_close_sell_trade and current_ratio > 0:
+            if should_close_sell_trade:# and current_ratio > 0:
                 try:
                     type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
                     request = fx.create_order_request(
