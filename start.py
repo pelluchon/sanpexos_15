@@ -98,7 +98,7 @@ def should_open_buy_trade(df,idx):
     start=-(5-idx)
     end=-(3-idx)
     return (
-        df.iloc[start:end]['ci'].mean() < 39 and
+        df.iloc[start:end]['ci'].mean() < 40 and
          df.iloc[start:end]['rsi'].mean() < 31 and
          df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
          df.iloc[end]['signal'] < df.iloc[end]['macd'] and
@@ -109,11 +109,33 @@ def should_open_sell_trade(df,idx):
     start=-(5-idx)
     end=-(3-idx)
     return (
-        df.iloc[start:end]['ci'].mean() < 39 and
+        df.iloc[start:end]['ci'].mean() < 40 and
         df.iloc[start:end]['rsi'].mean() > 69 and
         df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
         df.iloc[end]['signal'] > df.iloc[end]['macd'] and
         df.iloc[end]['macd'] < df.iloc[end-1]['macd']
+    )
+
+def should_close_buy_trade(df,idx):
+    start=-(5-idx)
+    end=-(3-idx)
+    return (
+        df.iloc[start:end]['ci'].mean() > 60 and
+        df.iloc[start:end]['rsi'].mean() > 65 and
+        df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
+        df.iloc[end]['signal'] > df.iloc[end]['macd'] and
+        df.iloc[end]['macd'] < df.iloc[end-1]['macd']
+    )
+
+def should_close_sell_trade(df,idx):
+    start=-(5-idx)
+    end=-(3-idx)
+    return (
+        df.iloc[start:end]['ci'].mean() > 60 and
+        df.iloc[start:end]['rsi'].mean() < 35 and
+        df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
+        df.iloc[end]['signal'] < df.iloc[end]['macd'] and
+        df.iloc[end]['macd'] > df.iloc[end-1]['macd']
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
@@ -376,14 +398,10 @@ def backtest_strategy(df,fx, tick, trading_settings_provider, dj):
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
             last_trade_date, trade_type, _ = trades[-1]
-            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
-                # Close the buy trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
-                trades.append((df.iloc[i]['Date'], 'Close Buy', type_signal))
-            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
-                # Close the sell trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
-                trades.append((df.iloc[i]['Date'], 'Close Sell', type_signal))
+            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i):
+                trades.append((df.iloc[i]['Date'], 'Close Buy', i))
+            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i):
+                trades.append((df.iloc[i]['Date'], 'Close Sell', i))
 
     return trades
 
