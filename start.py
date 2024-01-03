@@ -285,10 +285,13 @@ def backtest_strategy(df):
             last_trade_date, trade_type, id_open,_ = trades[-1]
             if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i):
                 trades.append((df.iloc[i]['Date'], 'Close Buy', i,df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen']))
-                result=result+(df.iloc[i]['AskClose']-df.iloc[id_open]['AskClose'])
+                result=result+(df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen'])
             elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i):
-                trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['BidClose']-df.iloc[i]['AskOpen']))
-                result = result + (df.iloc[i]['AskClose'] - df.iloc[id_open]['AskClose'])
+                trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['AskOpen']-df.iloc[i]['BidClose']))
+                result = result + (df.iloc[id_open]['AskOpen'] - df.iloc[i]['BidClose'])
+
+    #print(result)
+
     return result
 
 def indicators(df):
