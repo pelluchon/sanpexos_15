@@ -790,7 +790,7 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    backtest_result.append(backtest_strategy(df))
+                    #backtest_result.append(backtest_strategy(df))
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
@@ -810,7 +810,7 @@ def main():
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj,1)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-    print(sum(backtest_result))
+    #print(sum(backtest_result))
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
