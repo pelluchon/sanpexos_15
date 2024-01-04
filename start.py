@@ -92,13 +92,13 @@ Dict = {
 
         },
 }
-
+backtest_result=[]
 
 def should_open_buy_trade(df,idx):
     start=-(5-idx)
     end=-(3-idx)
     return (
-        df.iloc[start:end]['ci'].mean() < 39 and
+        df.iloc[start:end]['ci'].mean() < 40 and
          df.iloc[start:end]['rsi'].mean() < 31 and
          df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
          df.iloc[end]['signal'] < df.iloc[end]['macd'] and
@@ -109,11 +109,29 @@ def should_open_sell_trade(df,idx):
     start=-(5-idx)
     end=-(3-idx)
     return (
-        df.iloc[start:end]['ci'].mean() < 39 and
+        df.iloc[start:end]['ci'].mean() < 40 and
         df.iloc[start:end]['rsi'].mean() > 69 and
         df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
         df.iloc[end]['signal'] > df.iloc[end]['macd'] and
         df.iloc[end]['macd'] < df.iloc[end-1]['macd']
+    )
+
+def should_close_buy_trade(df,idx):
+    start=-(7-idx)
+    end=-(3-idx)
+    return (
+        df.iloc[start:end]['rsi'].mean() > 65 and
+        df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
+        df.iloc[end]['signal'] > df.iloc[end]['macd']
+    )
+
+def should_close_sell_trade(df,idx):
+    start=-(7-idx)
+    end=-(3-idx)
+    return (
+        df.iloc[start:end]['rsi'].mean() < 35 and
+        df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
+        df.iloc[end]['signal'] < df.iloc[end]['macd']
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
@@ -204,69 +222,9 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'B':
             current_ratio = (price - open_price) / (open_price - df.iloc[-open_rev_index:-idx-1]['AskLow'].min())
 
-            if df.iloc[-idx-1]['AskClose'] < df.iloc[-idx-1]['tenkan_avg'] and candle_2 < -0.25 \
-                    and current_ratio > 0 and df.iloc[-open_rev_index:-idx-1][df['rsi'] > 65].size > 0 \
-                    and df.iloc[-idx-1]['tenkan_avg'] < df.iloc[-idx-2]['tenkan_avg'] \
-                    and ((abs(df.iloc[-idx-1]['macd']) < abs(df.iloc[-idx-1]['signal'])) or (
-                            df.iloc[-idx-3:-idx-1]['macd'].mean() < df.iloc[-idx-5:-idx-3]['macd'].mean())):
+            if should_close_buy_trade(df,idx):# and current_ratio > 0:
                 try:
                     type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if df.iloc[-idx-1]['tenkan_avg'] < df.iloc[-idx-1]['kijun_avg'] and current_ratio > 0 and \
-                    df.iloc[-idx-1]['AskLow'] < df.iloc[-idx-1]['tenkan_avg'] and candle_2 < -0.25:
-                try:
-                    type_signal = ' Buy : Close for tenkan over kijun' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if (df.iloc[-idx-1]['kijun_avg'] - margin) > open_price \
-                    and (df.iloc[-idx-1]['kijun_avg'] - margin) > df.iloc[-idx-1]['AskClose'] and current_ratio > 0:
-                try:
-                    sl = df.iloc[-2]['kijun_avg'] - margin
-                    type_signal = ' Buy : Adjust for being safe ' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=sl,
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if df.iloc[-idx-1]['tenkan_avg'] < df.iloc[-idx-1]['kijun_avg'] \
-                    and df.iloc[-idx-1]['AskClose'] < df.iloc[-idx-1]['tenkan_avg'] \
-                    and df.iloc[-idx-1]['signal'] > df.iloc[-idx-1]['macd'] \
-                    and df.iloc[-idx-2:-idx-1]['macd'].mean() < df.iloc[-idx-3:-idx-2]['macd'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['rsi'].mean() < df.iloc[-idx-3:-idx-2]['rsi'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['tenkan_avg'].mean() < df.iloc[-idx-3:-idx-2]['tenkan_avg'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['kijun_avg'].mean() < df.iloc[-idx-3:-idx-2]['kijun_avg'].mean():
-                try:
-                    type_signal = ' Buy : Close for bad ' + str(current_ratio)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                         OFFER_ID=offer.offer_id,
@@ -284,69 +242,9 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'S':
             current_ratio = (open_price - price) / (df.iloc[-open_rev_index:-idx-1]['AskHigh'].max() - open_price)
 
-            if df.iloc[-idx-1]['AskClose'] > df.iloc[-idx-1]['tenkan_avg'] and candle_2 > 0.25 \
-                    and current_ratio > 0 and df.iloc[-open_rev_index:-idx-1][df['rsi'] < 35].size > 0 \
-                    and df.iloc[-idx-1]['tenkan_avg'] > df.iloc[-idx-2]['tenkan_avg'] \
-                    and ((abs(df.iloc[-idx-1]['macd']) < abs(df.iloc[-idx-1]['signal'])) or (
-                    df.iloc[-idx-3:-idx-1]['macd'].mean() > df.iloc[-idx-5:-idx-3]['macd'].mean())):
+            if should_close_sell_trade (df,idx):# and current_ratio > 0:
                 try:
                     type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if df.iloc[-idx-1]['tenkan_avg'] > df.iloc[-idx-1]['kijun_avg'] and current_ratio > 0 and \
-                    df.iloc[-idx-1]['AskHigh'] > df.iloc[-idx-1]['tenkan_avg'] and candle_2 > 0.25:
-                try:
-                    type_signal = ' Sell : Close for tenkan over kijun' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id']
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if (df.iloc[-idx-1]['kijun_avg'] + margin) < open_price \
-                    and (df.iloc[-idx-1]['kijun_avg'] + margin) < df.iloc[-idx-1]['AskClose'] and current_ratio > 0:
-                try:
-                    sl = (df.iloc[-2]['kijun_avg'] + margin)
-                    type_signal = ' Sell : Adjust for being safe ' + str(current_ratio)
-                    request = fx.create_order_request(
-                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                        OFFER_ID=offer.offer_id,
-                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                        BUY_SELL=buy_sell,
-                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                        TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=sl,
-                    )
-                    resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
-            if df.iloc[-idx-1]['tenkan_avg'] > df.iloc[-idx-1]['kijun_avg'] \
-                    and df.iloc[-idx-1]['AskClose'] > df.iloc[-idx-1]['tenkan_avg'] \
-                    and df.iloc[-idx-1]['signal'] < df.iloc[-idx-1]['macd'] \
-                    and df.iloc[-idx-2:-idx-1]['macd'].mean() > df.iloc[-idx-3:-idx-2]['macd'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['rsi'].mean() > df.iloc[-idx-3:-idx-2]['rsi'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['tenkan_avg'].mean() > df.iloc[-idx-3:-idx-2]['tenkan_avg'].mean() \
-                    and df.iloc[-idx-2:-idx-1]['kijun_avg'].mean() > df.iloc[-idx-3:-idx-2]['kijun_avg'].mean():
-                try:
-                    type_signal = ' Sell : Close for bad ' + str(current_ratio)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                         OFFER_ID=offer.offer_id,
@@ -362,30 +260,41 @@ def close_trade(df, fx, tick, dj, idx):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def backtest_strategy(df,fx, tick, trading_settings_provider, dj):
+def backtest_strategy(df):
     trades = []
+    result=0
 
     for i in range(3, len(df)):
 
         if should_open_buy_trade(df,i):
-            trades.append((df.iloc[i]['Date'], 'Buy',i))
+            if trades:
+                last_trade_date, trade_type, _, _ = trades[-1]
+                if trade_type != 'Buy' and trade_type != 'Sell':
+                    trades.append((df.iloc[i]['Date'], 'Buy',i,0))
+            else:
+                trades.append((df.iloc[i]['Date'], 'Buy', i,0))
 
         elif should_open_sell_trade(df,i):
-            trades.append((df.iloc[i]['Date'], 'Sell',i))
+            if trades:
+                last_trade_date, trade_type, _, _ = trades[-1]
+                if trade_type != 'Sell' and trade_type != 'Buy':
+                    trades.append((df.iloc[i]['Date'], 'Sell',i,0))
+            else:
+                trades.append((df.iloc[i]['Date'], 'Sell', i,0))
 
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
-            last_trade_date, trade_type, _ = trades[-1]
-            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
-                # Close the buy trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
-                trades.append((df.iloc[i]['Date'], 'Close Buy', type_signal))
-            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5):
-                # Close the sell trade
-                df, type_signal, _, _, _, _, _, _, _ = close_trade(df, fx, tick, dj, i)
-                trades.append((df.iloc[i]['Date'], 'Close Sell', type_signal))
+            last_trade_date, trade_type, id_open,_ = trades[-1]
+            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i):
+                trades.append((df.iloc[i]['Date'], 'Close Buy', i,df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen']))
+                result=result+(df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen'])
+            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i):
+                trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['AskOpen']-df.iloc[i]['BidClose']))
+                result = result + (df.iloc[id_open]['AskOpen'] - df.iloc[i]['BidClose'])
 
-    return trades
+    #print(result)
+
+    return result
 
 def indicators(df):
     def ichimoku(df):
@@ -853,7 +762,7 @@ def check_trades(tick, fx):
     return open_pos_status, dj
 
 def main():
-    print(str(datetime.now().strftime("%H:%M:%S")))
+    #print(str(datetime.now().strftime("%H:%M:%S")))
     with ForexConnect() as fx:
         # try:
         fx.login(Dict['FXCM']['str_user_i_d'], Dict['FXCM']['str_password'], Dict['FXCM']['str_url'],
@@ -882,13 +791,10 @@ def main():
                         df.iloc[-window_of_interest:-2]['AskLow'])))
 
                     df = indicators(df)
+                    # back-test
+                    backtest_result.append(backtest_strategy(df))
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
-                    # back-test
-                    # trades_history = backtest_strategy(df,fx, tick, trading_settings_provider, dj)
-                    # # Display the trades
-                    # for trade in trades_history:
-                    #     print(trade)
                     # if status not open then check if to open
                     if open_pos_status == 'No':
                         # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
@@ -906,7 +812,7 @@ def main():
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                             close_trade(df, fx, FX[l1], dj,1)
                         df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-
+    print(sum(backtest_result))
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
