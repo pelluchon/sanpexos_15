@@ -95,22 +95,22 @@ Dict = {
 backtest_result=[]
 
 def should_open_buy_trade(df,idx):
-    start=-(5-idx)
+    start=-(7-idx)
     end=-(3-idx)
     return (
         df.iloc[start:end]['ci'].mean() < 40 and
-         df.iloc[start:end]['rsi'].mean() < 31 and
+         df.iloc[start:end]['rsi'].mean() < 35 and
          df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
          df.iloc[end]['signal'] < df.iloc[end]['macd'] and
          df.iloc[end]['macd'] > df.iloc[end-1]['macd']
     )
 
 def should_open_sell_trade(df,idx):
-    start=-(5-idx)
+    start=-(7-idx)
     end=-(3-idx)
     return (
         df.iloc[start:end]['ci'].mean() < 40 and
-        df.iloc[start:end]['rsi'].mean() > 69 and
+        df.iloc[start:end]['rsi'].mean() > 65 and
         df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
         df.iloc[end]['signal'] > df.iloc[end]['macd'] and
         df.iloc[end]['macd'] < df.iloc[end-1]['macd']
