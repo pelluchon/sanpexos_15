@@ -13,6 +13,7 @@ from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
+import pandas_ta as ta
 import math
 import close
 
@@ -116,23 +117,35 @@ def should_open_sell_trade(df,idx):
         df.iloc[end]['macd'] < df.iloc[end-1]['macd']
     )
 
-def should_close_buy_trade(df,idx):
-    start=-(7-idx)
-    end=-(3-idx)
-    return (
-        df.iloc[start:end]['rsi'].mean() > 65 and
-        df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
-        df.iloc[end]['signal'] > df.iloc[end]['macd']
-    )
+def should_close_buy_trade(df,idx,idx_open):
+    if (27+idx_open)>len(df):
+        window= len(df)
+    else:
+        window = (27+idx_open)
+    return (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open]['kijun_avg'] or
+            df.iloc[-idx-1]['BidClose'] < df.iloc[-window]['AskLow'])
+    # start=-(7-idx)
+    # end=-(3-idx)
+    # return(
+    #     df.iloc[start:end]['rsi'].mean() > 65 and
+    #     df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
+    #     df.iloc[end]['signal'] > df.iloc[end]['macd']
+    # )
 
-def should_close_sell_trade(df,idx):
-    start=-(7-idx)
-    end=-(3-idx)
-    return (
-        df.iloc[start:end]['rsi'].mean() < 35 and
-        df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
-        df.iloc[end]['signal'] < df.iloc[end]['macd']
-    )
+def should_close_sell_trade(df,idx,idx_open):
+    if (27+idx_open)>len(df):
+        window= len(df)
+    else:
+        window = (27+idx_open)
+    return (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open]['kijun_avg'] or
+            df.iloc[-idx-1]['BidClose'] > df.iloc[-window]['AskHigh'])
+    # start=-(7-idx)
+    # end=-(3-idx)
+    # return (
+    #     df.iloc[start:end]['rsi'].mean() < 35 and
+    #     df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
+    #     df.iloc[end]['signal'] < df.iloc[end]['macd']
+    # )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     def set_amount(lots, dj):
@@ -222,7 +235,7 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'B':
             current_ratio = (price - open_price) / (open_price - df.iloc[-open_rev_index:-idx-1]['AskLow'].min())
 
-            if should_close_buy_trade(df,idx):# and current_ratio > 0:
+            if should_close_buy_trade(df,idx,open_rev_index):# and current_ratio > 0:
                 try:
                     type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
                     request = fx.create_order_request(
@@ -242,7 +255,7 @@ def close_trade(df, fx, tick, dj, idx):
         if dj.loc[0, 'tick_type'] == 'S':
             current_ratio = (open_price - price) / (df.iloc[-open_rev_index:-idx-1]['AskHigh'].max() - open_price)
 
-            if should_close_sell_trade (df,idx):# and current_ratio > 0:
+            if should_close_sell_trade (df,idx,open_rev_index):# and current_ratio > 0:
                 try:
                     type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
                     request = fx.create_order_request(
@@ -285,10 +298,10 @@ def backtest_strategy(df):
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
             last_trade_date, trade_type, id_open,_ = trades[-1]
-            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i):
+            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i,id_open):
                 trades.append((df.iloc[i]['Date'], 'Close Buy', i,df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen']))
                 result=result+(df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen'])
-            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i):
+            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i,id_open):
                 trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['AskOpen']-df.iloc[i]['BidClose']))
                 result = result + (df.iloc[id_open]['AskOpen'] - df.iloc[i]['BidClose'])
 
@@ -376,6 +389,15 @@ def indicators(df):
         lowl = low.rolling(lookback).min()
         ci = 100 * np.log10((atr.rolling(lookback).sum()) / (highh - lowl)) / np.log10(lookback)
         return ci
+
+    def doji(df):
+        # Identify Doji candlestick patterns
+        df.ta.cdl_doji()
+
+        # Create a trading signal based on the Doji pattern
+        df["doji_signal"] = 0
+        df.loc[df["CDLDOJI"] == 100, "doji_signal"] = 1
+        df.loc[df["CDLDOJI"] == -100, "doji_signal"] = -1
 
     df = ichimoku(df)
     df = macd(df)
