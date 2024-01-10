@@ -125,7 +125,7 @@ def should_close_buy_trade(df,idx,idx_open):
     return (
             (df.iloc[-idx - 1]['BidClose'] > df.iloc[-idx_open]['kijun_avg'])
             or
-            (df.iloc[-idx-1]['BidClose'] < df.iloc[-window:-idx_open]['AskLow'].min())
+            (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open]['AskLow'])
     )
     # start=-(7-idx)
     # end=-(3-idx)
@@ -143,7 +143,7 @@ def should_close_sell_trade(df,idx,idx_open):
     return (
             (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open]['kijun_avg'])
             or
-            (df.iloc[-idx-1]['BidClose'] > df.iloc[-window:-idx_open]['AskHigh'].max())
+            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open]['AskHigh'])
     )
     # start=-(7-idx)
     # end=-(3-idx)
