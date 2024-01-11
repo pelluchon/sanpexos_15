@@ -105,10 +105,16 @@ def should_open_buy_trade(df,idx):
          df.iloc[end]['signal'] < df.iloc[end]['macd'] and
          df.iloc[end]['macd'] > df.iloc[end-1]['macd']
     )
+    # return (
+    #     df.iloc[-idx-1]["doji_signal"] == 1
+    # )
 
 def should_open_sell_trade(df,idx):
     start=-(7-idx)
     end=-(3-idx)
+    # return (
+    #     df.iloc[-idx-1]["doji_signal"] == -1
+    # )
     return (
         df.iloc[start:end]['ci'].mean() < 40 and
         df.iloc[start:end]['rsi'].mean() > 65 and
@@ -122,36 +128,40 @@ def should_close_buy_trade(df,idx,idx_open):
         window= len(df)
     else:
         window = (27*2+idx_open)
-    return (
-            (df.iloc[-idx - 1]['BidClose'] > df.iloc[-idx_open]['kijun_avg'])
-            or
-            (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open]['AskLow'])
+    # return (
+    #         (df.iloc[-idx - 1]['BidClose'] > df.iloc[-idx_open-1]['kijun_avg'])
+    #         # or
+    #         # (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open-7:-idx_open-1]['AskLow'].min())
+    #)
+    start=-(7-idx)
+    end=-(3-idx)
+    return(
+        (df.iloc[start:end]['rsi'].mean() > 65 and
+        df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
+        df.iloc[end]['signal'] > df.iloc[end]['macd'])
+        or
+        (df.iloc[-idx - 1]['BidClose'] < df.iloc[-idx_open - 7:-idx_open - 1]['AskLow'].min())
     )
-    # start=-(7-idx)
-    # end=-(3-idx)
-    # return(
-    #     df.iloc[start:end]['rsi'].mean() > 65 and
-    #     df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
-    #     df.iloc[end]['signal'] > df.iloc[end]['macd']
-    # )
 
 def should_close_sell_trade(df,idx,idx_open):
     if (27*2+idx_open)>len(df):
         window= len(df)
     else:
         window = (27*2+idx_open)
-    return (
-            (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open]['kijun_avg'])
-            or
-            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open]['AskHigh'])
-    )
-    # start=-(7-idx)
-    # end=-(3-idx)
     # return (
-    #     df.iloc[start:end]['rsi'].mean() < 35 and
-    #     df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
-    #     df.iloc[end]['signal'] < df.iloc[end]['macd']
+    #         (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open-1]['kijun_avg'])
+    #         # or
+    #         # (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max())
     # )
+    start=-(7-idx)
+    end=-(3-idx)
+    return (
+            (df.iloc[start:end]['rsi'].mean() < 35 and
+            df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
+            df.iloc[end]['signal'] < df.iloc[end]['macd'])
+        or
+            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max())
+    )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     def set_amount(lots, dj):
@@ -407,6 +417,7 @@ def indicators(df):
 
     df = ichimoku(df)
     df = macd(df)
+    #df = doji(df)
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
 
