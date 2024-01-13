@@ -140,7 +140,8 @@ def should_close_buy_trade(df,idx,idx_open):
         df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
         df.iloc[end]['signal'] > df.iloc[end]['macd'])
         or
-        (df.iloc[-idx - 1]['BidClose'] < df.iloc[-idx_open - 7:-idx_open - 1]['AskLow'].min())
+        (df.iloc[-idx - 1]['BidClose'] < df.iloc[-idx_open - 7:-idx_open - 1]['AskLow'].min() and
+         df.iloc[start:end]['rsi'].mean() > 60)
     )
 
 def should_close_sell_trade(df,idx,idx_open):
@@ -160,7 +161,8 @@ def should_close_sell_trade(df,idx,idx_open):
             df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
             df.iloc[end]['signal'] < df.iloc[end]['macd'])
         or
-            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max())
+            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max()and
+         df.iloc[start:end]['rsi'].mean() < 40)
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
