@@ -21,10 +21,10 @@ import close
 
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71585261',
-        'str_password': 'ugpj7fu',
+        'str_user_i_d': '71587236',
+        'str_password': 'ra3cyup',
         'str_connection': 'Demo',
-        'str_account': '71585261',
+        'str_account': '71587236',
         # 'str_user_i_d': '87053959',
         # 'str_password': 'S4Tpj3P!zz.Mm2p',
         # 'str_connection': 'Real',
