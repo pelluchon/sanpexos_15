@@ -19,6 +19,7 @@ import close
 
 #### All hours in GMT
 
+graph_back_test=False
 Dict = {
     'FXCM': {
         'str_user_i_d': '71587236',
@@ -35,7 +36,7 @@ Dict = {
         'str_table': 'orders',
     },
     'indicators': {
-        'sd': datetime.now() - relativedelta(weeks=16),
+        'sd': datetime.now() - relativedelta(weeks=4),
         'ed': datetime.now(),
     },
     'channel_length': 27 * 3,
@@ -96,73 +97,53 @@ Dict = {
 backtest_result=[]
 
 def should_open_buy_trade(df,idx):
-    start=-(7-idx)
-    end=-(3-idx)
+    wd=3
     return (
-        df.iloc[start:end]['ci'].mean() < 40 and
-         df.iloc[start:end]['rsi'].mean() < 35 and
-         df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
-         df.iloc[end]['signal'] < df.iloc[end]['macd'] and
-         df.iloc[end]['macd'] > df.iloc[end-1]['macd']
+        df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+         df.iloc[idx-wd:idx]['rsi'].mean() < 35 and
+         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg']  and
+         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta'])
     )
     # return (
-    #     df.iloc[-idx-1]["doji_signal"] == 1
+    #     df.iloc[idx]["doji_signal"] == 100
     # )
 
 def should_open_sell_trade(df,idx):
-    start=-(7-idx)
-    end=-(3-idx)
-    # return (
-    #     df.iloc[-idx-1]["doji_signal"] == -1
-    # )
+    wd=3
     return (
-        df.iloc[start:end]['ci'].mean() < 40 and
-        df.iloc[start:end]['rsi'].mean() > 65 and
-        df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
-        df.iloc[end]['signal'] > df.iloc[end]['macd'] and
-        df.iloc[end]['macd'] < df.iloc[end-1]['macd']
+        df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        df.iloc[idx-wd:idx]['rsi'].mean() > 65 and
+        df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg']  and
+        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta'])
     )
+    # return (
+    #     df.iloc[idx]["doji_signal"] == -100
+    # )
 
 def should_close_buy_trade(df,idx,idx_open):
-    if (27*2+idx_open)>len(df):
-        window= len(df)
-    else:
-        window = (27*2+idx_open)
-    # return (
-    #         (df.iloc[-idx - 1]['BidClose'] > df.iloc[-idx_open-1]['kijun_avg'])
-    #         # or
-    #         # (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open-7:-idx_open-1]['AskLow'].min())
-    #)
-    start=-(7-idx)
-    end=-(3-idx)
+    wd=3
     return(
-        (df.iloc[start:end]['rsi'].mean() > 65 and
-        df.iloc[end]['tenkan_avg'] < df.iloc[end]['kijun_avg'] and
-        df.iloc[end]['signal'] > df.iloc[end]['macd'])
+        (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        df.iloc[idx-wd:idx]['rsi'].mean() > 65)
         or
-        (df.iloc[-idx - 1]['BidClose'] < df.iloc[-idx_open - 7:-idx_open - 1]['AskLow'].min() and
-         df.iloc[start:end]['rsi'].mean() > 60)
+        (df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
+        df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
+        or
+        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min())#and
+         #df.iloc[start:end]['rsi'].mean() > 60)
     )
 
 def should_close_sell_trade(df,idx,idx_open):
-    if (27*2+idx_open)>len(df):
-        window= len(df)
-    else:
-        window = (27*2+idx_open)
-    # return (
-    #         (df.iloc[-idx-1]['BidClose'] < df.iloc[-idx_open-1]['kijun_avg'])
-    #         # or
-    #         # (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max())
-    # )
-    start=-(7-idx)
-    end=-(3-idx)
+    wd=3
     return (
-            (df.iloc[start:end]['rsi'].mean() < 35 and
-            df.iloc[end]['tenkan_avg'] > df.iloc[end]['kijun_avg'] and
-            df.iloc[end]['signal'] < df.iloc[end]['macd'])
+        (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+         df.iloc[idx-wd:idx]['rsi'].mean() < 35)
         or
-            (df.iloc[-idx-1]['BidClose'] > df.iloc[-idx_open-7:-idx_open-1]['AskHigh'].max()and
-         df.iloc[start:end]['rsi'].mean() < 40)
+        (df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg'] and
+         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'])
+        or
+        (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max())# and
+         #df.iloc[start:end]['rsi'].mean() < 40)
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
@@ -240,18 +221,18 @@ def close_trade(df, fx, tick, dj, idx):
     buy = fxcorepy.Constants.BUY
     sell = fxcorepy.Constants.SELL
     buy_sell = sell if dj.loc[0, 'tick_type'] == buy else buy
-    candle_2 = (df.iloc[-idx-1]['AskClose'] - df.iloc[-idx-1]['AskOpen']) / \
-               (df.iloc[-idx-1]['AskHigh'] - df.iloc[-idx-1]['AskLow'])
+    candle_2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / \
+               (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     window_of_interest = 27
-    margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-idx-1]['AskHigh']) - np.nanmin(
-        df.iloc[-window_of_interest:-idx-1]['AskLow'])))
+    margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['AskHigh']) - np.nanmin(
+        df.iloc[idx-window_of_interest:idx]['AskLow'])))
 
     if open_rev_index < 1:
         print('open_rev_index too small')
     else:
         # BUY CONDIDITIONS
         if dj.loc[0, 'tick_type'] == 'B':
-            current_ratio = (price - open_price) / (open_price - df.iloc[-open_rev_index:-idx-1]['AskLow'].min())
+            current_ratio = (price - open_price) / (open_price - df.iloc[open_rev_index:idx]['AskLow'].min())
 
             if should_close_buy_trade(df,idx,open_rev_index):# and current_ratio > 0:
                 try:
@@ -271,7 +252,7 @@ def close_trade(df, fx, tick, dj, idx):
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
-            current_ratio = (open_price - price) / (df.iloc[-open_rev_index:-idx-1]['AskHigh'].max() - open_price)
+            current_ratio = (open_price - price) / (df.iloc[open_rev_index:idx]['AskHigh'].max() - open_price)
 
             if should_close_sell_trade (df,idx,open_rev_index):# and current_ratio > 0:
                 try:
@@ -291,11 +272,11 @@ def close_trade(df, fx, tick, dj, idx):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def backtest_strategy(df):
+def backtest_strategy(df,tick):
     trades = []
     result=0
 
-    for i in range(3, len(df)):
+    for i in range(7, len(df)):
 
         if should_open_buy_trade(df,i):
             if trades:
@@ -306,6 +287,7 @@ def backtest_strategy(df):
                 trades.append((df.iloc[i]['Date'], 'Buy', i,0))
 
         elif should_open_sell_trade(df,i):
+
             if trades:
                 last_trade_date, trade_type, _, _ = trades[-1]
                 if trade_type != 'Sell' and trade_type != 'Buy':
@@ -323,9 +305,7 @@ def backtest_strategy(df):
                 trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['AskOpen']-df.iloc[i]['BidClose']))
                 result = result + (df.iloc[id_open]['AskOpen'] - df.iloc[i]['BidClose'])
 
-    #print(result)
-
-    return result
+    return result, trades
 
 def indicators(df):
     def ichimoku(df):
@@ -367,7 +347,7 @@ def indicators(df):
         # Cross-Over
         df['macd'] = np.array(macd)
         df['signal'] = np.array(exp3)
-        df['Delta'] = np.array(macd - exp3)
+        df['delta'] = np.array(macd - exp3)
         return df
 
     def rsi(df, periods=14, ema=True):
@@ -408,18 +388,9 @@ def indicators(df):
         ci = 100 * np.log10((atr.rolling(lookback).sum()) / (highh - lowl)) / np.log10(lookback)
         return ci
 
-    def doji(df):
-        # Identify Doji candlestick patterns
-        df.ta.cdl_doji()
-
-        # Create a trading signal based on the Doji pattern
-        df["doji_signal"] = 0
-        df.loc[df["CDLDOJI"] == 100, "doji_signal"] = 1
-        df.loc[df["CDLDOJI"] == -100, "doji_signal"] = -1
-
     df = ichimoku(df)
     df = macd(df)
-    #df = doji(df)
+    df["doji_signal"]=ta.cdl_doji(df['AskOpen'],df['AskHigh'],df['AskLow'],df['AskClose'])
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
 
@@ -600,7 +571,7 @@ def box(df, index):
             box_def == False
     return low_box, high_box, box_def
 
-def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak):
+def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0, low_box=0, tp=0, sl=0, index_peak=0):
     def sendemail(attach, subject_mail, body_mail):
         fromaddr = 'sanpexos@hotmail.com'
         toaddr = 'paul.pelluchon.doc@gmail.com'
@@ -651,7 +622,7 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         #     df = df.iloc[-100:-1]
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
-        min_x = 27 * 10
+        min_x = len(df)#27 * 10
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
@@ -666,25 +637,29 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax1.plot(df.index[-min_x:], df['senkou_a'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
-        if tp != 0:
-            ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
-        if sl != 0:
-            ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
-        ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
+
+
+        if type_signal != "":
+            ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
+            # if tp != 0:
+            #     ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
+            # if sl != 0:
+            #     ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
-        ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
-                 color='yellow', marker='s')
-        ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
-                  df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
-                 [df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[0]) + df['adjintercmin'].dropna(),
-                  df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[-1]) + df['adjintercmin'].dropna()],
-                 linewidth=2, color='green')
-        ax1.plot([df['index'][int(np.array(df['xxmaxopt'].dropna())[0])],
-                  df['index'][int(np.array(df['xxmaxopt'].dropna())[-1])]],
-                 [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
-                  df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
+        if 'slope' in df.columns:
+            ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
+                     color='yellow', marker='s')
+            ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
+                      df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
+                     [df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[0]) + df['adjintercmin'].dropna(),
+                      df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[-1]) + df['adjintercmin'].dropna()],
+                     linewidth=2, color='green')
+            ax1.plot([df['index'][int(np.array(df['xxmaxopt'].dropna())[0])],
+                      df['index'][int(np.array(df['xxmaxopt'].dropna())[-1])]],
+                     [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
+                      df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
                  linewidth=2, color='red')
         ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:],
                          where=df['senkou_a'][-min_x:] >= df['senkou_b'][-min_x:],
@@ -719,9 +694,10 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ###AX2
         ax2.bar(df.index[-min_x:], df['macd'][-min_x:], color='grey')
         ax2.plot(df.index[-min_x:], df['signal'][-min_x:], color='red')
-        ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']],
-                 linewidth=2,
-                 color='yellow', marker='s')
+        if 'slope_macd' in df.columns:
+            ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']],
+                     linewidth=2,
+                     color='yellow', marker='s')
         ax2.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
@@ -729,10 +705,10 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         ax2.set(xlabel=None)
 
         ###AX3
-        ax3.bar(df.index[-min_x:], df['Delta'][-min_x:], color='black')
+        ax3.bar(df.index[-min_x:], df['delta'][-min_x:], color='black')
         ax3.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
-        ax3.set_ylim(np.nanmin(df['Delta'][-min_x:]), np.nanmax(df['Delta'][-min_x:]))
+        ax3.set_ylim(np.nanmin(df['delta'][-min_x:]), np.nanmax(df['delta'][-min_x:]))
         ax3.grid()
         ax3.set(xlabel=None)
 
@@ -750,8 +726,24 @@ def df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, in
         #ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax4.grid()
 
-        # plt.show()
-        fig.savefig('filename.png')
+        if len(trades) !=0:
+            for i in range(0,len(trades)):
+                last_trade_date, trade_type, id, delta = trades[i]
+                if trade_type=='Buy':
+                    col='green'
+                elif trade_type=='Sell':
+                    col='red'
+                elif trade_type=='Close Buy':
+                    col='cyan'
+                elif trade_type=='Close Sell':
+                    col='purple'
+                ax1.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
+                ax1.plot(df.iloc[id]['index'], df.iloc[id]['AskClose'], color=col, marker='s')
+                ax2.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
+                ax3.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
+                ax4.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
+        #plt.show()
+        fig.savefig(tick.replace('/','') +'.png')
         try:
             sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
         except Exception as e:
@@ -820,10 +812,10 @@ def main():
                     print(FX[l1])
                     # H1
                     df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                    if len(df) < 7 * 5 * 3:
-                        df = pd.DataFrame(
-                            fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6),
-                                           Dict['indicators']['ed']))
+                    # if len(df) < 7 * 5 * 3:
+                    #     df = pd.DataFrame(
+                    #         fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6),
+                    #                        Dict['indicators']['ed']))
                     # If there is history data
                     # Add all the indicators needed
 
@@ -833,7 +825,10 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    backtest_result.append(backtest_strategy(df))
+                    result, trades=backtest_strategy(df,tick)
+                    backtest_result.append(result)
+                    if graph_back_test == True:
+                        df_plot(df, tick, trades)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
@@ -846,13 +841,13 @@ def main():
                             print('other not hour')
                         else:
                             df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                                open_trade(df, fx, FX[l1], trading_settings_provider, dj,1)
-                            df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                                open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
+                            df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                     # if status is open then check if to close
                     elif open_pos_status == 'Yes':
                         df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                            close_trade(df, fx, FX[l1], dj,1)
-                        df_plot(df, tick, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                            close_trade(df, fx, FX[l1], dj,len(df)-2)
+                        df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
     print(sum(backtest_result))
 
 try:
