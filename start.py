@@ -272,7 +272,7 @@ def close_trade(df, fx, tick, dj, idx):
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
-def backtest_strategy(df,tick):
+def backtest_strategy(df):
     trades = []
     result=0
 
@@ -533,7 +533,7 @@ def analysis(df, ind, tick):
     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
     # backcandles i ma reday to follow 1 week so 5 days
     df = trend_channels(df, 27 * 3, 3, len(df) - 4 - ind, 5, False)
-    df = find_last_peaks(df, ind)
+    df = find_last_peaks(df, ind-len(df))
     return df
 
 def box(df, index):
@@ -641,10 +641,10 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
 
         if type_signal != "":
             ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
-            # if tp != 0:
-            #     ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
-            # if sl != 0:
-            #     ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
+            if tp != 0:
+                 ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
+            if sl != 0:
+                 ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
         ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
         ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
@@ -743,7 +743,10 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
                 ax3.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
                 ax4.axvline(x=float(df.iloc[id]['index']), color=col, linewidth=1, linestyle='-.')
         #plt.show()
-        fig.savefig(tick.replace('/','') +'.png')
+        if graph_back_test== True:
+            fig.savefig(tick.replace('/','') +'.png')
+        else:
+            fig.savefig('filename.png')
         try:
             sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
         except Exception as e:
@@ -825,7 +828,7 @@ def main():
 
                     df = indicators(df)
                     # back-test
-                    result, trades=backtest_strategy(df,tick)
+                    result, trades=backtest_strategy(df)
                     backtest_result.append(result)
                     if graph_back_test == True:
                         df_plot(df, tick, trades)
