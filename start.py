@@ -98,11 +98,12 @@ backtest_result=[]
 
 def should_open_buy_trade(df,idx):
     wd=3
-    return (
-        df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    return(
+         df.iloc[idx-wd:idx]['ci'].mean() < 45 and
          df.iloc[idx-wd:idx]['rsi'].mean() < 35 and
-         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg']  and
-         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta'])
+         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']
     )
     # return (
     #     df.iloc[idx]["doji_signal"] == 100
@@ -114,7 +115,8 @@ def should_open_sell_trade(df,idx):
         df.iloc[idx-wd:idx]['ci'].mean() < 45 and
         df.iloc[idx-wd:idx]['rsi'].mean() > 65 and
         df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg']  and
-        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta'])
+        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+        df.iloc[idx]['macd'] < df.iloc[idx-1]['macd']
     )
     # return (
     #     df.iloc[idx]["doji_signal"] == -100
@@ -638,7 +640,6 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
 
-
         if type_signal != "":
             ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
             if tp != 0:
@@ -709,6 +710,8 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax3.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax3.set_ylim(np.nanmin(df['delta'][-min_x:]), np.nanmax(df['delta'][-min_x:]))
+
+
         ax3.grid()
         ax3.set(xlabel=None)
 
