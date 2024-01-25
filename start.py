@@ -123,29 +123,33 @@ def should_open_sell_trade(df,idx):
     # )
 
 def should_close_buy_trade(df,idx,idx_open):
+    candle_2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     wd=3
     return(
-        (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
-        df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+        # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+        # or
+        (df.iloc[idx]['AskClose'] > df.iloc[idx_open]['AskClose'] and
+        candle_2 < -0.5 and
+        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
         or
-        (df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
-        or
-        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min())#and
-         #df.iloc[start:end]['rsi'].mean() > 60)
+        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min() and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
     )
 
 def should_close_sell_trade(df,idx,idx_open):
     wd=3
+    candle_2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     return (
-        (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
-         df.iloc[idx-wd:idx]['rsi'].mean() < 35)
+        # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        #  df.iloc[idx-wd:idx]['rsi'].mean() < 35)
+        # or
+        (df.iloc[idx]['AskClose'] < df.iloc[idx_open]['AskClose'] and
+         candle_2 > 0.5 and
+         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
         or
-        (df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg'] and
-         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'])
-        or
-        (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max())# and
-         #df.iloc[start:end]['rsi'].mean() < 40)
+        (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max() and
+         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'])
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
@@ -162,7 +166,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     tp = 0
     sl = 0
     index_peak = 0
-    df = analysis(df, idx, tick)
+    #df = analysis(df, idx, tick)
 
     if should_open_buy_trade(df,idx):
         min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
@@ -216,7 +220,7 @@ def close_trade(df, fx, tick, dj, idx):
     high_box = 0
     low_box = 0
     index_peak = None
-    df = analysis(df, open_rev_index, tick)
+    #df = analysis(df, open_rev_index, tick)
     tp = dj.loc[0, 'tick_limit']
     sl = dj.loc[0, 'tick_stop']
     offer = Common.get_offer(fx, tick)
@@ -398,145 +402,145 @@ def indicators(df):
 
     return (df)
 
-def analysis(df, ind, tick):
-    def chikou_signal(df):
-
-        # Check the Chikou
-        df['chikou_signal'] = np.zeros(len(df['AskClose']))
-        end_chikou_signal = 30
-        if len(df['AskClose']) <= 27:
-            end_chikou_signal = len(df['AskClose'])
-        for p in range(27, end_chikou_signal):
-            # Check if chikou more than anything
-            if df.iloc[-p]['chikou'] > df.iloc[-p]['AskClose'].max() \
-                    and df.iloc[-p]['chikou'] > df.iloc[-p]['tenkan_avg'].max() \
-                    and df.iloc[-p]['chikou'] > df.iloc[-p]['kijun_avg'].max():
-                df.loc[len(df) - p, 'chikou_signal'] = 1
-            # Check if chikou is less than anything
-            elif df.iloc[-p]['chikou'] < df.iloc[-p]['AskClose'].min() \
-                    and df.iloc[-p]['chikou'] < df.iloc[-p]['tenkan_avg'].min() \
-                    and df.iloc[-p]['chikou'] < df.iloc[-p]['kijun_avg'].min():
-                df.loc[len(df) - p, 'chikou_signal'] = -1
-            else:
-                df.loc[len(df) - p, 'chikou_signal'] = 2
-
-        return df
-
-    def trend_channels(df, backcandles, wind, candleid, brange, ask_plot):
-        df_low = df['AskLow']
-        df_high = df['AskHigh']
-        optbackcandles = backcandles
-        sldiff = 1000
-        sldist = 10000
-        for r1 in range(backcandles - brange, backcandles + brange):
-            maxim = np.array([])
-            minim = np.array([])
-            xxmin = np.array([])
-            xxmax = np.array([])
-            for i in range(candleid - backcandles, candleid + 1, wind):
-                if df_low.iloc[i:i + wind].size != 0:
-                    minim = np.append(minim, df_low.iloc[i:i + wind].min())
-                    xxmin = np.append(xxmin, df_low.iloc[i:i + wind].idxmin())  # ;;;;;;;;;;;
-            for i in range(candleid - backcandles, candleid + 1, wind):
-                if df_high.iloc[i:i + wind].size != 0:
-                    maxim = np.append(maxim, df_high.iloc[i:i + wind].max())
-                    xxmax = np.append(xxmax, df_high.iloc[i:i + wind].idxmax())
-            slmin, intercmin = np.polyfit(xxmin, minim, 1)
-            slmax, intercmax = np.polyfit(xxmax, maxim, 1)
-
-            dist = (slmax * candleid + intercmax) - (slmin * candleid + intercmin)
-            if (dist < sldist) and (abs(slmin - slmax) < sldiff):
-                sldiff = abs(slmin - slmax)
-                sldist = dist
-                optbackcandles = r1
-                slminopt = slmin
-                slmaxopt = slmax
-                intercminopt = intercmin
-                intercmaxopt = intercmax
-                maximopt = maxim.copy()
-                minimopt = minim.copy()
-                xxminopt = xxmin.copy()
-                xxmaxopt = xxmax.copy()
-        adjintercmin = (df_low.iloc[xxminopt] - slminopt * xxminopt).min()
-        adjintercmax = (df_high.iloc[xxmaxopt] - slmaxopt * xxmaxopt).max()
-
-        # at the current index where is the channel
-        xminopt = np.arange(int(xxminopt[0]), int(xxminopt[-1]), 1)
-        xmaxopt = np.arange(int(xxmaxopt[0]), int(xxmaxopt[-1]), 1)
-        ychannelmin = slminopt * xminopt + adjintercmin
-        ychannelmax = slmaxopt * xmaxopt + adjintercmax
-
-        df_chanmax = pd.DataFrame()
-        df_chanmax['ychannelmax'] = ychannelmax
-
-        df_chanmin = pd.DataFrame()
-        df_chanmin['ychannelmin'] = ychannelmin
-
-        df_opt = pd.DataFrame()
-        df_opt['xxmaxopt'] = xxmaxopt
-        df_opt['xxminopt'] = xxminopt
-
-        df_single = pd.DataFrame(columns=['slminopt', 'adjintercmin', 'slmaxopt', 'adjintercmax'])
-        df_single.loc[0] = [slminopt, adjintercmin, slmaxopt, adjintercmax]
-
-        df = pd.concat([df, df_chanmax, df_chanmin, df_opt, df_single], axis=1)
-
-        return df
-
-    def find_last_peaks(df, ind):
-        n = len(df)
-        df['peaks'] = np.nan
-        df['peaks_macd'] = np.nan
-        df['slope'] = np.nan
-        df['slope_macd'] = np.nan
-        sign_first_peak = 0
-        for i in range(-ind - 1, -n + 1, -1):
-            if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
-                if (i == -2) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
-                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-                    sign_first_peak = np.sign(df.iloc[i]['macd'])
-                elif (i < -2) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
-                    if sign_first_peak == 0:
-                        df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                        df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-                        sign_first_peak = np.sign(df.iloc[i]['macd'])
-                    elif sign_first_peak == np.sign(df.iloc[i]['macd']):
-                        df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                        df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-        # slope definition & remove all the nans
-        if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
-                df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
-                df['peaks_macd'].dropna().iloc[-1] != df['peaks_macd'].dropna().iloc[-2]:
-            temp = df['peaks'].dropna().reset_index()
-            tempm = df['peaks_macd'].dropna().reset_index()
-            df.loc[2, 'slope_macd'] = tempm['peaks_macd'].iloc[-2]
-            df.loc[4, 'slope_macd'] = tempm['index'].iloc[-2]
-            df.loc[2, 'slope'] = temp['peaks'].iloc[-2]
-            df.loc[4, 'slope'] = temp['index'].iloc[-2]
-            df.loc[1, 'slope_macd'] = tempm['peaks_macd'].iloc[-1]
-            df.loc[3, 'slope_macd'] = tempm['index'].iloc[-1]
-            df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
-            df.loc[3, 'slope'] = temp['index'].iloc[-1]
-            df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
-            df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (
-                    df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
-        return df
-
-    df = chikou_signal(df)
-    # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
-    # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
-    # backcandles i ma reday to follow 1 week so 5 days
-    df = trend_channels(df, 27 * 3, 3, len(df) - 4 - ind, 5, False)
-    df = find_last_peaks(df, ind-len(df))
-    return df
+# def analysis(df, ind, tick):
+#     def chikou_signal(df):
+#
+#         # Check the Chikou
+#         df['chikou_signal'] = np.zeros(len(df['AskClose']))
+#         end_chikou_signal = 30
+#         if len(df['AskClose']) <= 27:
+#             end_chikou_signal = len(df['AskClose'])
+#         for p in range(27, end_chikou_signal):
+#             # Check if chikou more than anything
+#             if df.iloc[-p]['chikou'] > df.iloc[-p]['AskClose'].max() \
+#                     and df.iloc[-p]['chikou'] > df.iloc[-p]['tenkan_avg'].max() \
+#                     and df.iloc[-p]['chikou'] > df.iloc[-p]['kijun_avg'].max():
+#                 df.loc[len(df) - p, 'chikou_signal'] = 1
+#             # Check if chikou is less than anything
+#             elif df.iloc[-p]['chikou'] < df.iloc[-p]['AskClose'].min() \
+#                     and df.iloc[-p]['chikou'] < df.iloc[-p]['tenkan_avg'].min() \
+#                     and df.iloc[-p]['chikou'] < df.iloc[-p]['kijun_avg'].min():
+#                 df.loc[len(df) - p, 'chikou_signal'] = -1
+#             else:
+#                 df.loc[len(df) - p, 'chikou_signal'] = 2
+#
+#         return df
+#
+#     def trend_channels(df, backcandles, wind, candleid, brange, ask_plot):
+#         df_low = df['AskLow']
+#         df_high = df['AskHigh']
+#         optbackcandles = backcandles
+#         sldiff = 1000
+#         sldist = 10000
+#         for r1 in range(backcandles - brange, backcandles + brange):
+#             maxim = np.array([])
+#             minim = np.array([])
+#             xxmin = np.array([])
+#             xxmax = np.array([])
+#             for i in range(candleid - backcandles, candleid + 1, wind):
+#                 if df_low.iloc[i:i + wind].size != 0:
+#                     minim = np.append(minim, df_low.iloc[i:i + wind].min())
+#                     xxmin = np.append(xxmin, df_low.iloc[i:i + wind].idxmin())  # ;;;;;;;;;;;
+#             for i in range(candleid - backcandles, candleid + 1, wind):
+#                 if df_high.iloc[i:i + wind].size != 0:
+#                     maxim = np.append(maxim, df_high.iloc[i:i + wind].max())
+#                     xxmax = np.append(xxmax, df_high.iloc[i:i + wind].idxmax())
+#             slmin, intercmin = np.polyfit(xxmin, minim, 1)
+#             slmax, intercmax = np.polyfit(xxmax, maxim, 1)
+#
+#             dist = (slmax * candleid + intercmax) - (slmin * candleid + intercmin)
+#             if (dist < sldist) and (abs(slmin - slmax) < sldiff):
+#                 sldiff = abs(slmin - slmax)
+#                 sldist = dist
+#                 optbackcandles = r1
+#                 slminopt = slmin
+#                 slmaxopt = slmax
+#                 intercminopt = intercmin
+#                 intercmaxopt = intercmax
+#                 maximopt = maxim.copy()
+#                 minimopt = minim.copy()
+#                 xxminopt = xxmin.copy()
+#                 xxmaxopt = xxmax.copy()
+#         adjintercmin = (df_low.iloc[xxminopt] - slminopt * xxminopt).min()
+#         adjintercmax = (df_high.iloc[xxmaxopt] - slmaxopt * xxmaxopt).max()
+#
+#         # at the current index where is the channel
+#         xminopt = np.arange(int(xxminopt[0]), int(xxminopt[-1]), 1)
+#         xmaxopt = np.arange(int(xxmaxopt[0]), int(xxmaxopt[-1]), 1)
+#         ychannelmin = slminopt * xminopt + adjintercmin
+#         ychannelmax = slmaxopt * xmaxopt + adjintercmax
+#
+#         df_chanmax = pd.DataFrame()
+#         df_chanmax['ychannelmax'] = ychannelmax
+#
+#         df_chanmin = pd.DataFrame()
+#         df_chanmin['ychannelmin'] = ychannelmin
+#
+#         df_opt = pd.DataFrame()
+#         df_opt['xxmaxopt'] = xxmaxopt
+#         df_opt['xxminopt'] = xxminopt
+#
+#         df_single = pd.DataFrame(columns=['slminopt', 'adjintercmin', 'slmaxopt', 'adjintercmax'])
+#         df_single.loc[0] = [slminopt, adjintercmin, slmaxopt, adjintercmax]
+#
+#         df = pd.concat([df, df_chanmax, df_chanmin, df_opt, df_single], axis=1)
+#
+#         return df
+#
+#     def find_last_peaks(df, ind):
+#         n = len(df)
+#         df['peaks'] = np.nan
+#         df['peaks_macd'] = np.nan
+#         df['slope'] = np.nan
+#         df['slope_macd'] = np.nan
+#         sign_first_peak = 0
+#         for i in range(-ind - 1, -n + 1, -1):
+#             if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
+#                 if (i == -2) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
+#                     df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+#                     df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+#                     sign_first_peak = np.sign(df.iloc[i]['macd'])
+#                 elif (i < -2) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
+#                     if sign_first_peak == 0:
+#                         df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+#                         df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+#                         sign_first_peak = np.sign(df.iloc[i]['macd'])
+#                     elif sign_first_peak == np.sign(df.iloc[i]['macd']):
+#                         df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+#                         df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+#         # slope definition & remove all the nans
+#         if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
+#                 df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
+#                 df['peaks_macd'].dropna().iloc[-1] != df['peaks_macd'].dropna().iloc[-2]:
+#             temp = df['peaks'].dropna().reset_index()
+#             tempm = df['peaks_macd'].dropna().reset_index()
+#             df.loc[2, 'slope_macd'] = tempm['peaks_macd'].iloc[-2]
+#             df.loc[4, 'slope_macd'] = tempm['index'].iloc[-2]
+#             df.loc[2, 'slope'] = temp['peaks'].iloc[-2]
+#             df.loc[4, 'slope'] = temp['index'].iloc[-2]
+#             df.loc[1, 'slope_macd'] = tempm['peaks_macd'].iloc[-1]
+#             df.loc[3, 'slope_macd'] = tempm['index'].iloc[-1]
+#             df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
+#             df.loc[3, 'slope'] = temp['index'].iloc[-1]
+#             df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
+#             df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (
+#                     df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
+#         return df
+#
+#     df = chikou_signal(df)
+#     # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
+#     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
+#     # backcandles i ma reday to follow 1 week so 5 days
+#     df = trend_channels(df, 27 * 3, 3, len(df) - 4 - ind, 5, False)
+#     df = find_last_peaks(df, ind-len(df))
+#     return df
 
 def box(df, index):
     low_box = -1
@@ -641,13 +645,13 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
 
         if type_signal != "":
-            ax1.axhline(y=float(df.iloc[-index]['AskClose']), color='black', linewidth=1, linestyle='-.')
+            ax1.axhline(y=float(df.iloc[index]['AskClose']), color='black', linewidth=1, linestyle='-.')
             if tp != 0:
                  ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
             if sl != 0:
                  ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
-        ax1.plot(df.iloc[-index]['index'], df.iloc[-index]['AskClose'], 'black', marker='s')
-        ax1.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
+        ax1.plot(df.iloc[index]['index'], df.iloc[index]['AskClose'], 'black', marker='s')
+        ax1.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         if 'slope' in df.columns:
             ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
@@ -699,7 +703,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
             ax2.plot([df.loc[3, 'slope_macd'], df.loc[4, 'slope_macd']], [df.loc[1, 'slope_macd'], df.loc[2, 'slope_macd']],
                      linewidth=2,
                      color='yellow', marker='s')
-        ax2.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
+        ax2.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
@@ -707,7 +711,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
 
         ###AX3
         ax3.bar(df.index[-min_x:], df['delta'][-min_x:], color='black')
-        ax3.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
+        ax3.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax3.set_ylim(np.nanmin(df['delta'][-min_x:]), np.nanmax(df['delta'][-min_x:]))
 
@@ -722,7 +726,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax4.plot(df.index[-min_x:], df['ci'][-min_x:], color='orange')
         ax4.axhline(y=38.2, color='yellow', linestyle='-.')
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
-        ax4.axvline(x=df.iloc[-index]['index'], color='black', linewidth=1, linestyle='-.')
+        ax4.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         ax4.set_ylim((0, 100))
         #ax4.axhline(y=float(df.iloc[index_peak]['rsi']), color='red', linewidth=1, linestyle='-.')
         #ax4.plot(df.iloc[index_peak]['index'], df.iloc[index_peak]['rsi'], 'red', marker='s')
@@ -813,28 +817,17 @@ def main():
             FX = Dict['instrument'][l0]['FX']
 
             for l1 in range(0, len(FX)):
+                tick = FX[l1]
+                print(FX[l1])
+                # H1
+                df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                df = indicators(df)
+                # back-test
+                result, trades = backtest_strategy(df)
+                backtest_result.append(result)
+                if graph_back_test == True:
+                    df_plot(df, tick, trades)
                 if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
-                    tick = FX[l1]
-                    print(FX[l1])
-                    # H1
-                    df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
-                    # if len(df) < 7 * 5 * 3:
-                    #     df = pd.DataFrame(
-                    #         fx.get_history(FX[l1], 'm15', datetime.now() - relativedelta(weeks=6),
-                    #                        Dict['indicators']['ed']))
-                    # If there is history data
-                    # Add all the indicators needed
-
-                    window_of_interest = 27
-                    margin = abs(0.1 * (np.nanmax(df.iloc[-window_of_interest:-2]['AskHigh']) - np.nanmin(
-                        df.iloc[-window_of_interest:-2]['AskLow'])))
-
-                    df = indicators(df)
-                    # back-test
-                    result, trades=backtest_strategy(df)
-                    backtest_result.append(result)
-                    if graph_back_test == True:
-                        df_plot(df, tick, trades)
                     # Check the current open positions
                     open_pos_status, dj = check_trades(FX[l1], fx)
                     # if status not open then check if to open
