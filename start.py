@@ -19,7 +19,8 @@ import close
 
 #### All hours in GMT
 
-graph_back_test=False
+graph_back_test=True
+live = False
 Dict = {
     'FXCM': {
         'str_user_i_d': '71587236',
@@ -95,61 +96,141 @@ Dict = {
         },
 }
 backtest_result=[]
+# Set how floating-point errors are handled
+np.seterr('raise')
 
 def should_open_buy_trade(df,idx):
+    candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
+                df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+
     wd=3
+    # return(
+    #      df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #      df.iloc[idx-wd:idx]['rsi'].mean() < 35 and
+    #      df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+    #      abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+    #      df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']
+    # )
     return(
-         df.iloc[idx-wd:idx]['ci'].mean() < 45 and
-         df.iloc[idx-wd:idx]['rsi'].mean() < 35 and
-         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
-         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
-         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']
+         df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
+                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
+                                         df.iloc[idx-27]['AskClose']) and
+         df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg']  and
+         df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'] and
+         df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx-1]['tenkan_avg'] > df.iloc[idx-1]['kijun_avg'] and
+         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
+         candle_m2 > -0.1
     )
     # return (
     #     df.iloc[idx]["doji_signal"] == 100
     # )
 
 def should_open_sell_trade(df,idx):
+    candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
+                df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+
     wd=3
-    return (
-        df.iloc[idx-wd:idx]['ci'].mean() < 45 and
-        df.iloc[idx-wd:idx]['rsi'].mean() > 65 and
-        df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg']  and
-        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
-        df.iloc[idx]['macd'] < df.iloc[idx-1]['macd']
+    # return (
+    #     df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     df.iloc[idx-wd:idx]['rsi'].mean() > 65 and
+    #     df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg']  and
+    #     abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+    #     df.iloc[idx]['macd'] < df.iloc[idx-1]['macd']
+    # )
+    return(
+         df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
+                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
+                                         df.iloc[idx-27]['AskClose']) and
+         df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
+         df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'] and
+         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx-1]['tenkan_avg'] < df.iloc[idx-1]['kijun_avg'] and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
+         candle_m2 < 0.1
     )
     # return (
     #     df.iloc[idx]["doji_signal"] == -100
     # )
 
 def should_close_buy_trade(df,idx,idx_open):
-    candle_2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
-    wd=3
+    candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+    candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    #wd=3
+    # return(
+    #     # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+    #     # or
+    #     (df.iloc[idx]['AskClose'] > df.iloc[idx_open]['AskClose'] and
+    #     candle_2 < -0.5 and
+    #     abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+    #     or
+    #     (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min() and
+    #      df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
+    # )
     return(
         # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
         # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
         # or
-        (df.iloc[idx]['AskClose'] > df.iloc[idx_open]['AskClose'] and
-        candle_2 < -0.5 and
-        abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+        (candle_m2<0.1 and candle_m3<0.1 and
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 3]['kijun_avg'] and
+        df.iloc[idx]['AskClose']< df.iloc[idx]['tenkan_avg'])
         or
-        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min() and
+        (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'])
+        or
+        (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
+             df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'])
+        or
+        (df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
+         df.iloc[idx-27]['chikou'] < max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
+                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
+                                         df.iloc[idx-27]['AskHigh']))
+        or
+        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
     )
 
 def should_close_sell_trade(df,idx,idx_open):
-    wd=3
-    candle_2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
-    return (
+    #wd=3
+    candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+    candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    # return (
+    #     # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     #  df.iloc[idx-wd:idx]['rsi'].mean() < 35)
+    #     # or
+    #     (df.iloc[idx]['AskClose'] < df.iloc[idx_open]['AskClose'] and
+    #      candle_2 > 0.5 and
+    #      abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+    #     or
+    #     (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max() and
+    #      df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'])
+    # )
+    return(
         # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
-        #  df.iloc[idx-wd:idx]['rsi'].mean() < 35)
+        # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
         # or
-        (df.iloc[idx]['AskClose'] < df.iloc[idx_open]['AskClose'] and
-         candle_2 > 0.5 and
-         abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+        (candle_m2 > -0.1 and candle_m3 >- 0.1 and
+         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
+         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 3]['kijun_avg']and
+        df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'])
         or
-        (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max() and
+        (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'])
+        or
+        (df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and
          df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'])
+        or
+        (df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
+             df.iloc[idx-27]['chikou'] > min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
+                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
+                                         df.iloc[idx-27]['AskLow']))
+        or
+        (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
     )
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
@@ -822,31 +903,33 @@ def main():
                 # H1
                 df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
                 df = indicators(df)
-                # back-test
-                result, trades = backtest_strategy(df)
-                backtest_result.append(result)
-                if graph_back_test == True:
-                    df_plot(df, tick, trades)
-                if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
-                    # Check the current open positions
-                    open_pos_status, dj = check_trades(FX[l1], fx)
-                    # if status not open then check if to open
-                    if open_pos_status == 'No':
-                        # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
-                        if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
-                                datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
-                            print('forex not hour')
-                        elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
-                            print('other not hour')
-                        else:
+                if live == True:
+                    if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
+                        # Check the current open positions
+                        open_pos_status, dj = check_trades(FX[l1], fx)
+                        # if status not open then check if to open
+                        if open_pos_status == 'No':
+                            # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
+                            if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
+                                    datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                                print('forex not hour')
+                            elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
+                                print('other not hour')
+                            else:
+                                df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
+                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
+                                df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                        # if status is open then check if to close
+                        elif open_pos_status == 'Yes':
                             df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                                open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
+                                close_trade(df, fx, FX[l1], dj,len(df)-2)
                             df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
-                    # if status is open then check if to close
-                    elif open_pos_status == 'Yes':
-                        df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
-                            close_trade(df, fx, FX[l1], dj,len(df)-2)
-                        df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                else:
+                    # back-test
+                    result, trades = backtest_strategy(df)
+                    backtest_result.append(result)
+                    if graph_back_test == True:
+                        df_plot(df, tick, trades)
     print(sum(backtest_result))
 
 try:
