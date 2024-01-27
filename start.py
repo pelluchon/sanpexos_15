@@ -97,7 +97,7 @@ Dict = {
 }
 backtest_result=[]
 # Set how floating-point errors are handled
-np.seterr('raise')
+#np.seterr('raise')
 
 def should_open_buy_trade(df,idx):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
