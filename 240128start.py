@@ -99,10 +99,18 @@ backtest_result=[]
 # Set how floating-point errors are handled
 np.seterr('ignore')
 
-
 def should_open_buy_trade(df,idx):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
                 df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+
+    wd=3
+    # return(
+    #      df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #      df.iloc[idx-wd:idx]['rsi'].mean() < 35 and
+    #      df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+    #      abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+    #      df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']
+    # )
     return(
          df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
@@ -111,14 +119,25 @@ def should_open_buy_trade(df,idx):
          df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
          df.iloc[idx-1]['tenkan_avg'] > df.iloc[idx-1]['kijun_avg'] and
-         df.iloc[idx-2]['tenkan_avg'] > df.iloc[idx-3]['kijun_avg']  and
          df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
          candle_m2 > -0.1
     )
+    # return (
+    #     df.iloc[idx]["doji_signal"] == 100
+    # )
 
 def should_open_sell_trade(df,idx):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
                 df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
+
+    wd=3
+    # return (
+    #     df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     df.iloc[idx-wd:idx]['rsi'].mean() > 65 and
+    #     df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg']  and
+    #     abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']) and
+    #     df.iloc[idx]['macd'] < df.iloc[idx-1]['macd']
+    # )
     return(
          df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
@@ -127,21 +146,37 @@ def should_open_sell_trade(df,idx):
          df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
          df.iloc[idx-1]['tenkan_avg'] < df.iloc[idx-1]['kijun_avg'] and
-         df.iloc[idx-2]['tenkan_avg'] < df.iloc[idx-3]['kijun_avg']and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          candle_m2 < 0.1
     )
+    # return (
+    #     df.iloc[idx]["doji_signal"] == -100
+    # )
 
 def should_close_buy_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    #wd=3
+    # return(
+    #     # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+    #     # or
+    #     (df.iloc[idx]['AskClose'] > df.iloc[idx_open]['AskClose'] and
+    #     candle_2 < -0.5 and
+    #     abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+    #     or
+    #     (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 7:idx_open]['AskLow'].min() and
+    #      df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
+    # )
     return(
-
+        # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+        # or
         (candle_m2<0.1 and candle_m3<0.1 and
         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-        df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'])
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 3]['kijun_avg'] and
+        df.iloc[idx]['AskClose']< df.iloc[idx]['tenkan_avg'])
         or
         (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
          df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'])
@@ -159,15 +194,29 @@ def should_close_buy_trade(df,idx,idx_open):
     )
 
 def should_close_sell_trade(df,idx,idx_open):
+    #wd=3
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    # return (
+    #     # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+    #     #  df.iloc[idx-wd:idx]['rsi'].mean() < 35)
+    #     # or
+    #     (df.iloc[idx]['AskClose'] < df.iloc[idx_open]['AskClose'] and
+    #      candle_2 > 0.5 and
+    #      abs(df.iloc[idx]['delta']) < abs(df.iloc[idx-1]['delta']))
+    #     or
+    #     (df.iloc[idx]['BidClose'] > df.iloc[idx_open-7:idx_open]['AskHigh'].max() and
+    #      df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'])
+    # )
     return(
-
-        (candle_m2 > -0.1 and candle_m3 >-0.1and
+        # (df.iloc[idx-wd:idx]['ci'].mean() < 45 and
+        # df.iloc[idx-wd:idx]['rsi'].mean() > 65)
+        # or
+        (candle_m2 > -0.1 and candle_m3 >- 0.1 and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-        df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'])
+        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 3]['kijun_avg']and
+        df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'])
         or
         (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
          df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'])
