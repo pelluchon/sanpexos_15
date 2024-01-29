@@ -241,8 +241,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
 
 def close_trade(df, fx, tick, dj, idx):
     try:
-        open_rev_index = \
-        [len(df) - df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0, 'tick_time'].strftime("%m%d%Y%H")]][0][0]
+        open_rev_index = [df.index[df['Date'].dt.strftime("%m%d%Y%H") == dj.loc[0, 'tick_time'].strftime("%m%d%Y%H")]][0][0]
     except:
         open_rev_index = 1
     type_signal = 'No'
@@ -265,7 +264,7 @@ def close_trade(df, fx, tick, dj, idx):
     margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['AskHigh']) - np.nanmin(
         df.iloc[idx-window_of_interest:idx]['AskLow'])))
 
-    if open_rev_index < 1:
+    if open_rev_index <= 1:
         print('open_rev_index too small')
     else:
         # BUY CONDIDITIONS
@@ -682,8 +681,8 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
                  ax1.axhline(y=float(tp), color='blue', linewidth=1, linestyle='-.')
             if sl != 0:
                  ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
-        ax1.plot(df.iloc[index]['index'], df.iloc[index]['AskClose'], 'black', marker='s')
-        ax1.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
+            ax1.plot(df.iloc[index]['index'], df.iloc[index]['AskClose'], 'black', marker='s')
+            ax1.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         if 'slope' in df.columns:
             ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
