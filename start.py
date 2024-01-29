@@ -765,7 +765,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         #ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax4.grid()
 
-        if len(trades) !=0:
+        if live==False:
             for i in range(0,len(trades)):
                 last_trade_date, trade_type, id, delta = trades[i]
                 if trade_type=='Buy':
@@ -869,12 +869,12 @@ def main():
                             else:
                                 df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                                     open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
-                                df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                                df_plot(df, tick,None, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                         # if status is open then check if to close
                         elif open_pos_status == 'Yes':
                             df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
                                 close_trade(df, fx, FX[l1], dj,len(df)-2)
-                            df_plot(df, tick,trades, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                            df_plot(df, tick,None, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
                 else:
                     # back-test
                     result, trades = backtest_strategy(df)
