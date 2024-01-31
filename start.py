@@ -20,7 +20,7 @@ import close
 #### All hours in GMT
 
 graph_back_test=False
-live = True
+live = False
 Dict = {
     'FXCM': {
         'str_user_i_d': '71587236',
@@ -187,7 +187,7 @@ def should_close_sell_trade(df,idx,idx_open):
                                              df.iloc[idx - 27]['tenkan_avg'], df.iloc[idx - 27]['kijun_avg'],
                                              df.iloc[idx - 27]['AskLow'])):
         result = 'Kill for Chikou inversion'
-    elif (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
+    elif (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].max() and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and candle_m2> -0.1 and candle_m3 >-0.1):
         result = 'Kill for crossing SL'
