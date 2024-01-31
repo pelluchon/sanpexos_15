@@ -113,7 +113,9 @@ def should_open_buy_trade(df,idx):
          df.iloc[idx-1]['tenkan_avg'] > df.iloc[idx-1]['kijun_avg'] and
          df.iloc[idx-2]['tenkan_avg'] > df.iloc[idx-3]['kijun_avg']  and
          df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
-         candle_m2 > -0.1
+         df.iloc[idx]['macd'] > df.iloc[idx]['signal'] and
+         (df['senkou_a'][idx-7:idx].mean()- df['senkou_b'][idx-7:idx].mean() >=
+          df['senkou_a'][idx-7*2:idx-7].mean()- df['senkou_b'][idx-7*2:idx-7].mean())
     )
 
 def should_open_sell_trade(df,idx):
@@ -129,60 +131,70 @@ def should_open_sell_trade(df,idx):
          df.iloc[idx-1]['tenkan_avg'] < df.iloc[idx-1]['kijun_avg'] and
          df.iloc[idx-2]['tenkan_avg'] < df.iloc[idx-3]['kijun_avg']and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
-         candle_m2 < 0.1
+         df.iloc[idx]['macd'] < df.iloc[idx]['signal'] and
+         df['senkou_b'][idx-7:idx].mean()- df['senkou_a'][idx-7:idx].mean() >=
+          df['senkou_b'][idx-7*2:idx-7].mean()- df['senkou_a'][idx-7*2:idx-7].mean()
     )
 
 def should_close_buy_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
-    return(
 
-        (candle_m2<0.1 and candle_m3<0.1 and
+    if (candle_m2<0.1 and candle_m3<0.1 and
         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
         df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'])
-        or
-        (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
-         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'])
-        or
-        (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
-             df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'])
-        or
-        (df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
+        df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']):
+        result = 'Kill for crossing Tenkan'
+    elif (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
+        result = 'Kill for Tenkan crossing Kijun'
+    elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
+             df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
+        result = 'Kill for crossing Kijun'
+    elif (df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx-27]['chikou'] < max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
-                                         df.iloc[idx-27]['AskHigh']))
-        or
-        (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
-         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
-    )
+                                         df.iloc[idx-27]['AskHigh'])):
+        result = 'Kill for Chikou inversion'
+    elif (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
+         df.iloc[idx]['macd'] < df.iloc[idx-2]['macd'] and candle_m2 < 0.1 and candle_m3 < 0.1):
+        result = 'Kill for crossing SL'
+    else:
+        result = None
+
+    return result
 
 def should_close_sell_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
-    return(
 
-        (candle_m2 > -0.1 and candle_m3 >-0.1and
+    if (candle_m2 > -0.1 and candle_m3 >-0.1and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
         df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'])
-        or
-        (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
-         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'])
-        or
-        (df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and
-         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'])
-        or
-        (df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
-             df.iloc[idx-27]['chikou'] > min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
-                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
-                                         df.iloc[idx-27]['AskLow']))
-        or
-        (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
-         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'])
-    )
+        df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg']):
+        result = 'Kill for crossing Tenkan'
+    elif (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd']):
+        result = 'Kill for Tenkan crossing Kijun'
+    elif (df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and
+         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']):
+        result = 'Kill for crossing Kijun'
+    elif (df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and
+           df.iloc[idx - 27]['chikou'] > min(df.iloc[idx - 27]['senkou_a'], df.iloc[idx - 27]['senkou_b'],
+                                             df.iloc[idx - 27]['tenkan_avg'], df.iloc[idx - 27]['kijun_avg'],
+                                             df.iloc[idx - 27]['AskLow'])):
+        result = 'Kill for Chikou inversion'
+    elif (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
+         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and candle_m2> -0.1 and candle_m3 >-0.1):
+        result = 'Kill for crossing SL'
+    else:
+        result = None
+
+    return result
 
 def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     def set_amount(lots, dj):
@@ -201,41 +213,41 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     #df = analysis(df, idx, tick)
 
     if should_open_buy_trade(df,idx):
-        min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
-            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
-        if min_entry >= 2:
-            try:
-                amount = (set_amount(Dict['amount'], dj))
-                type_signal = ' BUY Amount:' + str(amount) + ' Bid/Ask:' + str(min_entry)
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.BUY,
-                    AMOUNT=round(amount, 2),
-                    SYMBOL=tick,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
-                pass
+        # min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
+        #     abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+        # if min_entry >= 2:
+        try:
+            amount = (set_amount(Dict['amount'], dj))
+            type_signal = ' BUY Amount:' + str(amount) # + ' Bid/Ask:' + str(min_entry)
+            request = fx.create_order_request(
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                BUY_SELL=fxcorepy.Constants.BUY,
+                AMOUNT=round(amount, 2),
+                SYMBOL=tick,
+            )
+            fx.send_request(request)
+        except Exception as e:
+            type_signal = type_signal + ' not working for ' + str(e)
+            pass
     elif should_open_sell_trade(df,idx):
 
-        min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
-            abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
-        if min_entry >= 2:
-            try:
-                amount = (set_amount(Dict['amount'], dj))
-                type_signal = ' Sell Amount: ' + str(amount) + ' Bid/Ask: ' + str(min_entry)
-                request = fx.create_order_request(
-                    order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                    ACCOUNT_ID=Dict['FXCM']['str_account'],
-                    BUY_SELL=fxcorepy.Constants.SELL,
-                    AMOUNT=round(amount, 2),
-                    SYMBOL=tick,
-                )
-                fx.send_request(request)
-            except Exception as e:
-                type_signal = type_signal + ' not working for ' + str(e)
+        # min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['kijun_avg'])) / (
+        #     abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+        # if min_entry >= 2:
+        try:
+            amount = (set_amount(Dict['amount'], dj))
+            type_signal = ' Sell Amount: ' + str(amount) # + ' Bid/Ask: ' + str(min_entry)
+            request = fx.create_order_request(
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                BUY_SELL=fxcorepy.Constants.SELL,
+                AMOUNT=round(amount, 2),
+                SYMBOL=tick,
+            )
+            fx.send_request(request)
+        except Exception as e:
+            type_signal = type_signal + ' not working for ' + str(e)
 
     return df, type_signal, idx, box_def, high_box, low_box, tp, sl, index_peak
 
@@ -269,11 +281,11 @@ def close_trade(df, fx, tick, dj, idx):
     else:
         # BUY CONDIDITIONS
         if dj.loc[0, 'tick_type'] == 'B':
-            current_ratio = (price - open_price) / (open_price - df.iloc[open_rev_index:idx]['AskLow'].min())
-
-            if should_close_buy_trade(df,idx,open_rev_index):# and current_ratio > 0:
+            current_ratio = (price - open_price) / (open_price - df.iloc[open_rev_index-7:open_rev_index]['AskLow'].min())
+            result = should_close_buy_trade(df,idx,open_rev_index)
+            if result != None:
                 try:
-                    type_signal = ' Buy : Close for end of cycle' + str(current_ratio)
+                    type_signal = ' Buy : ' + str(result)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                         OFFER_ID=offer.offer_id,
@@ -289,11 +301,11 @@ def close_trade(df, fx, tick, dj, idx):
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
-            current_ratio = (open_price - price) / (df.iloc[open_rev_index:idx]['AskHigh'].max() - open_price)
-
-            if should_close_sell_trade (df,idx,open_rev_index):# and current_ratio > 0:
+            current_ratio = (open_price - price) / (df.iloc[open_rev_index-7:open_rev_index]['AskHigh'].max() - open_price)
+            result = should_close_sell_trade (df,idx,open_rev_index)
+            if result != None:
                 try:
-                    type_signal = ' Sell : Close for end of cycle' + str(current_ratio)
+                    type_signal = ' Sell : ' + str(result)
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                         OFFER_ID=offer.offer_id,
@@ -335,10 +347,10 @@ def backtest_strategy(df):
         # Assume closing a trade after a certain condition is met
         if i > 5 and trades:
             last_trade_date, trade_type, id_open,_ = trades[-1]
-            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i,id_open):
+            if trade_type == 'Buy' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_buy_trade(df,i,id_open)!=None:
                 trades.append((df.iloc[i]['Date'], 'Close Buy', i,df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen']))
                 result=result+(df.iloc[i]['BidClose']-df.iloc[id_open]['AskOpen'])
-            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i,id_open):
+            elif trade_type == 'Sell' and df.iloc[i]['Date'] - last_trade_date >= pd.Timedelta(hours=5) and should_close_sell_trade(df,i,id_open)!=None:
                 trades.append((df.iloc[i]['Date'], 'Close Sell', i,df.iloc[id_open]['AskOpen']-df.iloc[i]['BidClose']))
                 result = result + (df.iloc[id_open]['AskOpen'] - df.iloc[i]['BidClose'])
 
