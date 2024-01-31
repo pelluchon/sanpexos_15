@@ -146,7 +146,7 @@ def should_close_buy_trade(df,idx,idx_open):
         df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
         df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']):
         result = 'Kill for crossing Tenkan'
-    elif (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
+    elif (df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
          df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
         result = 'Kill for Tenkan crossing Kijun'
     elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
