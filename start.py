@@ -140,18 +140,20 @@ def should_close_buy_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
 
-    if (candle_m2<0.1 and candle_m3<0.1 and
-        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
-        df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-        df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']):
-        result = 'Kill for crossing Tenkan'
-    elif (df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
-         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
-        result = 'Kill for Tenkan crossing Kijun'
-    elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
-             df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
-        result = 'Kill for crossing Kijun'
+    # if (candle_m2<0.1 and candle_m3<0.1 and
+    #     df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
+    #     df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
+    #     df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
+    #     df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']):
+    #     result = 'Kill for crossing Tenkan'
+    if df.iloc[idx]['AskClose'] < max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']):
+        result = 'Kill for in Kumo'
+    # elif (df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+    #      df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
+    #     result = 'Kill for Tenkan crossing Kijun'
+    # elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
+    #          df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
+    #     result = 'Kill for crossing Kijun'
     elif (df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx-27]['chikou'] < max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
@@ -170,6 +172,8 @@ def should_close_sell_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
 
+    if df.iloc[idx]['AskClose'] > min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']):
+        result = 'Kill for in Kumo'
     if (candle_m2 > -0.1 and candle_m3 >-0.1and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
          df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
