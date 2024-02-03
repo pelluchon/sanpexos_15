@@ -21,6 +21,7 @@ import close
 
 graph_back_test=False
 live = True
+mail = True
 Dict = {
     'FXCM': {
         'str_user_i_d': '71587236',
@@ -104,47 +105,45 @@ def should_open_buy_trade(df,idx):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
                 df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     return(
-         df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
-                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
+         df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
                                          df.iloc[idx-27]['AskClose']) and
-         df.iloc[idx - 28]['chikou'] > max(df.iloc[idx - 28]['senkou_a'], df.iloc[idx - 28]['senkou_b'],
-                                           df.iloc[idx - 28]['tenkan_avg'], df.iloc[idx - 28]['kijun_avg'],
-                                           df.iloc[idx - 28]['AskClose']) and
-         df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg']  and
-         df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'] and
+         df.iloc[idx]['AskClose'] > max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) and
+         df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg'] and
+         df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg']and
+         df.iloc[idx-1]['tenkan_avg'] > df.iloc[idx-2]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
          df.iloc[idx-1]['tenkan_avg'] > df.iloc[idx-1]['kijun_avg'] and
-         df.iloc[idx-2]['tenkan_avg'] > df.iloc[idx-3]['kijun_avg']  and
          df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and
          df.iloc[idx]['macd'] > df.iloc[idx]['signal'] and
-         (df['senkou_a'][idx-7:idx].mean()- df['senkou_b'][idx-7:idx].mean() >=
-          df['senkou_a'][idx-7*2:idx-7].mean()- df['senkou_b'][idx-7*2:idx-7].mean())
+         abs(df.iloc[idx]['delta']) > abs(df.iloc[idx-1]['delta']) and
+         abs(df.iloc[idx-1]['delta']) > abs(df.iloc[idx-2]['delta']) and
+         df.iloc[idx]['Volume'] > df.iloc[0:idx]['Volume'].std()
     )
 
 def should_open_sell_trade(df,idx):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (
                 df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     return(
-         df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
-                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
-                                         df.iloc[idx-27]['AskClose']) and
-         df.iloc[idx - 28]['chikou'] < min(df.iloc[idx - 28]['senkou_a'], df.iloc[idx - 28]['senkou_b'],
-                                           df.iloc[idx - 28]['tenkan_avg'], df.iloc[idx - 28]['kijun_avg'],
-                                           df.iloc[idx - 28]['AskClose']) and
+            df.iloc[idx - 27]['chikou'] < min(df.iloc[idx - 27]['tenkan_avg'], df.iloc[idx - 27]['kijun_avg'],
+                                              df.iloc[idx - 27]['AskClose']) and
+            df.iloc[idx]['AskClose'] < min(df.iloc[idx]['senkou_a'], df.iloc[idx]['senkou_b']) and
          df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
-         df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'] and
+         df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']and
+         df.iloc[idx-1]['tenkan_avg'] < df.iloc[idx-2]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
          df.iloc[idx-1]['tenkan_avg'] < df.iloc[idx-1]['kijun_avg'] and
-         df.iloc[idx-2]['tenkan_avg'] < df.iloc[idx-3]['kijun_avg']and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx]['macd'] < df.iloc[idx]['signal'] and
-         df['senkou_b'][idx-7:idx].mean()- df['senkou_a'][idx-7:idx].mean() >=
-          df['senkou_b'][idx-7*2:idx-7].mean()- df['senkou_a'][idx-7*2:idx-7].mean()
+         abs(df.iloc[idx]['delta']) > abs(df.iloc[idx-1]['delta']) and
+         abs(df.iloc[idx-1]['delta']) > abs(df.iloc[idx-2]['delta']) and
+         df.iloc[idx]['Volume'] > df.iloc[0:idx]['Volume'].std()
     )
 
 def should_close_buy_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    candle_m4 = (df.iloc[idx - 2]['AskClose'] - df.iloc[idx - 2]['AskOpen']) / (
+                df.iloc[idx - 2]['AskHigh'] - df.iloc[idx - 2]['AskLow'])
 
     # if (candle_m2<0.1 and candle_m3<0.1 and
     #     df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
@@ -154,17 +153,16 @@ def should_close_buy_trade(df,idx,idx_open):
     #     result = 'Kill for crossing Tenkan'
     if df.iloc[idx]['AskClose'] < max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']):
         result = 'Kill for in Kumo'
-    # elif (df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
-    #      df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
-    #     result = 'Kill for Tenkan crossing Kijun'
-    # elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg']  and
-    #          df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
-    #     result = 'Kill for crossing Kijun'
-    elif (df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
-         df.iloc[idx-27]['chikou'] < max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
-                                         df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
-                                         df.iloc[idx-27]['AskHigh'])):
-        result = 'Kill for Chikou inversion'
+    elif (df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
+        df.iloc[idx]['kijun_avg'] < df.iloc[idx-1]['kijun_avg'] and
+         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']):
+        result = 'Kill for Tenkan crossing Kijun'
+    elif (df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg'] and
+            df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and
+            df.iloc[idx]['signal'] > df.iloc[idx]['macd']):
+        result = 'Kill for crossing Kijun'
+    elif (candle_m4 < -0.25 and candle_m3 < -0.25 and candle_m2 < -0.25):
+        result = 'Kill for High Tendance Change'
     elif (df.iloc[idx]['BidClose'] < df.iloc[idx_open - 27:idx_open]['AskLow'].min() and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx]['macd'] < df.iloc[idx-2]['macd'] and candle_m2 < 0.1 and candle_m3 < 0.1):
@@ -177,26 +175,27 @@ def should_close_buy_trade(df,idx,idx_open):
 def should_close_sell_trade(df,idx,idx_open):
     candle_m2 = (df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen']) / (df.iloc[idx]['AskHigh'] - df.iloc[idx]['AskLow'])
     candle_m3 = (df.iloc[idx-1]['AskClose'] - df.iloc[idx-1]['AskOpen']) / (df.iloc[idx-1]['AskHigh'] - df.iloc[idx-1]['AskLow'])
+    candle_m4 = (df.iloc[idx - 2]['AskClose'] - df.iloc[idx - 2]['AskOpen']) / (
+                df.iloc[idx - 2]['AskHigh'] - df.iloc[idx - 2]['AskLow'])
 
     if df.iloc[idx]['AskClose'] > min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']):
         result = 'Kill for in Kumo'
-    if (candle_m2 > -0.1 and candle_m3 >-0.1and
-         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
-         df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-        df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'] and
-        df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg']):
-        result = 'Kill for crossing Tenkan'
+    # if (candle_m2 > -0.1 and candle_m3 >-0.1and
+    #      df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
+    #      df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
+    #     df.iloc[idx]['AskClose']> df.iloc[idx]['tenkan_avg'] and
+    #     df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg']):
+    #     result = 'Kill for crossing Tenkan'
     elif (df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
-         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd']):
+         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and
+          df.iloc[idx]['macd'] > df.iloc[idx]['signal']):
         result = 'Kill for Tenkan crossing Kijun'
     elif (df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and
+        df.iloc[idx]['kijun_avg'] > df.iloc[idx-1]['kijun_avg'] and
          df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']):
         result = 'Kill for crossing Kijun'
-    elif (df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and
-           df.iloc[idx - 27]['chikou'] > min(df.iloc[idx - 27]['senkou_a'], df.iloc[idx - 27]['senkou_b'],
-                                             df.iloc[idx - 27]['tenkan_avg'], df.iloc[idx - 27]['kijun_avg'],
-                                             df.iloc[idx - 27]['AskLow'])):
-        result = 'Kill for Chikou inversion'
+    elif (candle_m4 > 0.25 and candle_m3 > 0.25 and candle_m2 > 0.25):
+        result = 'Kill for High Tendance Change'
     elif (df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['AskLow'].max() and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and
          df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and candle_m2> -0.1 and candle_m3 >-0.1):
@@ -389,7 +388,6 @@ def indicators(df):
         df['senkou_b'] = ((senkou_b_max + senkou_b_min) / 2).shift(26)
 
         # Chikou Span
-        # Current Close shifted -26
         df['chikou'] = (df['AskClose']).shift(-26)
         return df
 
@@ -767,8 +765,9 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax3.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax3.set_ylim(np.nanmin(df['delta'][-min_x:]), np.nanmax(df['delta'][-min_x:]))
-
-
+        ax3_0=ax3.twinx()
+        ax3_0.plot(df.index[-min_x:], df['Volume'][-min_x:], color='orange')
+        ax3_0.axhline(y=df['Volume'][-min_x:].std(), color='blue', linewidth=1, linestyle='-.')
         ax3.grid()
         ax3.set(xlabel=None)
 
@@ -807,11 +806,11 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
             fig.savefig(tick.replace('/','') +'.png')
         else:
             fig.savefig('filename.png')
-        try:
-            sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
-        except Exception as e:
-            print("issue with mails for " + tick)
-            print("Exception: " + str(e))
+        if mail ==True :
+            try:
+                sendemail(attach='filename.png', subject_mail=str(tick), body_mail=str(tick) + " " + str(type_signal))
+            except Exception as e:
+                print("issue with mails for " + tick)
         plt.close()
 
 def session_status_changed(session: fxcorepy.O2GSession,
