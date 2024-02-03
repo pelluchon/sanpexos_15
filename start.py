@@ -107,6 +107,9 @@ def should_open_buy_trade(df,idx):
          df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
                                          df.iloc[idx-27]['AskClose']) and
+         df.iloc[idx - 28]['chikou'] > max(df.iloc[idx - 28]['senkou_a'], df.iloc[idx - 28]['senkou_b'],
+                                           df.iloc[idx - 28]['tenkan_avg'], df.iloc[idx - 28]['kijun_avg'],
+                                           df.iloc[idx - 28]['AskClose']) and
          df.iloc[idx]['AskClose'] > df.iloc[idx]['tenkan_avg']  and
          df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and
@@ -125,6 +128,9 @@ def should_open_sell_trade(df,idx):
          df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['senkou_a'],df.iloc[idx-27]['senkou_b'],
                                          df.iloc[idx-27]['tenkan_avg'],df.iloc[idx-27]['kijun_avg'],
                                          df.iloc[idx-27]['AskClose']) and
+         df.iloc[idx - 28]['chikou'] < min(df.iloc[idx - 28]['senkou_a'], df.iloc[idx - 28]['senkou_b'],
+                                           df.iloc[idx - 28]['tenkan_avg'], df.iloc[idx - 28]['kijun_avg'],
+                                           df.iloc[idx - 28]['AskClose']) and
          df.iloc[idx]['AskClose'] < df.iloc[idx]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg'] and
          df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and
