@@ -20,9 +20,9 @@ import close
 
 #### All hours in GMT
 
-graph_back_test=True
-live = False
-mail = False
+graph_back_test=False
+live = True
+mail = True
 Dict = {
     'FXCM': {
         'str_user_i_d': '71587236',
