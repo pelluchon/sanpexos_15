@@ -273,7 +273,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     index_peak = 0
     #df = analysis(df, idx, tick)
     result_buy = should_open_buy_trade(df, idx)
-    result_sell = should_open_buy_trade(df, idx)
+    result_sell = should_open_sell_trade(df, idx)
     if result_buy != None:
         # min_entry = round((max(df.iloc[-27:-2]['kijun_avg']) - min(df.iloc[-27:-2]['AskLow'])) / (
         #     abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
