@@ -4,14 +4,14 @@ import time
 
 Dict = {
     'FXCM': {
-            # 'str_user_i_d': '71581198',
-            # 'str_password': '8ylyjhu',
-            # 'str_connection': 'Demo',
-            # 'str_account': '71581198',
-            'str_user_i_d': '87053959',
-            'str_password': 'S4Tpj3P!zz.Mm2p',
-            'str_account': '87053959',
-            'str_connection': 'Real',
+            'str_user_i_d': '71589172',
+            'str_password': '1vwgtjs',
+            'str_connection': 'Demo',
+            'str_account': '71589172',
+            #'str_user_i_d': '87053959',
+            #'str_password': 'S4Tpj3P!zz.Mm2p',
+            #'str_account': '87053959',
+            #'str_connection': 'Real',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_session_id': None,
             'str_pin': None,
