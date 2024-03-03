@@ -16,7 +16,7 @@ from forexconnect import fxcorepy, ForexConnect, Common
 import pandas_ta as ta
 from scipy.stats import linregress
 import math
-import close
+#import close
 
 #### All hours in GMT
 
@@ -115,14 +115,16 @@ def should_open_buy_trade(df,idx):
     if temp_macd.size != 0 and temp_delta.size != 0 :
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx - 3:idx]['AskClose'].mean() > max(df.iloc[idx - 3:idx]['senkou_a'].mean(),df.iloc[idx - 3:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 3:idx]['tenkan_avg'].mean() > df.iloc[idx - 3:idx]['kijun_avg'].mean() and
-                df.iloc[idx - 3:idx]['AskClose'].mean() > df.iloc[idx - 3:idx]['tenkan_avg'].mean() and
-                df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
-                df.iloc[idx]['delta'] > df.iloc[idx_last_delta]['delta'] and
-                abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))) and
-                df.iloc[idx - 3:idx]['delta'].mean() > df.iloc[idx - 7:idx - 4]['delta'].mean()):
-                result = 'Open Buy'
+        if (df.iloc[idx - 2:idx]['AskClose'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
+            df.iloc[idx - 2:idx]['AskClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
+            df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
+            #df.iloc[idx]['delta'] > df.iloc[idx_last_delta]['delta'] and
+            # (df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
+            df.iloc[idx-2:idx]['rsi'].mean() < 60 and
+            abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))) and
+            df.iloc[idx - 3:idx]['delta'].mean() > df.iloc[idx - 7:idx - 4]['delta'].mean()):
+            result = 'Open Buy'
     return(result)
 
 def should_open_sell_trade(df,idx):
@@ -134,13 +136,16 @@ def should_open_sell_trade(df,idx):
     if temp_macd.size != 0 and temp_delta.size != 0 :
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx - 3:idx]['AskClose'].mean() < min(df.iloc[idx - 3:idx]['senkou_a'].mean(),df.iloc[idx - 3:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 3:idx]['tenkan_avg'].mean() < df.iloc[idx - 3:idx]['kijun_avg'].mean() and
-                df.iloc[idx - 3:idx]['AskClose'].mean() < df.iloc[idx - 3:idx]['tenkan_avg'].mean() and
-                df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
-                df.iloc[idx]['delta'] < df.iloc[idx_last_delta]['delta'] and
-                abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))) and
-                df.iloc[idx - 3:idx]['delta'].mean() < df.iloc[idx - 7:idx - 4]['delta'].mean()):
+        if (df.iloc[idx - 2:idx]['AskClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
+            df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
+            df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
+            df.iloc[idx - 2:idx]['rsi'].mean() > 40 and
+            #df.iloc[idx]['delta'] < df.iloc[idx_last_delta]['delta'] and
+            # (df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (
+            #             df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and
+            abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))) and
+            df.iloc[idx - 3:idx]['delta'].mean() < df.iloc[idx - 7:idx - 4]['delta'].mean()):
             result = 'Open Sell'
     return(result)
 
@@ -150,32 +155,27 @@ def should_close_buy_trade(df,idx,idx_open):
     candle_m4 = (df.iloc[idx - 2]['BidClose'] - df.iloc[idx - 2]['BidOpen']) / (
                 df.iloc[idx - 2]['BidHigh'] - df.iloc[idx - 2]['BidLow'])
 
-    # if (candle_m2<0.1 and candle_m3<0.1 and
-    #     df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
-    #     df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-    #     df.iloc[idx]['BidClose'] < df.iloc[idx]['tenkan_avg'] and
-    #     df.iloc[idx]['tenkan_avg'] < df.iloc[idx-1]['tenkan_avg']):
-    #     result = 'Kill for crossing Tenkan'
-    if df.iloc[idx]['BidClose'] < max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) and df.iloc[idx]['signal'] < df.iloc[idx]['macd']:
+    if df.iloc[idx]['BidClose'] < max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) \
+        and df.iloc[idx]['signal'] < df.iloc[idx]['macd'] and \
+        df.iloc[idx]['Volume']>0.4*(df['Volume'].max()-df['Volume'].min()):
         result = 'Kill for in Kumo'
     elif df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and \
         df.iloc[idx]['kijun_avg'] < df.iloc[idx-1]['kijun_avg'] and \
-         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd']:
+        df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and\
+        df.iloc[idx-2:idx]['rsi'].mean() > 60 and\
+        df.iloc[idx]['chikou'] < min(df.iloc[idx]['AskClose'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg']):
         result = 'Kill for Tenkan crossing Kijun'
-    elif df.iloc[idx-7:idx]['AskClose'].mean() < df.iloc[idx-7:idx]['tenkan_avg'].mean() and \
-          df.iloc[idx]['signal'] > df.iloc[idx]['macd']:
-         #  (candle_m2<-0.5) ):
-         result = 'Kill for below Tenkans'
-    elif df.iloc[idx]['BidClose'] < df.iloc[idx]['kijun_avg'] and \
-            df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and \
-            df.iloc[idx]['signal'] > df.iloc[idx]['macd']:
+    elif df.iloc[idx-3:idx]['AskClose'].mean() < df.iloc[idx-3:idx]['tenkan_avg'].mean() and \
+        df.iloc[idx]['signal'] > df.iloc[idx]['macd'] and \
+        df.iloc[idx-2:idx]['tenkan_avg'].mean()<df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and\
+        df.iloc[idx-2:idx]['rsi'].mean() > 65:
+        result = 'Kill for below Tenkans'
+    elif df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg'] and \
+        df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and \
+        df.iloc[idx]['signal'] > df.iloc[idx]['macd'] and\
+        df.iloc[idx-2:idx]['rsi'].mean() > 60 and\
+        df.iloc[idx]['chikou'] < min(df.iloc[idx]['AskClose'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg']):
         result = 'Kill for crossing Kijun'
-    # elif (candle_m3 < 0 and candle_m2 < 0 and df.iloc[idx]['Volume'] > df.iloc[0:idx]['Volume'].std()):
-    #     result = 'Kill for High Tendance Change'
-    elif df.iloc[idx]['BidClose'] < df.iloc[idx_open - 27:idx_open]['BidLow'].min() and \
-         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and \
-         df.iloc[idx]['macd'] < df.iloc[idx-2]['macd'] and candle_m2 < 0.1 and candle_m3 < 0.1:
-        result = 'Kill for crossing SL'
     else:
         result = None
 
@@ -187,32 +187,26 @@ def should_close_sell_trade(df,idx,idx_open):
     candle_m4 = (df.iloc[idx - 2]['BidClose'] - df.iloc[idx - 2]['BidOpen']) / (
                 df.iloc[idx - 2]['BidHigh'] - df.iloc[idx - 2]['BidLow'])
 
-    if df.iloc[idx]['BidClose'] > min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) and df.iloc[idx]['signal'] > df.iloc[idx]['macd']:
+    if df.iloc[idx]['AskClose'] > min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) \
+        and df.iloc[idx]['signal'] > df.iloc[idx]['macd'] and \
+        df.iloc[idx]['Volume']>0.4*(df['Volume'].max()-df['Volume'].min()):
         result = 'Kill for in Kumo'
-    # if (candle_m2 > -0.1 and candle_m3 >-0.1and
-    #      df.iloc[idx]['kijun_avg'] == df.iloc[idx - 1]['kijun_avg'] and
-    #      df.iloc[idx]['kijun_avg'] == df.iloc[idx - 2]['kijun_avg'] and
-    #     df.iloc[idx]['BidClose']> df.iloc[idx]['tenkan_avg'] and
-    #     df.iloc[idx]['tenkan_avg'] > df.iloc[idx-1]['tenkan_avg']):
-    #     result = 'Kill for crossing Tenkan'
     elif df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and \
-         df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and \
-          df.iloc[idx]['macd'] > df.iloc[idx]['signal']:
+        df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and \
+        df.iloc[idx]['macd'] > df.iloc[idx]['signal'] and\
+        df.iloc[idx]['chikou'] > max(df.iloc[idx]['AskClose'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg']):
         result = 'Kill for Tenkan crossing Kijun'
-    elif df.iloc[idx-7:idx]['AskClose'].mean() > df.iloc[idx-7:idx]['tenkan_avg'].mean() and \
-          df.iloc[idx]['signal'] < df.iloc[idx]['macd']:
-        #   (candle_m2>0.5)):
+    elif df.iloc[idx-3:idx]['AskClose'].mean() > df.iloc[idx-3:idx]['tenkan_avg'].mean() and \
+        df.iloc[idx]['signal'] < df.iloc[idx]['macd'] and \
+        df.iloc[idx-2:idx]['tenkan_avg'].mean()>df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and\
+        df.iloc[idx-2:idx]['rsi'].mean() < 35:
         result = 'Kill for below Tenkans'
-    elif df.iloc[idx]['BidClose'] > df.iloc[idx]['kijun_avg'] and \
+    elif df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and \
         df.iloc[idx]['kijun_avg'] > df.iloc[idx-1]['kijun_avg'] and \
-         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd']:
+        df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and\
+        df.iloc[idx-2:idx]['rsi'].mean() < 40 and\
+        df.iloc[idx]['chikou'] > max(df.iloc[idx]['AskClose'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg']):
         result = 'Kill for crossing Kijun'
-    # elif (candle_m2 > 0 and candle_m3 > 0 and df.iloc[idx]['Volume'] > df.iloc[0:idx]['Volume'].std()):
-    #     result = 'Kill for High Tendance Change'
-    elif df.iloc[idx]['BidClose'] > df.iloc[idx_open - 27:idx_open]['BidLow'].max() and \
-         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and \
-         df.iloc[idx]['macd'] < df.iloc[idx-1]['macd'] and candle_m2> -0.1 and candle_m3 >-0.1:
-        result = 'Kill for crossing SL'
     else:
         result = None
 
@@ -471,23 +465,23 @@ def indicators(df):
         df['slope'] = np.nan
         df['slope_macd'] = np.nan
         for i in range(-ind - 1, -n + 3, -1):
-            if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']) and abs(df.iloc[i]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))):
-                if (i == -2) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 3]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) :
-                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-                elif (i < -2) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 3]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']) and \
-                        abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 3]['macd']):
-                    df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                    df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+            #if abs(df.iloc[i]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd']))): #abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']) and
+            if (i == -2) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 3]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) :
+                df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+            elif (i < -2) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 3]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']) and \
+                    abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 3]['macd']):
+                df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
+                df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
             if abs(df.iloc[i]['delta']) > 0.1*(max(df['delta'])+abs(min(df['delta']))):
                 if (i == -2) and \
                         abs(df.iloc[i]['delta']) >= abs(df.iloc[i - 1]['delta']) and \
@@ -513,180 +507,6 @@ def indicators(df):
     df = find_last_peaks(df,1)
 
     return (df)
-# def analysis(df, ind, tick):
-#     def chikou_signal(df):
-#
-#         # Check the Chikou
-#         df['chikou_signal'] = np.zeros(len(df['AskClose']))
-#         end_chikou_signal = 30
-#         if len(df['AskClose']) <= 27:
-#             end_chikou_signal = len(df['AskClose'])
-#         for p in range(27, end_chikou_signal):
-#             # Check if chikou more than anything
-#             if df.iloc[-p]['chikou'] > df.iloc[-p]['AskClose'].max() \
-#                     and df.iloc[-p]['chikou'] > df.iloc[-p]['tenkan_avg'].max() \
-#                     and df.iloc[-p]['chikou'] > df.iloc[-p]['kijun_avg'].max():
-#                 df.loc[len(df) - p, 'chikou_signal'] = 1
-#             # Check if chikou is less than anything
-#             elif df.iloc[-p]['chikou'] < df.iloc[-p]['AskClose'].min() \
-#                     and df.iloc[-p]['chikou'] < df.iloc[-p]['tenkan_avg'].min() \
-#                     and df.iloc[-p]['chikou'] < df.iloc[-p]['kijun_avg'].min():
-#                 df.loc[len(df) - p, 'chikou_signal'] = -1
-#             else:
-#                 df.loc[len(df) - p, 'chikou_signal'] = 2
-#
-#         return df
-#
-#     def trend_channels(df, backcandles, wind, candleid, brange, ask_plot):
-#         df_low = df['AskLow']
-#         df_high = df['AskHigh']
-#         optbackcandles = backcandles
-#         sldiff = 1000
-#         sldist = 10000
-#         for r1 in range(backcandles - brange, backcandles + brange):
-#             maxim = np.array([])
-#             minim = np.array([])
-#             xxmin = np.array([])
-#             xxmax = np.array([])
-#             for i in range(candleid - backcandles, candleid + 1, wind):
-#                 if df_low.iloc[i:i + wind].size != 0:
-#                     minim = np.append(minim, df_low.iloc[i:i + wind].min())
-#                     xxmin = np.append(xxmin, df_low.iloc[i:i + wind].idxmin())  # ;;;;;;;;;;;
-#             for i in range(candleid - backcandles, candleid + 1, wind):
-#                 if df_high.iloc[i:i + wind].size != 0:
-#                     maxim = np.append(maxim, df_high.iloc[i:i + wind].max())
-#                     xxmax = np.append(xxmax, df_high.iloc[i:i + wind].idxmax())
-#             slmin, intercmin = np.polyfit(xxmin, minim, 1)
-#             slmax, intercmax = np.polyfit(xxmax, maxim, 1)
-#
-#             dist = (slmax * candleid + intercmax) - (slmin * candleid + intercmin)
-#             if (dist < sldist) and (abs(slmin - slmax) < sldiff):
-#                 sldiff = abs(slmin - slmax)
-#                 sldist = dist
-#                 optbackcandles = r1
-#                 slminopt = slmin
-#                 slmaxopt = slmax
-#                 intercminopt = intercmin
-#                 intercmaxopt = intercmax
-#                 maximopt = maxim.copy()
-#                 minimopt = minim.copy()
-#                 xxminopt = xxmin.copy()
-#                 xxmaxopt = xxmax.copy()
-#         adjintercmin = (df_low.iloc[xxminopt] - slminopt * xxminopt).min()
-#         adjintercmax = (df_high.iloc[xxmaxopt] - slmaxopt * xxmaxopt).max()
-#
-#         # at the current index where is the channel
-#         xminopt = np.arange(int(xxminopt[0]), int(xxminopt[-1]), 1)
-#         xmaxopt = np.arange(int(xxmaxopt[0]), int(xxmaxopt[-1]), 1)
-#         ychannelmin = slminopt * xminopt + adjintercmin
-#         ychannelmax = slmaxopt * xmaxopt + adjintercmax
-#
-#         df_chanmax = pd.DataFrame()
-#         df_chanmax['ychannelmax'] = ychannelmax
-#
-#         df_chanmin = pd.DataFrame()
-#         df_chanmin['ychannelmin'] = ychannelmin
-#
-#         df_opt = pd.DataFrame()
-#         df_opt['xxmaxopt'] = xxmaxopt
-#         df_opt['xxminopt'] = xxminopt
-#
-#         df_single = pd.DataFrame(columns=['slminopt', 'adjintercmin', 'slmaxopt', 'adjintercmax'])
-#         df_single.loc[0] = [slminopt, adjintercmin, slmaxopt, adjintercmax]
-#
-#         df = pd.concat([df, df_chanmax, df_chanmin, df_opt, df_single], axis=1)
-#
-#         return df
-#
-#     def find_last_peaks(df, ind):
-#         n = len(df)
-#         df['peaks'] = np.nan
-#         df['peaks_macd'] = np.nan
-#         df['slope'] = np.nan
-#         df['slope_macd'] = np.nan
-#         sign_first_peak = 0
-#         for i in range(-ind - 1, -n + 1, -1):
-#             if abs(df.iloc[i]['macd']) >= abs(df.iloc[i]['signal']):
-#                 if (i == -2) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']):
-#                     df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-#                     df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-#                     sign_first_peak = np.sign(df.iloc[i]['macd'])
-#                 elif (i < -2) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
-#                         abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']):
-#                     if sign_first_peak == 0:
-#                         df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-#                         df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-#                         sign_first_peak = np.sign(df.iloc[i]['macd'])
-#                     elif sign_first_peak == np.sign(df.iloc[i]['macd']):
-#                         df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-#                         df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
-#         # slope definition & remove all the nans
-#         if df['peaks_macd'].dropna().size > 2 and df['peaks'].dropna().size > 2 and \
-#                 df['peaks'].dropna().iloc[-1] != df['peaks'].dropna().iloc[-2] and \
-#                 df['peaks_macd'].dropna().iloc[-1] != df['peaks_macd'].dropna().iloc[-2]:
-#             temp = df['peaks'].dropna().reset_index()
-#             tempm = df['peaks_macd'].dropna().reset_index()
-#             df.loc[2, 'slope_macd'] = tempm['peaks_macd'].iloc[-2]
-#             df.loc[4, 'slope_macd'] = tempm['index'].iloc[-2]
-#             df.loc[2, 'slope'] = temp['peaks'].iloc[-2]
-#             df.loc[4, 'slope'] = temp['index'].iloc[-2]
-#             df.loc[1, 'slope_macd'] = tempm['peaks_macd'].iloc[-1]
-#             df.loc[3, 'slope_macd'] = tempm['index'].iloc[-1]
-#             df.loc[1, 'slope'] = temp['peaks'].iloc[-1]
-#             df.loc[3, 'slope'] = temp['index'].iloc[-1]
-#             df.loc[0, 'slope'] = (df.loc[1, 'slope'] - df.loc[2, 'slope']) / (df.loc[3, 'slope'] - df.loc[4, 'slope'])
-#             df.loc[0, 'slope_macd'] = (df.loc[1, 'slope_macd'] - df.loc[2, 'slope_macd']) / (
-#                     df.loc[3, 'slope_macd'] - df.loc[4, 'slope_macd'])
-#         return df
-#
-#     df = chikou_signal(df)
-#     # trend_channels defined by how many backcandles we are going RWD, so let's take a 3 months=90days,
-#     # then by the window of check, let's take 5 days, where I am starting today -4 (yesterday) and what optimization
-#     # backcandles i ma reday to follow 1 week so 5 days
-#     df = trend_channels(df, 27 * 3, 3, len(df) - 4 - ind, 5, False)
-#     df = find_last_peaks(df, ind-len(df))
-#     return df
-
-def box(df, index):
-    low_box = -1
-    high_box = -1
-    box_def = False
-
-    # in the last 29 periods kijun has been flat take the last flat
-    for m in range(len(df) - index, len(df) - 28 - index, -1):
-        if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
-                df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
-                df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg']:
-            box_def = True
-            break
-
-    # if box has been found
-    if box_def == True:
-        # Top limit
-        if df['AskHigh'][-28 - index:-2 - index].max() >= df.iloc[-0 - index]['kijun_avg']:
-            top_limit = df['AskHigh'][-28 - index:-2 - index].max() - df.iloc[-0 - index]['kijun_avg']
-        else:
-            top_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskHigh'][-28 - index:-2 - index].max()
-        # Lower limit
-        if df['AskLow'][-28 - index:-2 - index].min() <= df.iloc[-0 - index]['kijun_avg']:
-            low_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskLow'][-28 - index:-2 - index].min()
-        else:
-            low_limit = df['AskLow'][-28 - index:-2 - index].min() - df.iloc[-0 - index]['kijun_avg']
-        max_limit = max(top_limit, low_limit)
-        low_box = df.iloc[-0 - index]['kijun_avg'] - max_limit
-        high_box = df.iloc[-0 - index]['kijun_avg'] + max_limit
-        # Check that kijun is in-between
-        if ((low_box + high_box) * 0.45) < df.iloc[m]['kijun_avg'] < ((low_box + high_box) * 0.55):
-            box_def == True
-        else:
-            box_def == False
-    return low_box, high_box, box_def
 
 def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0, low_box=0, tp=0, sl=0, index_peak=0):
     def sendemail(attach, subject_mail, body_mail):
@@ -764,20 +584,9 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
                  ax1.axhline(y=float(sl), color='red', linewidth=1, linestyle='-.')
             ax1.plot(df.iloc[index]['index'], df.iloc[index]['AskClose'], 'black', marker='s')
             ax1.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
-        #ax1.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         if 'slope' in df.columns:
             ax1.plot([df.loc[3, 'slope'], df.loc[4, 'slope']], [df.loc[1, 'slope'], df.loc[2, 'slope']], linewidth=2,
                      color='yellow', marker='s')
-            # ax1.plot([df['index'][int(np.array(df['xxminopt'].dropna())[0])],
-            #           df['index'][int(np.array(df['xxminopt'].dropna())[-1])]],
-            #          [df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[0]) + df['adjintercmin'].dropna(),
-            #           df['slminopt'].dropna() * int(np.array(df['xxminopt'].dropna())[-1]) + df['adjintercmin'].dropna()],
-            #          linewidth=2, color='green')
-            # ax1.plot([df['index'][int(np.array(df['xxmaxopt'].dropna())[0])],
-            #           df['index'][int(np.array(df['xxmaxopt'].dropna())[-1])]],
-            #          [df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[0]) + df['adjintercmax'].dropna(),
-            #           df['slmaxopt'].dropna() * int(np.array(df['xxmaxopt'].dropna())[-1]) + df['adjintercmax'].dropna()],
-            #      linewidth=2, color='red')
         ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:],
                          where=df['senkou_a'][-min_x:] >= df['senkou_b'][-min_x:],
                          color='lightgreen')
@@ -786,21 +595,6 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
                          color='lightcoral')
         quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
-
-        # Range_box
-        if box_def == True:
-            xmin = df['AskLow'][-27 - index:-1 - index].idxmin()
-            xmax = df['AskHigh'][-27 - index:-1 - index].idxmax()
-            ax1.add_patch(patches.Rectangle((xmin, low_box), (xmax - xmin), (high_box - low_box), edgecolor='orange',
-                                            facecolor='none', linewidth=1))
-            ax1.hlines(y=float(0.4 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.6 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.9 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
         ax1.grid()
         low_limit = np.nanmin(df['AskLow'][-min_x:])
         high_limit = np.nanmax(df['AskHigh'][-min_x:])
@@ -816,7 +610,6 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
                      linewidth=2,
                      color='yellow', marker='s')
         ax2.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
-        #ax2.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax2.plot(df.index[-min_x:], df['peaks_macd'][-min_x:], color='orange', marker='s')
         ax2.set_ylim(np.nanmin(df['macd'][-min_x:]), np.nanmax(df['macd'][-min_x:]))
         ax2.grid()
@@ -826,11 +619,10 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax3.bar(df.index[-min_x:], df['delta'][-min_x:], color='black')
         ax3.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         ax3.plot(df.index[-min_x:], df['peaks_delta'][-min_x:], color='orange', marker='s')
-        #ax3.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax3.set_ylim(np.nanmin(df['delta'][-min_x:]), np.nanmax(df['delta'][-min_x:]))
         ax3_0=ax3.twinx()
         ax3_0.plot(df.index[-min_x:], df['Volume'][-min_x:], color='orange')
-        ax3_0.axhline(y=df['Volume'][-min_x:].std(), color='blue', linewidth=1, linestyle='-.')
+        ax3_0.axhline(y=0.4*(df['Volume'].max()-df['Volume'].min()), color='blue', linewidth=1, linestyle='-.')
         ax3.grid()
         ax3.set(xlabel=None)
 
@@ -843,9 +635,6 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax4.axhline(y=61.8, color='yellow', linestyle='-.')
         ax4.axvline(x=df.iloc[index]['index'], color='black', linewidth=1, linestyle='-.')
         ax4.set_ylim((0, 100))
-        #ax4.axhline(y=float(df.iloc[index_peak]['rsi']), color='red', linewidth=1, linestyle='-.')
-        #ax4.plot(df.iloc[index_peak]['index'], df.iloc[index_peak]['rsi'], 'red', marker='s')
-        #ax4.axvline(x=df.iloc[index_peak]['index'], color='red', linewidth=1, linestyle='-.')
         ax4.grid()
 
         if live==False:
