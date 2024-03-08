@@ -120,8 +120,9 @@ def should_open_buy_trade(df,idx):
             df.iloc[idx - 2:idx]['AskClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
             (df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
-            df.iloc[idx-2:idx]['rsi'].mean() < 60 and\
-            df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg'])):#and
+            df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 60 and\
+            df.iloc[idx-30:idx-27]['chikou'].mean() > max(df.iloc[idx-30:idx-27]['senkou_a'].mean(),df.iloc[idx-30:idx-27]['senkou_b'].mean(),
+                                                          df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean())):#and
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))): #and
             #df.iloc[idx - 2:idx]['delta'].mean() > df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Buy'
@@ -140,9 +141,10 @@ def should_open_sell_trade(df,idx):
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
-            df.iloc[idx - 2:idx]['rsi'].mean() > 40 and
+            df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 40 and
             (df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
-            df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg'])):# and
+            df.iloc[idx-30:idx-27]['chikou'].mean() < min(df.iloc[idx-30:idx-27]['senkou_a'].mean(),df.iloc[idx-30:idx-27]['senkou_b'].mean(),
+                                                          df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean())):# and
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))):# and
             #df.iloc[idx - 2:idx]['delta'].mean() < df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Sell'
@@ -153,31 +155,33 @@ def should_close_buy_trade(df,idx,idx_open):
     candle_m3 = (df.iloc[idx-1]['BidClose'] - df.iloc[idx-1]['BidOpen']) / (df.iloc[idx-1]['BidHigh'] - df.iloc[idx-1]['BidLow'])
     candle_m4 = (df.iloc[idx - 2]['BidClose'] - df.iloc[idx - 2]['BidOpen']) / (
                 df.iloc[idx - 2]['BidHigh'] - df.iloc[idx - 2]['BidLow'])
-
+    #
     if df.iloc[idx]['BidClose'] < max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) and\
         df.iloc[idx]['signal'] < df.iloc[idx]['macd'] and\
-        df.iloc[idx-10:idx]['rsi'].mean() > 60 :
+        df.iloc[idx-7:idx]['rsi'].mean() > 60 :
         result = 'Kill for in Kumo'
-    elif df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['kijun_avg'] and \
-        df.iloc[idx]['kijun_avg'] < df.iloc[idx-1]['kijun_avg'] and \
+    elif df.iloc[idx-3:idx]['tenkan_avg'].mean() < df.iloc[idx-3:idx]['kijun_avg'].mean() and \
+        df.iloc[idx-2:idx]['kijun_avg'].mean() < df.iloc[idx-3:idx-1]['kijun_avg'].mean() and \
         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and\
-        df.iloc[idx-10:idx]['rsi'].mean() > 60 :
+        df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() > 50 and \
+        df.iloc[idx-30:idx-27]['chikou'].mean() < max(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()):
         result = 'Kill for Tenkan crossing Kijun'
     elif df.iloc[idx-3:idx]['AskClose'].mean() < df.iloc[idx-3:idx]['tenkan_avg'].mean() and \
         df.iloc[idx]['signal'] > df.iloc[idx]['macd'] and \
-        df.iloc[idx-2:idx]['tenkan_avg'].mean()<df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and\
-        df.iloc[idx-10:idx]['rsi'].mean() > 60 and\
-        df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg']):
+        df.iloc[idx-2:idx]['tenkan_avg'].mean()<df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and \
+        df.iloc[idx-30:idx-27]['chikou'] .mean()< max(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()) and\
+        df.iloc[idx-7:idx]['rsi'][df['AskClose']>df['tenkan_avg']].mean() > 60 :
         result = 'Kill for below Tenkans'
     elif df.iloc[idx]['AskClose'] < df.iloc[idx]['kijun_avg'] and \
         df.iloc[idx]['macd'] < df.iloc[idx - 1]['macd'] and \
         df.iloc[idx]['signal'] > df.iloc[idx]['macd'] and\
-        df.iloc[idx-10:idx]['rsi'].mean() > 60 :
+        df.iloc[idx-7:idx]['rsi'][df['AskClose']>df['kijun_avg']].mean() > 60 and \
+        df.iloc[idx-30:idx-27]['chikou'].mean() < max(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()):
         result = 'Kill for crossing Kijun'
     elif df.iloc[idx-3:idx]['AskClose'].mean() < df.iloc[idx_open-27:idx_open]['AskLow'].min() and \
         df.iloc[idx-3:idx]['AskClose'].mean() < df.iloc[idx-3:idx]['tenkan_avg'].mean() and\
         df.iloc[idx-3:idx]['tenkan_avg'].mean() < df.iloc[idx-3:idx]['kijun_avg'].mean() and\
-        df.iloc[idx-27]['chikou'] < min(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg']) :
+        df.iloc[idx-30:idx-27]['chikou'].mean() < min(df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()) :
         result = 'Kill for wrong direction'
     else:
         result = None
@@ -192,28 +196,30 @@ def should_close_sell_trade(df,idx,idx_open):
 
     if df.iloc[idx]['AskClose'] > min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) \
         and df.iloc[idx]['signal'] > df.iloc[idx]['macd']  and\
-        df.iloc[idx-10:idx]['rsi'].mean() < 40:
+        df.iloc[idx-7:idx]['rsi'].mean() < 40:
         result = 'Kill for in Kumo'
     elif df.iloc[idx]['tenkan_avg'] > df.iloc[idx]['kijun_avg'] and \
-        df.iloc[idx]['macd'] > df.iloc[idx - 1]['macd'] and \
-        df.iloc[idx]['macd'] > df.iloc[idx]['signal'] and\
-        df.iloc[idx-10:idx]['rsi'].mean() < 40:
+        df.iloc[idx-2:idx]['kijun_avg'].mean() > df.iloc[idx-3:idx-1]['kijun_avg'].mean()and \
+        df.iloc[idx]['macd'] > df.iloc[idx]['signal']  and\
+        df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() < 50 and \
+        df.iloc[idx-30:idx-27]['chikou'].mean() > min(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()) :
         result = 'Kill for Tenkan crossing Kijun'
     elif df.iloc[idx-3:idx]['AskClose'].mean() > df.iloc[idx-3:idx]['tenkan_avg'].mean() and \
-        df.iloc[idx]['signal'] < df.iloc[idx]['macd'] and \
-        df.iloc[idx-2:idx]['tenkan_avg'].mean()>df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and\
-        df.iloc[idx-10:idx]['rsi'].mean() < 40 and\
-        df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg']):
+        df.iloc[idx]['signal'] < df.iloc[idx]['macd'] and\
+        df.iloc[idx-7:idx]['rsi'][df['AskClose']<df['tenkan_avg']].mean() < 40 and \
+        df.iloc[idx-2:idx]['tenkan_avg'].mean()>df.iloc[idx-3:idx-1]['tenkan_avg'].mean() and \
+        df.iloc[idx-30:idx-27]['chikou'].mean() > min(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()):
         result = 'Kill for below Tenkans'
     elif df.iloc[idx]['AskClose'] > df.iloc[idx]['kijun_avg'] and \
         df.iloc[idx]['kijun_avg'] > df.iloc[idx-1]['kijun_avg'] and \
         df.iloc[idx]['macd'] > df.iloc[idx-1]['macd'] and\
-        df.iloc[idx-10:idx]['rsi'].mean() < 40 :
+        df.iloc[idx-7:idx]['rsi'][df['AskClose']<df['kijun_avg']].mean() < 40 and \
+        df.iloc[idx-30:idx-27]['chikou'].mean() > min(df.iloc[idx-30:idx-27]['AskClose'].mean(),df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-27]['tenkan_avg'].mean()):
         result = 'Kill for crossing Kijun'
     elif df.iloc[idx-3:idx]['AskClose'].mean() > df.iloc[idx_open-10:idx_open]['AskHigh'].max() and \
         df.iloc[idx-3:idx]['AskClose'].mean() > df.iloc[idx-3:idx]['tenkan_avg'].mean() and \
         df.iloc[idx-3:idx]['tenkan_avg'].mean() > df.iloc[idx-3:idx]['kijun_avg'].mean() and\
-        df.iloc[idx-27]['chikou'] > max(df.iloc[idx-27]['kijun_avg'],df.iloc[idx-27]['tenkan_avg']):
+        df.iloc[idx-30:idx-27]['chikou'].mean() > max(df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean()):
         result = 'Kill for wrong direction'
     else:
         result = None
