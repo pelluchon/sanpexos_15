@@ -340,9 +340,9 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
                 else:
                     try:
-                        sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                        tp = open_price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
-                        type_signal = ' Buy : Adjust '+ str(result)
+                        sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
+                        tp = open_price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
+                        type_signal = ' Buy : Adjust for bad '
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -380,9 +380,9 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
                 else:
                     try:
-                        sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                        tp = open_price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
-                        type_signal = ' Sell : Adjust '+ str(result)
+                        sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
+                        tp = open_price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
+                        type_signal = ' Sell : Adjust for bad '
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.LIMIT,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
