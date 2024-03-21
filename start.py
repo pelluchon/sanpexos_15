@@ -306,6 +306,7 @@ def close_trade(df, fx, tick, dj, idx):
     tp = dj.loc[0, 'tick_limit']
     sl = dj.loc[0, 'tick_stop']
     offer = Common.get_offer(fx, tick)
+    order = Common.get_offer(fx, tick)
     buy = fxcorepy.Constants.BUY
     sell = fxcorepy.Constants.SELL
     buy_sell = sell if dj.loc[0, 'tick_type'] == buy else buy
@@ -352,8 +353,8 @@ def close_trade(df, fx, tick, dj, idx):
                                     AMOUNT=int(dj.loc[0, 'tick_amount']),
                                     TRADE_ID=dj.loc[0, 'tick_id'],
                                     RATE=sl,
-                                    #RATE_LIMIT=tp,
-                                    ORDER_ID=dj.loc[0, 'order_limit_id']
+                                    RATE_LIMIT=tp,
+                                    ORDER_ID=dj.loc[0, 'order_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -393,8 +394,8 @@ def close_trade(df, fx, tick, dj, idx):
                                     AMOUNT=int(dj.loc[0, 'tick_amount']),
                                     TRADE_ID=dj.loc[0, 'tick_id'],
                                     RATE=sl,
-                                    #RATE_LIMIT=tp,
-                                    ORDER_ID=dj.loc[0, 'order_stop_id']
+                                    RATE_LIMIT=tp,
+                                    ORDER_ID=dj.loc[0, 'order_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -770,6 +771,7 @@ def check_trades(tick, fx):
             try:
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
+                dj.loc[0, 'order_id'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).order_id
             except:
                 dj.loc[0, 'pip_cost'] = 1
                 dj.loc[0, 'pip_size'] = 1
