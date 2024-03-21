@@ -340,19 +340,20 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
                 else:
                     try:
-                        sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
+                        sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
                         tp = open_price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                        type_signal = ' Buy : Adjust for bad '
+                        type_signal = ' Buy : Adjust ' + str(result)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            RATE_LIMIT=tp,
+                                    order_type=fxcorepy.Constants.Orders.LIMIT,
+                                    command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                                    OFFER_ID=offer.offer_id,
+                                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                    BUY_SELL=buy_sell,
+                                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                    TRADE_ID=dj.loc[0, 'tick_id'],
+                                    RATE=sl,
+                                    RATE_LIMIT=tp,
+                                    ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -380,19 +381,20 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
                 else:
                     try:
-                        sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/10
+                        sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
                         tp = open_price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                        type_signal = ' Sell : Adjust for bad '
+                        type_signal = ' Sell : Adjust ' + str(result)
                         request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.LIMIT,
-                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                            RATE_LIMIT=tp,
+                                    order_type=fxcorepy.Constants.Orders.LIMIT,
+                                    command=fxcorepy.Constants.Commands.EDIT_ORDER,
+                                    OFFER_ID=offer.offer_id,
+                                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                    BUY_SELL=buy_sell,
+                                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                    TRADE_ID=dj.loc[0, 'tick_id'],
+                                    RATE=sl,
+                                    RATE_LIMIT=tp,
+                                    ORDER_ID=dj.loc[0, 'order_stop_id']
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
