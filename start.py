@@ -353,7 +353,17 @@ def close_trade(df, fx, tick, dj, idx):
                                     AMOUNT=int(dj.loc[0, 'tick_amount']),
                                     TRADE_ID=dj.loc[0, 'tick_id'],
                                     RATE=tp,
-                                    RATE_LIMIT=sl,
+                        )
+                        resp = fx.send_request(request)
+                        request = fx.create_order_request(
+                                    order_type=fxcorepy.Constants.Orders.STOP,
+                                    command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                                    OFFER_ID=offer.offer_id,
+                                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                    BUY_SELL=buy_sell,
+                                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                    TRADE_ID=dj.loc[0, 'tick_id'],
+                                    RATE=sl,
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
@@ -393,7 +403,17 @@ def close_trade(df, fx, tick, dj, idx):
                                     AMOUNT=int(dj.loc[0, 'tick_amount']),
                                     TRADE_ID=dj.loc[0, 'tick_id'],
                                     RATE=tp,
-                                    RATE_LIMIT=sl,
+                        )
+                        resp = fx.send_request(request)
+                        request = fx.create_order_request(
+                                    order_type=fxcorepy.Constants.Orders.STOP,
+                                    command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                                    OFFER_ID=offer.offer_id,
+                                    ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                    BUY_SELL=buy_sell,
+                                    AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                    TRADE_ID=dj.loc[0, 'tick_id'],
+                                    RATE=sl,
                         )
                         resp = fx.send_request(request)
                     except Exception as e:
