@@ -365,19 +365,19 @@ def close_trade(df, fx, tick, dj, idx):
                     else:
                         try:
                             sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                            tp = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())
+                            # tp = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())
                             type_signal = ' Buy : Adjust ' + str(result)
-                            request = fx.create_order_request(
-                                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                                        OFFER_ID=offer.offer_id,
-                                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                        BUY_SELL=buy_sell,
-                                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                        TRADE_ID=dj.loc[0, 'tick_id'],
-                                        RATE=tp,
-                            )
-                            resp = fx.send_request(request)
+                            # request = fx.create_order_request(
+                            #             order_type=fxcorepy.Constants.Orders.LIMIT,
+                            #             command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                            #             OFFER_ID=offer.offer_id,
+                            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            #             BUY_SELL=buy_sell,
+                            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            #             TRADE_ID=dj.loc[0, 'tick_id'],
+                            #             RATE=tp,
+                            # )
+                            #resp = fx.send_request(request)
                             request = fx.create_order_request(
                                         order_type=fxcorepy.Constants.Orders.STOP,
                                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -432,19 +432,19 @@ def close_trade(df, fx, tick, dj, idx):
                     else:
                         try:
                             sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
-                            tp = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())
+                            #tp = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())
                             type_signal = ' Sell : Adjust ' + str(result)
-                            request = fx.create_order_request(
-                                        order_type=fxcorepy.Constants.Orders.LIMIT,
-                                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                                        OFFER_ID=offer.offer_id,
-                                        ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                        BUY_SELL=buy_sell,
-                                        AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                        TRADE_ID=dj.loc[0, 'tick_id'],
-                                        RATE=tp,
-                            )
-                            resp = fx.send_request(request)
+                            # request = fx.create_order_request(
+                            #             order_type=fxcorepy.Constants.Orders.LIMIT,
+                            #             command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                            #             OFFER_ID=offer.offer_id,
+                            #             ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            #             BUY_SELL=buy_sell,
+                            #             AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            #             TRADE_ID=dj.loc[0, 'tick_id'],
+                            #             RATE=tp,
+                            # )
+                            # resp = fx.send_request(request)
                             request = fx.create_order_request(
                                         order_type=fxcorepy.Constants.Orders.STOP,
                                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
