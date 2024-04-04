@@ -367,7 +367,11 @@ def close_trade(df, fx, tick, dj, idx):
                             pass
                 else:
                     try:
-                        sl = price - (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
+                        sl = min(df.iloc[open_rev_index-7:open_rev_index]['BidLow'].min(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['kijun_avg'].min(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['tenkan_avg'].min(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_a'].min(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_b'].min())
                         # tp = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())
                         type_signal = ' Buy : Adjust ' + str(result)
                         # request = fx.create_order_request(
@@ -435,7 +439,11 @@ def close_trade(df, fx, tick, dj, idx):
                             pass
                 else:
                     try:
-                        sl = price + (df.iloc[idx-3:idx+1]['BidHigh'].max()-df.iloc[idx-3:idx+1]['BidLow'].min())/2
+                        sl = max(df.iloc[open_rev_index-7:open_rev_index]['BidHigh'].max(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['kijun_avg'].max(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['tenkan_avg'].max(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_a'].max(),
+                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_b'].max())
                         type_signal = ' Sell : Adjust ' + str(result)
                         request = fx.create_order_request(
                                     order_type=fxcorepy.Constants.Orders.STOP,
