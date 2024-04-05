@@ -262,11 +262,11 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         try:
             amount = (set_amount(Dict['amount'], dj))
             type_signal = ' BUY Amount:' + str(amount)
-            sl = min(df.iloc[open_rev_index - 7:open_rev_index]['BidLow'].min(),
-                     df.iloc[open_rev_index - 7:open_rev_index]['kijun_avg'].min(),
-                     df.iloc[open_rev_index - 7:open_rev_index]['tenkan_avg'].min(),
-                     df.iloc[open_rev_index - 7:open_rev_index]['senkou_a'].min(),
-                     df.iloc[open_rev_index - 7:open_rev_index]['senkou_b'].min())
+            sl = min(df.iloc[idx - 7:idx]['BidLow'].min(),
+                     df.iloc[idx - 7:idx]['kijun_avg'].min(),
+                     df.iloc[idx - 7:idx]['tenkan_avg'].min(),
+                     df.iloc[idx - 7:idx]['senkou_a'].min(),
+                     df.iloc[idx - 7:idx]['senkou_b'].min())
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -283,10 +283,10 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         try:
             amount = (set_amount(Dict['amount'], dj))
             sl = max(df.iloc[open_rev_index-7:open_rev_index]['BidHigh'].max(),
-                                 df.iloc[open_rev_index-7:open_rev_index]['kijun_avg'].max(),
-                                 df.iloc[open_rev_index-7:open_rev_index]['tenkan_avg'].max(),
-                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_a'].max(),
-                                 df.iloc[open_rev_index-7:open_rev_index]['senkou_b'].max())
+                                 df.iloc[idx-7:idx]['kijun_avg'].max(),
+                                 df.iloc[idx-7:idx]['tenkan_avg'].max(),
+                                 df.iloc[idx-7:idx]['senkou_a'].max(),
+                                 df.iloc[idx-7:idx]['senkou_b'].max())
             type_signal = ' Sell Amount: ' + str(amount) # + ' Bid/Ask: ' + str(min_entry)
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
