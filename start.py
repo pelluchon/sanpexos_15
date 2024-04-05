@@ -282,7 +282,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     elif result_sell != None:
         try:
             amount = (set_amount(Dict['amount'], dj))
-            sl = max(df.iloc[open_rev_index-7:open_rev_index]['BidHigh'].max(),
+            sl = max(df.iloc[idx-7:idx]['BidHigh'].max(),
                                  df.iloc[idx-7:idx]['kijun_avg'].max(),
                                  df.iloc[idx-7:idx]['tenkan_avg'].max(),
                                  df.iloc[idx-7:idx]['senkou_a'].max(),
