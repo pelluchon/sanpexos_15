@@ -25,10 +25,10 @@ live = True
 mail = True
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71591187',
-        'str_password': 's8ykzvw',
+        'str_user_i_d': '71592345',
+        'str_password': 'ioj4bse',
         'str_connection': 'Demo',
-        'str_account': '71591187',
+        'str_account': '71592345',
         # 'str_user_i_d': '87053959',
         # 'str_password': 'S4Tpj3P!zz.Mm2p',
         # 'str_connection': 'Real',
@@ -116,6 +116,8 @@ def should_open_buy_trade(df,idx):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx - 2:idx]['AskClose'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(), df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['kijun_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
@@ -138,6 +140,8 @@ def should_open_sell_trade(df,idx):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx - 2:idx]['AskClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+            df.iloc[idx - 2:idx]['kijun_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
@@ -258,10 +262,12 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     index_peak = 0
     result_buy = should_open_buy_trade(df, idx)
     result_sell = should_open_sell_trade(df, idx)
-    if result_buy != None:
+    min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['AskLow'])) / (
+        abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+    if result_buy != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
-            type_signal = ' BUY Amount:' + str(amount)
+            type_signal = ' BUY Amount:' + str(amount) + 'Bid/Ask:' + str(min_entry)
             sl = min(df.iloc[idx - 7:idx]['BidLow'].min(),
                      df.iloc[idx - 7:idx]['kijun_avg'].min(),
                      df.iloc[idx - 7:idx]['tenkan_avg'].min(),
@@ -279,7 +285,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         except Exception as e:
             type_signal = type_signal + ' not working for ' + str(e)
             pass
-    elif result_sell != None:
+    elif result_sell != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
             sl = max(df.iloc[idx-7:idx]['BidHigh'].max(),
@@ -287,7 +293,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                                  df.iloc[idx-7:idx]['tenkan_avg'].max(),
                                  df.iloc[idx-7:idx]['senkou_a'].max(),
                                  df.iloc[idx-7:idx]['senkou_b'].max())
-            type_signal = ' Sell Amount: ' + str(amount) # + ' Bid/Ask: ' + str(min_entry)
+            type_signal = ' Sell Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry)
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
