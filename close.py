@@ -19,15 +19,19 @@ import math
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '51706888',
-            'str_password': 'uzNo9',
-            'str_url': "http://www.fxcorporate.com/Hosts.jsp",
-            'str_connection': 'Demo',
-            'str_session_id': None,
-            'str_pin': None,
-            'str_table': 'orders',
-            'str_account': '51706888',
-        },
+        'str_user_i_d': '71591187',
+        'str_password': 's8ykzvw',
+        'str_connection': 'Demo',
+        'str_account': '71591187',
+        # 'str_user_i_d': '87053959',
+        # 'str_password': 'S4Tpj3P!zz.Mm2p',
+        # 'str_connection': 'Real',
+        # 'str_account': '87053959',
+        'str_url': "http://www.fxcorporate.com/Hosts.jsp",
+        'str_session_id': None,
+        'str_pin': None,
+        'str_table': 'orders',
+    },
     'indicators': {
         'sd': datetime.now() - relativedelta(weeks=16),
         'ed': datetime.now(),
@@ -38,7 +42,7 @@ Dict = {
         {
 
             1: {
-                'FX': ['Bund','US.AUTO']},
+                'FX': ['JPYBasket','EMBasket']},
             # US. AUTO 13.30 - 20.00 GMT
             # BUND 06.00 - 20.00 GMT
 

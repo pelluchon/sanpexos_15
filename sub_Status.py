@@ -4,10 +4,10 @@ import time
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71591187',
-            'str_password': 's8ykzvw',
+            'str_user_i_d': '71592345',
+            'str_password': 'ioj4bse',
             'str_connection': 'Demo',
-            'str_account': '71591187',
+            'str_account': '71592345',
             #'str_user_i_d': '87053959',
             #'str_password': 'S4Tpj3P!zz.Mm2p',
             #'str_account': '87053959',
@@ -44,7 +44,7 @@ Dict = {
                 'FX': [
                     'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
                     'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
-                    'GMG.au', 'WPL.au', 'NCM.au', 'COL.au', 'ALL.au', 'A2M.au',
+                    'GMG.au', 'WPL.au', 'COL.au', 'ALL.au', 'A2M.au',
                     'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
 
             3: {
@@ -59,7 +59,7 @@ Dict = {
                 'hour_open': 14,  # opening time in UTC (for midnight put 24)
                 'hour_close': 20,  # closing time in UTC
                 'FX': ['FVRR.us', 'SPOT.us', 'MARA.us', 'BTBT.us',
-                       'BITF.us', 'WISH.us', 'RIVN.us', 'WE.us', 'JD.us', 'PDD.us',
+                       'BITF.us', 'WISH.us', 'RIVN.us', 'JD.us', 'PDD.us',
                        'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
                        'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
                        'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
