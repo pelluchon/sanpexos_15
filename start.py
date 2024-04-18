@@ -192,7 +192,7 @@ def should_close_buy_trade(df,idx,idx_open,dj):
         df.iloc[idx]['AskClose'] < df.iloc[idx-3:idx]['tenkan_avg'].mean():
         result = 'Kill for high tendance change'
     elif df.iloc[idx]['BidClose'] > df.iloc[idx_open]['BidClose'] and \
-            min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) > df.iloc[idx_open]['BidClose']:
+            df.iloc[idx-3:idx]['kijun_avg'].mean() > df.iloc[idx_open]['BidClose']:
         result = 'Save minimum'
     else:
         result = None
@@ -239,7 +239,7 @@ def should_close_sell_trade(df,idx,idx_open,dj):
         df.iloc[idx]['AskClose'] > df.iloc[idx-3:idx]['tenkan_avg'].mean():
         result = 'Kill for high tendance change'
     elif df.iloc[idx]['BidClose'] < df.iloc[idx_open]['BidClose'] and \
-            max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) < df.iloc[idx_open]['BidClose']:
+            df.iloc[idx-3:idx]['kijun_avg'].mean() < df.iloc[idx_open]['BidClose']:
         result = 'Save minimum'
     else:
         result = None
