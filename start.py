@@ -599,7 +599,7 @@ def box(df, index):
     if box_def == True:
         # Top limit
         if df['AskHigh'][ index-28: index-2].max() >= df.iloc[index]['kijun_avg']:
-            top_limit = df['AskHigh'][-28 - index:-2 - index].max() - df.iloc[-index]['kijun_avg']
+            top_limit = df['AskHigh'][index-28:index-2].max() - df.iloc[index]['kijun_avg']
         else:
             top_limit = df.iloc[index]['kijun_avg'] - df['AskHigh'][index-28:index-2].max()
         # Lower limit
