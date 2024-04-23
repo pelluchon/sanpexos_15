@@ -58,7 +58,7 @@ Dict = {
                         'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
                         'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
                         'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
-                        'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD', 'LTC/USD',
+                        'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD',
                         'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
                         'US2000', 'AUS200', 'UKOil', 'USOil', 'USOilSpot', 'UKOilSpot',
                         'EMBasket', 'USDOLLAR', 'JPYBasket', 'CryptoMajor']},
