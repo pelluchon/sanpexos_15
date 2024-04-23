@@ -253,9 +253,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         amount = base_unit_size * Dict['amount']
         return amount
 
-    box_def = False
-    high_box = 0
-    low_box = 0
+    low_box, high_box, box_def = box(df,idx)
     type_signal = 'No'
     tp = 0
     sl = 0
@@ -316,9 +314,7 @@ def close_trade(df, fx, tick, dj, idx):
     type_signal = 'No'
     open_price = dj.loc[0, 'tick_open_price']
     price = df.iloc[idx]['BidClose']
-    box_def = False
-    high_box = 0
-    low_box = 0
+    low_box, high_box, box_def = box(df,open_rev_index)
     index_peak = None
     tp = dj.loc[0, 'tick_limit']
     sl = dj.loc[0, 'tick_stop']
@@ -586,6 +582,41 @@ def indicators(df):
 
     return (df)
 
+def box(df, index):
+    low_box = -1
+    high_box = -1
+    box_def = False
+
+    # in the last 29 periods kijun has been flat take the last flat
+    for m in range(len(df) - index, len(df) - 28 - index, -1):
+        if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
+                df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
+                df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg']:
+            box_def = True
+            break
+
+    # if box has been found
+    if box_def == True:
+        # Top limit
+        if df['AskHigh'][-28 - index:-2 - index].max() >= df.iloc[-0 - index]['kijun_avg']:
+            top_limit = df['AskHigh'][-28 - index:-2 - index].max() - df.iloc[-0 - index]['kijun_avg']
+        else:
+            top_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskHigh'][-28 - index:-2 - index].max()
+        # Lower limit
+        if df['AskLow'][-28 - index:-2 - index].min() <= df.iloc[-0 - index]['kijun_avg']:
+            low_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskLow'][-28 - index:-2 - index].min()
+        else:
+            low_limit = df['AskLow'][-28 - index:-2 - index].min() - df.iloc[-0 - index]['kijun_avg']
+        max_limit = max(top_limit, low_limit)
+        low_box = df.iloc[-0 - index]['kijun_avg'] - max_limit
+        high_box = df.iloc[-0 - index]['kijun_avg'] + max_limit
+        # Check that kijun is in-between
+        if ((low_box + high_box) * 0.45) < df.iloc[m]['kijun_avg'] < ((low_box + high_box) * 0.55):
+            box_def == True
+        else:
+            box_def == False
+    return low_box, high_box, box_def
+
 def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0, low_box=0, tp=0, sl=0, index_peak=0):
     def sendemail(attach, subject_mail, body_mail):
         fromaddr = 'sanpexos@hotmail.com'
@@ -679,6 +710,20 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax1.set_ylim(low_limit - 0.1 * (high_limit - low_limit), high_limit + 0.1 * (high_limit - low_limit))
         ax1.set_xlim(np.nanmin(df['index'][-min_x:]), np.nanmax(df['index'][-min_x:]))
         ax1.set(xlabel=None)
+        # Range_box
+        if box_def == True:
+            xmin = df['AskLow'][-27 - index:-1 - index].idxmin()
+            xmax = df['AskHigh'][-27 - index:-1 - index].idxmax()
+            ax1.add_patch(patches.Rectangle((xmin, low_box), (xmax - xmin), (high_box - low_box), edgecolor='orange',
+                                            facecolor='none', linewidth=1))
+            ax1.hlines(y=float(0.4 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
+                       linestyle='-.')
+            ax1.hlines(y=float(0.6 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
+                       linestyle='-.')
+            ax1.hlines(y=float(0.9 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
+                       linestyle='-.')
+            ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
+                       linestyle='-.')
 
         ###AX2
         ax2.bar(df.index[-min_x:], df['macd'][-min_x:], color='grey')
