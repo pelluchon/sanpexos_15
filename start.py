@@ -588,7 +588,7 @@ def box(df, index):
     box_def = False
 
     # in the last 29 periods kijun has been flat take the last flat
-    for m in range(len(df) - index, len(df) - 28 - index, -1):
+    for m in range(index, index- 28, -1):
         if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
                 df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
                 df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg']:
@@ -598,18 +598,18 @@ def box(df, index):
     # if box has been found
     if box_def == True:
         # Top limit
-        if df['AskHigh'][-28 - index:-2 - index].max() >= df.iloc[-0 - index]['kijun_avg']:
-            top_limit = df['AskHigh'][-28 - index:-2 - index].max() - df.iloc[-0 - index]['kijun_avg']
+        if df['AskHigh'][ index-28: index-2].max() >= df.iloc[index]['kijun_avg']:
+            top_limit = df['AskHigh'][-28 - index:-2 - index].max() - df.iloc[-index]['kijun_avg']
         else:
-            top_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskHigh'][-28 - index:-2 - index].max()
+            top_limit = df.iloc[index]['kijun_avg'] - df['AskHigh'][index-28:index-2].max()
         # Lower limit
-        if df['AskLow'][-28 - index:-2 - index].min() <= df.iloc[-0 - index]['kijun_avg']:
-            low_limit = df.iloc[-0 - index]['kijun_avg'] - df['AskLow'][-28 - index:-2 - index].min()
+        if df['AskLow'][index-28:index-2].min() <= df.iloc[ index]['kijun_avg']:
+            low_limit = df.iloc[index]['kijun_avg'] - df['AskLow'][index-28:index-2].min()
         else:
-            low_limit = df['AskLow'][-28 - index:-2 - index].min() - df.iloc[-0 - index]['kijun_avg']
+            low_limit = df['AskLow'][index-28:index-2].min() - df.iloc[ index]['kijun_avg']
         max_limit = max(top_limit, low_limit)
-        low_box = df.iloc[-0 - index]['kijun_avg'] - max_limit
-        high_box = df.iloc[-0 - index]['kijun_avg'] + max_limit
+        low_box = df.iloc[ index]['kijun_avg'] - max_limit
+        high_box = df.iloc[ index]['kijun_avg'] + max_limit
         # Check that kijun is in-between
         if ((low_box + high_box) * 0.45) < df.iloc[m]['kijun_avg'] < ((low_box + high_box) * 0.55):
             box_def == True
