@@ -194,7 +194,7 @@ def should_close_buy_trade(df,idx,idx_open,dj):
         df.iloc[idx]['AskClose'] < df.iloc[idx-3:idx]['tenkan_avg'].mean():
         result = 'Kill for high tendance change'
     elif df.iloc[idx]['BidClose'] > df.iloc[idx_open]['BidClose'] and \
-            df.iloc[idx-3:idx]['kijun_avg'].mean() > df.iloc[idx_open]['BidClose']:
+            df.iloc[idx-13:idx]['kijun_avg'].min() > df.iloc[idx_open]['BidClose']:
         result = 'Save minimum'
     else:
         result = None
@@ -342,7 +342,10 @@ def close_trade(df, fx, tick, dj, idx):
                 if price > open_price:
                     if result == 'Save minimum':
                         try:
-                            sl = min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b'])
+                            if min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) > open_price:
+                                sl = min(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b'])
+                            else:
+                                sl = open_price
                             request = fx.create_order_request(
                                 order_type=fxcorepy.Constants.Orders.STOP,
                                 command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -381,7 +384,10 @@ def close_trade(df, fx, tick, dj, idx):
                 if price < open_price:
                     if result == 'Save minimum':
                         try:
-                            sl = max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b'])
+                            if max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b']) > open_price:
+                                sl = max(df.iloc[idx]['senkou_a'],df.iloc[idx]['senkou_b'])
+                            else:
+                                sl = open_price
                             request = fx.create_order_request(
                                         order_type=fxcorepy.Constants.Orders.STOP,
                                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
