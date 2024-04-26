@@ -346,7 +346,7 @@ def close_trade(df, fx, tick, dj, idx):
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 3]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 4]['kijun_avg']:
                             sl = df.iloc[i]['kijun_avg'] - margin
-                            exit()
+                            break
                         else:
                             sl = open_price
                     request = fx.create_order_request(
@@ -409,7 +409,7 @@ def close_trade(df, fx, tick, dj, idx):
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 3]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 4]['kijun_avg']:
                             sl = df.iloc[i]['kijun_avg'] + margin
-                            exit()
+                            break
                         else:
                             sl = open_price
                     request = fx.create_order_request(
@@ -929,7 +929,7 @@ def main():
                         backtest_result.append(result)
                         if graph_back_test == True:
                             df_plot(df, tick, trades)
-    print(sum(backtest_result))
+    #print(sum(backtest_result))
 
 try:
     SOME_SECRET = os.environ["SOME_SECRET"]
