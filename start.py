@@ -340,7 +340,7 @@ def close_trade(df, fx, tick, dj, idx):
             result = should_close_buy_trade(df,idx,open_rev_index,dj)
             if result == 'Save minimum':
                 try:
-                    for i in range(idx - 7, open_rev_index - 1, -1):
+                    for i in range(idx - 11, open_rev_index - 1, -1):
                         if df.iloc[i]['kijun_avg'] == df.iloc[i - 1]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 2]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 3]['kijun_avg'] and \
@@ -403,7 +403,7 @@ def close_trade(df, fx, tick, dj, idx):
             result = should_close_sell_trade (df,idx,open_rev_index,dj)
             if result == 'Save minimum':
                 try:
-                    for i in range(idx - 7, open_rev_index - 1, -1):
+                    for i in range(idx - 11, open_rev_index - 1, -1):
                         if df.iloc[i]['kijun_avg'] == df.iloc[i - 1]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 2]['kijun_avg'] and \
                                 df.iloc[i]['kijun_avg'] == df.iloc[i - 3]['kijun_avg'] and \
