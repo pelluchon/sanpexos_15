@@ -444,7 +444,7 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
                 else:
                     try:
-                        sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>max(df.iloc[open_rev_index:idx]['senkou_a'].max(),df.iloc[open_rev_index:idx]['senkou_b'].max())].max()
+                        sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']<max(df.iloc[open_rev_index:idx]['senkou_a'].max(),df.iloc[open_rev_index:idx]['senkou_b'].max())].max()
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
