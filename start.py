@@ -379,9 +379,10 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                else:
-                    try:
-                        sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']>min(df.iloc[open_rev_index:idx]['senkou_a'].min(),df.iloc[open_rev_index:idx]['senkou_b'].min())].min()
+            elif price < open_price:
+                try:
+                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<min(df.iloc[open_rev_index:idx]['senkou_a'].min(),df.iloc[open_rev_index:idx]['senkou_b'].min())].min()
+                    if not np.isnan(sl):
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -393,9 +394,9 @@ def close_trade(df, fx, tick, dj, idx):
                             RATE=sl,
                         )
                         resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
@@ -442,9 +443,10 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                else:
-                    try:
-                        sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']<max(df.iloc[open_rev_index:idx]['senkou_a'].max(),df.iloc[open_rev_index:idx]['senkou_b'].max())].max()
+            elif price > open_price:
+                try:
+                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>max(df.iloc[open_rev_index:idx]['senkou_a'].max(),df.iloc[open_rev_index:idx]['senkou_b'].max())].max()
+                    if not np.isnan(sl):
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -456,9 +458,9 @@ def close_trade(df, fx, tick, dj, idx):
                             RATE=sl,
                         )
                         resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
