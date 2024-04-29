@@ -381,7 +381,7 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
             elif price < open_price:
                 try:
-                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<min(df.iloc[open_rev_index:idx]['senkou_a'].min(),df.iloc[open_rev_index:idx]['senkou_b'].min())].min()
+                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].min(axis=1)].min()
                     if not np.isnan(sl):
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
@@ -445,7 +445,7 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
             elif price > open_price:
                 try:
-                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>max(df.iloc[open_rev_index:idx]['senkou_a'].max(),df.iloc[open_rev_index:idx]['senkou_b'].max())].max()
+                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].max(axis=1)].max()
                     if not np.isnan(sl):
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
