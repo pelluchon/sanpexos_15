@@ -380,25 +380,25 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-            elif price < open_price:
-                try:
-                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].min(axis=1)].min()
-                    if not np.isnan(sl):
-                        type_signal = ' Buy : ' + "Adjust for negative price"
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.STOP,
-                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                        )
-                        resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
+                elif price < open_price:
+                    try:
+                        sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].min(axis=1)].min()
+                        if not np.isnan(sl):
+                            type_signal = ' Buy : ' + "Adjust for negative price"
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.STOP,
+                                command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id'],
+                                RATE=sl,
+                            )
+                            resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
@@ -446,25 +446,25 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-            elif price > open_price:
-                try:
-                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].max(axis=1)].max()
-                    if not np.isnan(sl):
-                        type_signal = ' Sell : ' + "Adjust for negative price"
-                        request = fx.create_order_request(
-                            order_type=fxcorepy.Constants.Orders.STOP,
-                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                            OFFER_ID=offer.offer_id,
-                            ACCOUNT_ID=Dict['FXCM']['str_account'],
-                            BUY_SELL=buy_sell,
-                            AMOUNT=int(dj.loc[0, 'tick_amount']),
-                            TRADE_ID=dj.loc[0, 'tick_id'],
-                            RATE=sl,
-                        )
-                        resp = fx.send_request(request)
-                except Exception as e:
-                    type_signal = type_signal + ' not working for ' + str(e)
-                    pass
+                elif price > open_price:
+                    try:
+                        sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].max(axis=1)].max()
+                        if not np.isnan(sl):
+                            type_signal = ' Sell : ' + "Adjust for negative price"
+                            request = fx.create_order_request(
+                                order_type=fxcorepy.Constants.Orders.STOP,
+                                command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                                OFFER_ID=offer.offer_id,
+                                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                                BUY_SELL=buy_sell,
+                                AMOUNT=int(dj.loc[0, 'tick_amount']),
+                                TRADE_ID=dj.loc[0, 'tick_id'],
+                                RATE=sl,
+                            )
+                            resp = fx.send_request(request)
+                    except Exception as e:
+                        type_signal = type_signal + ' not working for ' + str(e)
+                        pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
@@ -644,7 +644,7 @@ def box(df, index):
     box_def = False
 
     # in the last 29 periods kijun has been flat take the last flat
-    for m in range(index, index- 28, -1):
+    for m in range(index, index- 28*2, -1):
         if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
                 df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
                 df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg']:
@@ -654,15 +654,15 @@ def box(df, index):
     # if box has been found
     if box_def == True:
         # Top limit
-        if df['AskHigh'][ index-28: index-2].max() >= df.iloc[index]['kijun_avg']:
-            top_limit = df['AskHigh'][index-28:index-2].max() - df.iloc[index]['kijun_avg']
+        if df['AskHigh'][ index-28*2: index-2].max() >= df.iloc[index]['kijun_avg']:
+            top_limit = df['AskHigh'][index-28*2:index-2].max() - df.iloc[index]['kijun_avg']
         else:
-            top_limit = df.iloc[index]['kijun_avg'] - df['AskHigh'][index-28:index-2].max()
+            top_limit = df.iloc[index]['kijun_avg'] - df['AskHigh'][index-28*2:index-2].max()
         # Lower limit
-        if df['AskLow'][index-28:index-2].min() <= df.iloc[ index]['kijun_avg']:
-            low_limit = df.iloc[index]['kijun_avg'] - df['AskLow'][index-28:index-2].min()
+        if df['AskLow'][index-28*2:index-2].min() <= df.iloc[ index]['kijun_avg']:
+            low_limit = df.iloc[index]['kijun_avg'] - df['AskLow'][index-28*2:index-2].min()
         else:
-            low_limit = df['AskLow'][index-28:index-2].min() - df.iloc[ index]['kijun_avg']
+            low_limit = df['AskLow'][index-28*2:index-2].min() - df.iloc[ index]['kijun_avg']
         max_limit = max(top_limit, low_limit)
         low_box = df.iloc[ index]['kijun_avg'] - max_limit
         high_box = df.iloc[ index]['kijun_avg'] + max_limit
