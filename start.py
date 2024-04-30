@@ -349,6 +349,7 @@ def close_trade(df, fx, tick, dj, idx):
                             break
                         else:
                             sl = open_price
+                    type_signal = ' Buy : ' + "Adjust Save minimum"
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -383,6 +384,7 @@ def close_trade(df, fx, tick, dj, idx):
                 try:
                     sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].min(axis=1)].min()
                     if not np.isnan(sl):
+                        type_signal = ' Buy : ' + "Adjust for negative price"
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -413,6 +415,7 @@ def close_trade(df, fx, tick, dj, idx):
                             break
                         else:
                             sl = open_price
+                    type_signal = ' Sell : ' + "Adjust Save minimum"
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -430,7 +433,7 @@ def close_trade(df, fx, tick, dj, idx):
             elif result != None:
                 if price < open_price:
                     try:
-                        type_signal = ' Buy : ' + str(result)
+                        type_signal = ' Sell : ' + str(result)
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
@@ -447,6 +450,7 @@ def close_trade(df, fx, tick, dj, idx):
                 try:
                     sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].max(axis=1)].max()
                     if not np.isnan(sl):
+                        type_signal = ' Sell : ' + "Adjust for negative price"
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.STOP,
                             command=fxcorepy.Constants.Commands.CREATE_ORDER,
