@@ -274,11 +274,12 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                      df.iloc[idx - 7:idx]['senkou_a'].min(),
                      df.iloc[idx - 7:idx]['senkou_b'].min())
             request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
                 BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
+                RATE=df.iloc[idx]['BidClose'],
                 RATE_STOP = sl,
             )
             fx.send_request(request)
@@ -295,11 +296,12 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                                  df.iloc[idx-7:idx]['senkou_b'].max())
             type_signal = ' Sell Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry)
             request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
+                RATE=df.iloc[idx]['BidClose'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
