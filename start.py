@@ -768,8 +768,8 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax1.set(xlabel=None)
         # Range_box
         if box_def == True:
-            xmin = df['AskLow'][index-27:index-1].idxmin()
-            xmax = df['AskHigh'][index-27:index-1].idxmax()
+            xmin = df['AskLow'][index-27*2:index-1].idxmin()
+            xmax = df['AskHigh'][index-27*2:index-1].idxmax()
             ax1.add_patch(patches.Rectangle((xmin, low_box), (xmax - xmin), (high_box - low_box), edgecolor='orange',
                                             facecolor='none', linewidth=1))
             ax1.hlines(y=float(0.4 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
