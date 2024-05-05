@@ -13,13 +13,10 @@ from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
-import pandas_ta as ta
 from scipy.stats import linregress
 import math
-#import close
 
 #### All hours in GMT
-
 graph_back_test=False
 live = True
 mail = True
@@ -46,43 +43,6 @@ Dict = {
     'amount': 1,
     'instrument':
         {
-
-             4: {
-                 'hour_open': 0,  # opening time in UTC (for midnight put 24)
-                 'hour_close': 21,  # closing time in UTC
-                 'day_open': 6,  # 6 is Sunday
-                 'day_close': 4,  # 4 is Friday
-                 'FX': ['UK100', 'AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
-                        'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'GBP/AUD', 'GBP/CAD',
-                        'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
-                        'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
-                        'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
-                        'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
-                        'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD',
-                        'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
-                        'US2000', 'AUS200', 'UKOil', 'USOil', 'USOilSpot', 'UKOilSpot',
-                        'EMBasket', 'USDOLLAR', 'JPYBasket', 'CryptoMajor']},
-
-
-             5: {
-                 'hour_open': 1,  # opening time in UTC (for midnight put 24)
-                 'hour_close': 19,  # closing time in UTC
-                 'FX': ['GER30', 'HKG33', 'CHN50', 'UK100']},
-
-             6: {
-                 'hour_open': 0,  # opening time in UTC (for midnight put 24)
-                 'hour_close': 18,  # closing time in UTC
-                 'FX': ['SOYF', 'WHEATF', 'CORNF']},
-
-             7: {
-                 'hour_open': 14,  # opening time in UTC (for midnight put 24)
-                 'hour_close': 20,  # closing time in UTC
-                 'FX': ['ESPORTS', 'BIOTECH', 'FAANG',
-                        'CHN.TECH', 'CHN.ECOMM',
-                        'AIRLINES', 'CASINOS',
-                        'TRAVEL', 'US.ECOMM',
-                        'US.BANKS', 'US.AUTO',
-                        'WFH', 'URANIUM']},
             1: {
                 'hour_open': 0,  # opening time in UTC (for midnight put 24)
                 'hour_close': 21,  # closing time in UTC
@@ -99,7 +59,38 @@ Dict = {
                 'hour_open': 6,  # opening time in UTC (for midnight put 24)
                 'hour_close': 18,  # closing time in UTC
                 'FX': ['ESP35', 'Bund']},
-
+            4: {
+                'hour_open': 0,  # opening time in UTC (for midnight put 24)
+                'hour_close': 21,  # closing time in UTC
+                'day_open': 6,  # 6 is Sunday
+                'day_close': 4,  # 4 is Friday
+                'FX': ['UK100', 'AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'AUD/USD',
+                       'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'GBP/AUD', 'GBP/CAD',
+                       'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
+                       'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
+                       'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
+                       'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
+                       'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD',
+                       'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
+                       'US2000', 'AUS200', 'UKOil', 'USOil', 'USOilSpot', 'UKOilSpot',
+                       'EMBasket', 'USDOLLAR', 'JPYBasket', 'CryptoMajor']},
+            5: {
+                'hour_open': 1,  # opening time in UTC (for midnight put 24)
+                'hour_close': 19,  # closing time in UTC
+                'FX': ['GER30', 'HKG33', 'CHN50', 'UK100']},
+            6: {
+                'hour_open': 0,  # opening time in UTC (for midnight put 24)
+                'hour_close': 18,  # closing time in UTC
+                'FX': ['SOYF', 'WHEATF', 'CORNF']},
+            7: {
+                'hour_open': 14,  # opening time in UTC (for midnight put 24)
+                'hour_close': 20,  # closing time in UTC
+                'FX': ['ESPORTS', 'BIOTECH', 'FAANG',
+                       'CHN.TECH', 'CHN.ECOMM',
+                       'AIRLINES', 'CASINOS',
+                       'TRAVEL', 'US.ECOMM',
+                       'US.BANKS', 'US.AUTO',
+                       'WFH', 'URANIUM']},
         },
     }
 backtest_result=[]
@@ -633,7 +624,6 @@ def indicators(df):
 
     df = ichimoku(df)
     df = macd(df)
-    df["doji_signal"]=ta.cdl_doji(df['AskOpen'],df['AskHigh'],df['AskLow'],df['AskClose'])
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
     df = find_last_peaks(df,1)
@@ -864,9 +854,9 @@ def check_trades(tick, fx):
         for row in orders_table:
             k = k + 1
             if row.instrument == tick:
+                open_pos_status = 'Yes'
                 dj.loc[0, 'order_stop_id'] = row.stop_order_id
                 dj.loc[0, 'order_limit_id'] = row.limit_order_id
-                open_pos_status = 'Yes'
                 dj.loc[0, 'tick_time'] = row.open_time
                 dj.loc[0, 'tick_id'] = row.trade_id
                 dj.loc[0, 'tick_type'] = row.buy_sell
@@ -883,6 +873,7 @@ def check_trades(tick, fx):
     for row in offers_table:
         k = k + 1
         if row.instrument == tick:
+            open_pos_status = 'Yes'
             try:
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
@@ -900,9 +891,8 @@ def main():
                  session_status_callback=session_status_changed)
         login_rules = fx.login_rules
         trading_settings_provider = login_rules.trading_settings_provider
-        for l0 in range(1, len(Dict['instrument'])):
+        for l0 in range(1, len(Dict['instrument'])+1):
             FX = Dict['instrument'][l0]['FX']
-
             for l1 in range(0, len(FX)):
                 tick = FX[l1]
                 print(FX[l1])
