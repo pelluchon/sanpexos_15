@@ -91,6 +91,7 @@ Dict = {
                        'TRAVEL', 'US.ECOMM',
                        'US.BANKS', 'US.AUTO',
                        'WFH', 'URANIUM']},
+
         },
     }
 backtest_result=[]
@@ -848,7 +849,7 @@ def check_trades(tick, fx):
     open_pos_status = 'No'
     orders_table = fx.table_manager.get_table(ForexConnect.TRADES)
     offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
-    dj = pd.DataFrame(dtype="string")
+    dj = pd.DataFrame(dtype='object')
     if len(orders_table) != 0:
         k = 0
         for row in orders_table:
@@ -868,18 +869,13 @@ def check_trades(tick, fx):
                 dj.loc[0, 'profit_loss'] = row.pl
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-    # get the pip size in all cases
-    k = 0
-    for row in offers_table:
-        k = k + 1
-        if row.instrument == tick:
-            open_pos_status = 'Yes'
-            try:
-                dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-                dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
-            except:
-                dj.loc[0, 'pip_cost'] = 1
-                dj.loc[0, 'pip_size'] = 1
+    if open_pos_status == 'No':
+            # get the pip size in all cases
+        k = 0
+        for row in offers_table:
+            k = k + 1
+            if row.instrument == tick:
+                open_pos_status = 'wait'
     return open_pos_status, dj
 
 def main():
