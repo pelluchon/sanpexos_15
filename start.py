@@ -875,7 +875,7 @@ def check_trades(tick, fx):
         for row in offers_table:
             k = k + 1
             if row.instrument == tick:
-                open_pos_status = 'wait'
+                open_pos_status = 'No'
     return open_pos_status, dj
 
 def main():
