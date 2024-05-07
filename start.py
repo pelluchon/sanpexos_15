@@ -847,12 +847,13 @@ def check_trades(tick, fx):
     ## improve check trades : Common.convert_row_to_dataframe()
 
     open_pos_status = 'No'
-    orders_table = fx.table_manager.get_table(ForexConnect.TRADES)
+    trades_table = fx.table_manager.get_table(ForexConnect.TRADES)
+    orders_table = fx.table_manager.get_table(ForexConnect.ORDERS)
     offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
     dj = pd.DataFrame(dtype='object')
-    if len(orders_table) != 0:
+    if len(trades_table) != 0:
         k = 0
-        for row in orders_table:
+        for row in trades_table:
             k = k + 1
             if row.instrument == tick:
                 open_pos_status = 'Yes'
@@ -869,13 +870,14 @@ def check_trades(tick, fx):
                 dj.loc[0, 'profit_loss'] = row.pl
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-    if open_pos_status == 'No':
+    if len(orders_table) != 0:
             # get the pip size in all cases
         k = 0
-        for row in offers_table:
+        for row in orders_table:
             k = k + 1
             if row.instrument == tick:
-                open_pos_status = 'No'
+                if open_pos_status == 'No':
+                    open_pos_status = 'wait'
     return open_pos_status, dj
 
 def main():
