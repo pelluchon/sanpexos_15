@@ -271,7 +271,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['BidClose'],
+                RATE=(df.iloc[idx]['BidHigh']-df.iloc[idx]['BidClose'])/2+df.iloc[idx]['BidClose'],
                 RATE_STOP = sl,
             )
             fx.send_request(request)
@@ -293,7 +293,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['BidClose'],
+                RATE=(df.iloc[idx]['BidClose']-df.iloc[idx]['BidLow'])/2+df.iloc[idx]['BidClose'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
@@ -902,6 +902,7 @@ def main():
                         # Check the current open positions
                         open_pos_status, dj = check_trades(FX[l1], fx)
                         # if status not open then check if to open
+                        print(open_pos_status)
                         if open_pos_status == 'No':
                             # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
                             if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
