@@ -271,7 +271,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=(df.iloc[idx]['BidHigh']-df.iloc[idx]['BidClose'])/2+df.iloc[idx]['BidClose'],
+                RATE=df.iloc[idx]['BidHigh'],
                 RATE_STOP = sl,
             )
             fx.send_request(request)
@@ -293,7 +293,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=(df.iloc[idx]['BidClose']-df.iloc[idx]['BidLow'])/2+df.iloc[idx]['BidClose'],
+                RATE=df.iloc[idx]['BidLow'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
@@ -848,8 +848,8 @@ def check_trades(tick, fx):
 
     open_pos_status = 'No'
     trades_table = fx.table_manager.get_table(ForexConnect.TRADES)
-    sum_table = fx.table_manager.get_table(ForexConnect.SUMMARY)
-    offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
+    #orders_table = fx.table_manager.get_table(ForexConnect.ORDERS)
+    #offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
     dj = pd.DataFrame(dtype='object')
     if len(trades_table) != 0:
         k = 0
@@ -870,14 +870,12 @@ def check_trades(tick, fx):
                 dj.loc[0, 'profit_loss'] = row.pl
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-    if len(sum_table) != 0:
-            # get the pip size in all cases
-        k = 0
-        for row in sum_table:
-            k = k + 1
-            if row.instrument == tick:
-                if open_pos_status == 'No':
-                    open_pos_status = 'wait'
+    # if len(orders_table) != 0:
+    #         # get the pip size in all cases
+    #     for row in orders_table:
+    #         if row.instrument == tick:
+    #             if open_pos_status == 'No':
+    #                 open_pos_status = 'wait'
     return open_pos_status, dj
 
 def main():
