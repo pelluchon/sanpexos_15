@@ -113,7 +113,8 @@ def should_open_buy_trade(df,idx):
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
-            (df['AskHigh'] - df['AskLow'])[idx-3:idx].max()<3*(df['AskHigh'] - df['AskLow'])[idx-27:idx].mean() and
+            abs(candle_m2)>0.5 and
+            (df['AskHigh'] - df['AskLow'])[idx-3:idx].max()<2*(df['AskHigh'] - df['AskLow'])[idx-27:idx].mean() and
             (df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
             df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 60 and\
             df.iloc[idx-30:idx-27]['chikou'].mean() > max(df.iloc[idx-30:idx-27]['senkou_a'].mean(),df.iloc[idx-30:idx-27]['senkou_b'].mean(),
@@ -138,6 +139,7 @@ def should_open_sell_trade(df,idx):
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
+            abs(candle_m2)>0.5 and
             (df['AskHigh'] - df['AskLow'])[idx - 3:idx].max() < 3 * (df['AskHigh'] - df['AskLow'])[idx - 27:idx].mean() and
             df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 40 and
             (df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
@@ -266,12 +268,13 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                      df.iloc[idx - 7:idx]['senkou_a'].min(),
                      df.iloc[idx - 7:idx]['senkou_b'].min())
             request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
+                #order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
+                #RATE=df.iloc[idx]['BidClose'],
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
                 BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['BidHigh'],
                 RATE_STOP = sl,
             )
             fx.send_request(request)
@@ -288,12 +291,13 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                                  df.iloc[idx-7:idx]['senkou_b'].max())
             type_signal = ' Sell Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry)
             request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
+                #order_type=fxcorepy.Constants.Orders.LIMIT_ENTRY,
+                #RATE=df.iloc[idx]['BidClose'],
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['BidLow'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
@@ -374,25 +378,25 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                elif price < open_price:
-                    try:
-                        sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].min(axis=1)].min()
-                        if not np.isnan(sl):
-                            type_signal = ' Buy : ' + "Adjust for negative price"
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.STOP,
-                                command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id'],
-                                RATE=sl,
-                            )
-                            resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+            elif price < open_price:
+                try:
+                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx]['kijun_avg'].min(axis=1)].min()
+                    if not np.isnan(sl):
+                        type_signal = ' Buy : ' + "Adjust for negative price"
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.STOP,
+                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                        )
+                        resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
@@ -440,25 +444,25 @@ def close_trade(df, fx, tick, dj, idx):
                     except Exception as e:
                         type_signal = type_signal + ' not working for ' + str(e)
                         pass
-                elif price > open_price:
-                    try:
-                        sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx][['senkou_a','senkou_b']].max(axis=1)].max()
-                        if not np.isnan(sl):
-                            type_signal = ' Sell : ' + "Adjust for negative price"
-                            request = fx.create_order_request(
-                                order_type=fxcorepy.Constants.Orders.STOP,
-                                command=fxcorepy.Constants.Commands.CREATE_ORDER,
-                                OFFER_ID=offer.offer_id,
-                                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                                BUY_SELL=buy_sell,
-                                AMOUNT=int(dj.loc[0, 'tick_amount']),
-                                TRADE_ID=dj.loc[0, 'tick_id'],
-                                RATE=sl,
-                            )
-                            resp = fx.send_request(request)
-                    except Exception as e:
-                        type_signal = type_signal + ' not working for ' + str(e)
-                        pass
+            elif price > open_price:
+                try:
+                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx]['kijun_avg'].max(axis=1)].max()
+                    if not np.isnan(sl):
+                        type_signal = ' Sell : ' + "Adjust for negative price"
+                        request = fx.create_order_request(
+                            order_type=fxcorepy.Constants.Orders.STOP,
+                            command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                            OFFER_ID=offer.offer_id,
+                            ACCOUNT_ID=Dict['FXCM']['str_account'],
+                            BUY_SELL=buy_sell,
+                            AMOUNT=int(dj.loc[0, 'tick_amount']),
+                            TRADE_ID=dj.loc[0, 'tick_id'],
+                            RATE=sl,
+                        )
+                        resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
     return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
 
@@ -847,13 +851,12 @@ def check_trades(tick, fx):
     ## improve check trades : Common.convert_row_to_dataframe()
 
     open_pos_status = 'No'
-    trades_table = fx.table_manager.get_table(ForexConnect.TRADES)
-    #orders_table = fx.table_manager.get_table(ForexConnect.ORDERS)
-    #offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
+    orders_table = fx.table_manager.get_table(ForexConnect.TRADES)
+    offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
     dj = pd.DataFrame(dtype='object')
-    if len(trades_table) != 0:
+    if len(orders_table) != 0:
         k = 0
-        for row in trades_table:
+        for row in orders_table:
             k = k + 1
             if row.instrument == tick:
                 open_pos_status = 'Yes'
@@ -870,12 +873,13 @@ def check_trades(tick, fx):
                 dj.loc[0, 'profit_loss'] = row.pl
                 dj.loc[0, 'pip_size'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).point_size
                 dj.loc[0, 'pip_cost'] = fx.table_manager.get_table(ForexConnect.OFFERS).get_row(k).pip_cost
-    # if len(orders_table) != 0:
-    #         # get the pip size in all cases
-    #     for row in orders_table:
-    #         if row.instrument == tick:
-    #             if open_pos_status == 'No':
-    #                 open_pos_status = 'wait'
+    if open_pos_status == 'No':
+            # get the pip size in all cases
+        k = 0
+        for row in offers_table:
+            k = k + 1
+            if row.instrument == tick:
+                open_pos_status = 'wait'
     return open_pos_status, dj
 
 def main():
@@ -900,7 +904,6 @@ def main():
                         # Check the current open positions
                         open_pos_status, dj = check_trades(FX[l1], fx)
                         # if status not open then check if to open
-                        print(open_pos_status)
                         if open_pos_status == 'No':
                             # if df.iloc[-2]['AskHigh'] + margin > df.iloc[-3]['AskLow']:
                             if l0 == 1 and datetime.now().weekday() == Dict['instrument'][l0]['day_open'] and int(
