@@ -380,7 +380,7 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
             elif price < open_price:
                 try:
-                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx]['kijun_avg'].min(axis=1)].min()
+                    sl = df.iloc[open_rev_index:idx]['AskLow'][df.iloc[open_rev_index:idx]['AskLow']<df.iloc[open_rev_index:idx]['kijun_avg']].min()
                     if not np.isnan(sl):
                         type_signal = ' Buy : ' + "Adjust for negative price"
                         request = fx.create_order_request(
@@ -446,7 +446,7 @@ def close_trade(df, fx, tick, dj, idx):
                         pass
             elif price > open_price:
                 try:
-                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx]['kijun_avg'].max(axis=1)].max()
+                    sl = df.iloc[open_rev_index:idx]['AskHigh'][df.iloc[open_rev_index:idx]['AskHigh']>df.iloc[open_rev_index:idx]['kijun_avg']].max()
                     if not np.isnan(sl):
                         type_signal = ' Sell : ' + "Adjust for negative price"
                         request = fx.create_order_request(
