@@ -347,7 +347,7 @@ def close_trade(df, fx, tick, dj, idx):
                             break
                         else:
                             sl = open_price
-                    type_signal = ' Buy : ' + "Adjust Save minimum"
+                    #type_signal = ' Buy : ' + "Adjust Save minimum"
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
@@ -413,7 +413,7 @@ def close_trade(df, fx, tick, dj, idx):
                             break
                         else:
                             sl = open_price
-                    type_signal = ' Sell : ' + "Adjust Save minimum"
+                    #type_signal = ' Sell : ' + "Adjust Save minimum"
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
                         command=fxcorepy.Constants.Commands.CREATE_ORDER,
