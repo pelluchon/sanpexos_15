@@ -13,12 +13,8 @@ from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib import pyplot as patches
 import pandas as pd
 from forexconnect import fxcorepy, ForexConnect, Common
-import pandas_ta as ta
 from scipy.stats import linregress
 import math
-#import close
-
-#### All hours in GMT
 
 graph_back_test=False
 live = True
@@ -631,7 +627,6 @@ def indicators(df):
 
     df = ichimoku(df)
     df = macd(df)
-    df["doji_signal"]=ta.cdl_doji(df['AskOpen'],df['AskHigh'],df['AskLow'],df['AskClose'])
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
     df = find_last_peaks(df,1)
