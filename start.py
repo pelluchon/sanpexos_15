@@ -395,6 +395,26 @@ def close_trade(df, fx, tick, dj, idx):
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
+            elif price > open_price and \
+                df.iloc[idx]['BidClose'] < df.iloc[idx]['BidOpen'] and \
+                (df.iloc[idx]['BidOpen'] - df.iloc[idx]['BidClose'])>3*(df['BidHigh'] - df['BidLow'])[idx-11:idx].mean():
+                try:
+                    sl = df.iloc[idx]['BidLow']-margin
+                    type_signal = ' Buy : ' + "Adjust For High change"
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.STOP,
+                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                    )
+                    resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
 
         # if was sell
         if dj.loc[0, 'tick_type'] == 'S':
@@ -458,6 +478,26 @@ def close_trade(df, fx, tick, dj, idx):
                             RATE=sl,
                         )
                         resp = fx.send_request(request)
+                except Exception as e:
+                    type_signal = type_signal + ' not working for ' + str(e)
+                    pass
+            elif price < open_price and \
+                df.iloc[idx]['BidClose'] > df.iloc[idx]['BidOpen'] and \
+                (df.iloc[idx]['BidClose'] - df.iloc[idx]['BidOpen'])>3*(df['BidHigh'] - df['BidLow'])[idx-11:idx].mean():
+                try:
+                    sl = df.iloc[idx]['BidHigh']+margin
+                    type_signal = ' Sell : ' + "Adjust For High change"
+                    request = fx.create_order_request(
+                        order_type=fxcorepy.Constants.Orders.STOP,
+                        command=fxcorepy.Constants.Commands.CREATE_ORDER,
+                        OFFER_ID=offer.offer_id,
+                        ACCOUNT_ID=Dict['FXCM']['str_account'],
+                        BUY_SELL=buy_sell,
+                        AMOUNT=int(dj.loc[0, 'tick_amount']),
+                        TRADE_ID=dj.loc[0, 'tick_id'],
+                        RATE=sl,
+                    )
+                    resp = fx.send_request(request)
                 except Exception as e:
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
