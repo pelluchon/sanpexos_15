@@ -52,7 +52,7 @@ Dict = {
                         'CAD/CHF', 'CAD/JPY', 'CHF/JPY', 'GBP/AUD', 'GBP/CAD',
                         'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
                         'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
-                        'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
+                        'USD/CHF', 'USD/HKD', 'USD/JPY', 'USD/MXN',
                         'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
                         'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD',
                         'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
