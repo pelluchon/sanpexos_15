@@ -4,14 +4,14 @@ import time
 
 Dict = {
     'FXCM': {
-            'str_user_i_d': '71592345',
-            'str_password': 'ioj4bse',
-            'str_connection': 'Demo',
-            'str_account': '71592345',
-            #'str_user_i_d': '87053959',
-            #'str_password': 'S4Tpj3P!zz.Mm2p',
-            #'str_account': '87053959',
-            #'str_connection': 'Real',
+            # 'str_user_i_d': '71592345',
+            # 'str_password': 'ioj4bse',
+            # 'str_connection': 'Demo',
+            # 'str_account': '71592345',
+            'str_user_i_d': '87053959',
+            'str_password': 'sanpexos1703!',
+            'str_account': '87053959',
+            'str_connection': 'Real',
             'str_url': "http://www.fxcorporate.com/Hosts.jsp",
             'str_session_id': None,
             'str_pin': None,
@@ -30,10 +30,10 @@ Dict = {
                        'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NOK', 'EUR/NZD',
                        'EUR/SEK', 'EUR/TRY', 'EUR/USD', 'GBP/AUD', 'GBP/CAD',
                        'GBP/CHF', 'GBP/JPY', 'GBP/NZD', 'GBP/USD', 'NZD/CAD',
-                       'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'TRY/JPY', 'USD/CAD',
-                       'USD/CHF', 'USD/CNH', 'USD/HKD', 'USD/JPY', 'USD/MXN',
+                       'NZD/CHF', 'NZD/JPY', 'NZD/USD', 'USD/CAD',
+                       'USD/CHF', 'USD/HKD', 'USD/JPY', 'USD/MXN',
                        'USD/NOK', 'USD/SEK', 'USD/ZAR', 'XAG/USD', 'XAU/USD',
-                       'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD', 'LTC/USD',
+                       'USD/ILS', 'BTC/USD', 'BCH/USD', 'ETH/USD',
                        'JPN225', 'NAS100', 'NGAS', 'SPX500', 'US30', 'VOLX',
                        'US2000', 'AUS200', 'UKOil', 'USOil', 'USOilSpot', 'UKOilSpot',
                        'EMBasket', 'USDOLLAR', 'JPYBasket', 'CryptoMajor']},
@@ -44,14 +44,14 @@ Dict = {
                 'FX': [
                     'CSL.au', 'CBA.au', 'BHP.au', 'WBC.au', 'NAB.au', 'ANZ.au',
                     'WOW.au', 'WES.au', 'FMG.au', 'MQG.au', 'TLS.au', 'RIO.au',
-                    'GMG.au', 'WPL.au', 'COL.au', 'ALL.au', 'A2M.au',
+                    'GMG.au', 'COL.au', 'ALL.au', 'A2M.au',
                     'REA.au', 'XRO.au', 'QAN.au', 'Z1P.au']},
 
             3: {
                 'hour_open': 7,  # opening time in UTC (for midnight put 24)
                 'hour_close': 15,  # closing time in UTC
                 'FX': ['ADS.de', 'ALV.de', 'BAS.de', 'BAYN.de', 'BMW.de',
-                       'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'EOAN.de', 'IFX.de',
+                       'DB1.de', 'DBK.de', 'DPW.de', 'DTE.de', 'IFX.de',
                        'LHA.de', 'MRK.de', 'RWE.de', 'SAP.de', 'SIE.de', 'TUI1.de',
                        'VOW.de', 'VNA.de', 'ENR.de', 'CBK.de', 'DHER.de']},
 
@@ -62,7 +62,7 @@ Dict = {
                        'BITF.us', 'WISH.us', 'RIVN.us', 'JD.us', 'PDD.us',
                        'TME.us', 'WB.us', 'BILI.us', 'NVDA.us', 'AMD.us', 'DADA.us',
                        'PTON.us', 'MRNA.us', 'NIO.us', 'CCL.us', 'ABNB.us', 'DASH.us',
-                       'AMC.us', 'BNGO.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
+                       'AMC.us', 'FCEL.us', 'GME.us', 'PENN.us', 'PLTR.us',
                        'PLUG.us', 'PYPL.us', 'SNAP.us', 'SNOW.us', 'SPCE.us', 'XPEV.us',
                        'SONY.us', 'BA.us', 'BAC.us', 'BRKB.us', 'C.us', 'CRM.us',
                        'DIS.us', 'F.us', 'JPM.us', 'KO.us', 'MA.us', 'MCD.us',
@@ -85,18 +85,18 @@ Dict = {
             6: {
                 'hour_open': 7,  # opening time in UTC (for midnight put 24)
                 'hour_close': 15,  # closing time in UTC
-                'FX': ['ACA.fr', 'AI.fr', 'ALO.fr', 'BN.fr', 'BNP.fr', 'CA.fr',
-                       'DG.fr', 'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
-                       'RNO.fr', 'SAN.fr', 'SGO.fr', 'SU.fr', 'VIE.fr', 'VIV.fr', 'TTE.fr', 'ENGI.fr', 'STM.fr',
+                'FX': ['ACA.fr', 'AI.fr', 'ALO.fr', 'BNP.fr', 'CA.fr',
+                       'AIR.fr', 'ORA.fr', 'GLE.fr', 'MC.fr', 'ML.fr', 'OR.fr',
+                       'RNO.fr', 'SAN.fr', 'SU.fr', 'VIV.fr', 'TTE.fr', 'ENGI.fr', 'STM.fr',
                        'STLA.fr']},
 
             7: {
                 'hour_open': 7,  # opening time in UTC (for midnight put 24)
                 'hour_close': 15,  # closing time in UTC
                 'FX': ['AV.uk', 'AZN.uk', 'BA.uk', 'BARC.uk', 'BATS.uk',
-                       'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LGEN.uk', 'LLOY.uk',
+                       'BP.uk', 'GSK.uk', 'HSBA.uk', 'IAG.uk', 'LLOY.uk',
                        'RR.uk', 'STAN.uk', 'TSCO.uk', 'VOD.uk', 'GLEN.uk',
-                       'BT.A.uk', 'NWG.uk', 'TW.uk', 'MRO.uk', 'MNG.uk', 'ROO.uk']},
+                       'BT.A.uk', 'NWG.uk', 'TW.uk', 'MRO.uk', 'ROO.uk']},
 
             8: {
                 'hour_open': 6,  # opening time in UTC (for midnight put 24)
