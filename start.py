@@ -21,14 +21,14 @@ live = True
 mail = True
 Dict = {
     'FXCM': {
-        #'str_user_i_d': '71592345',
-        #'str_password': 'ioj4bse',
-        #'str_connection': 'Demo',
-        #'str_account': '71592345',
-        'str_user_i_d': '87053959',
-        'str_password': 'sanpexos1703!',
-        'str_connection': 'Real',
-        'str_account': '87053959',
+        'str_user_i_d': '71594916',
+        'str_password': 'p7bpoal',
+        'str_connection': 'Demo',
+        'str_account': '71594916',
+        #'str_user_i_d': '87053959',
+        #'str_password': 'sanpexos1703!',
+        #'str_connection': 'Real',
+        #'str_account': '87053959',
         'str_url': "http://www.fxcorporate.com/Hosts.jsp",
         'str_session_id': None,
         'str_pin': None,
