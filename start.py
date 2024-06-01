@@ -117,11 +117,13 @@ def should_open_buy_trade(df,idx):
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
             df.iloc[idx - 2:idx]['AskClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
+            #to avoid the big candles
             (df['AskHigh'] - df['AskLow'])[idx-3:idx].max()<3*(df['AskHigh'] - df['AskLow'])[idx-27:idx].mean() and
-            (df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
-            df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 60 and\
-            df.iloc[idx-30:idx-27]['chikou'].mean() > max(df.iloc[idx-30:idx-27]['senkou_a'].mean(),df.iloc[idx-30:idx-27]['senkou_b'].mean(),
-                                                          df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean())):#and
+            min(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])>df.iloc[0]['high_box'] and
+            df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),
+                                                df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):
+            #(df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
+            #df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 60 and\
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))): #and
             #df.iloc[idx - 2:idx]['delta'].mean() > df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Buy'
@@ -143,10 +145,11 @@ def should_open_sell_trade(df,idx):
             df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
             (df['AskHigh'] - df['AskLow'])[idx - 3:idx].max() < 3 * (df['AskHigh'] - df['AskLow'])[idx - 27:idx].mean() and
-            df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 40 and
-            (df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
-            df.iloc[idx-30:idx-27]['chikou'].mean() < min(df.iloc[idx-30:idx-27]['senkou_a'].mean(),df.iloc[idx-30:idx-27]['senkou_b'].mean(),
-                                                          df.iloc[idx-30:idx-27]['kijun_avg'].mean(),df.iloc[idx-30:idx-27]['tenkan_avg'].mean())):# and
+            max(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])<df.iloc[0]['low_box'] and
+            #df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 40 and
+            #(df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
+            df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),
+                                                          df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):# and
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))):# and
             #df.iloc[idx - 2:idx]['delta'].mean() < df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Sell'
@@ -251,7 +254,6 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         amount = base_unit_size * Dict['amount']
         return amount
 
-    low_box, high_box, box_def = box(df,idx)
     type_signal = 'No'
     tp = 0
     sl = 0
@@ -302,7 +304,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         except Exception as e:
             type_signal = type_signal + ' not working for ' + str(e)
 
-    return df, type_signal, idx, box_def, high_box, low_box, tp, sl, index_peak
+    return df, type_signal, idx, tp, sl, index_peak
 
 def close_trade(df, fx, tick, dj, idx):
     try:
@@ -312,7 +314,6 @@ def close_trade(df, fx, tick, dj, idx):
     type_signal = 'No'
     open_price = dj.loc[0, 'tick_open_price']
     price = df.iloc[idx]['BidClose']
-    low_box, high_box, box_def = box(df,open_rev_index)
     index_peak = None
     tp = dj.loc[0, 'tick_limit']
     sl = dj.loc[0, 'tick_stop']
@@ -502,7 +503,7 @@ def close_trade(df, fx, tick, dj, idx):
                     type_signal = type_signal + ' not working for ' + str(e)
                     pass
 
-    return df, type_signal, open_rev_index, box_def, high_box, low_box, tp, sl, index_peak
+    return df, type_signal, open_rev_index, tp, sl, index_peak
 
 def backtest_strategy(df,fx,trading_settings_provider, tick,dj):
     trades = []
@@ -665,50 +666,48 @@ def indicators(df):
                     df.loc[n + i, 'peaks_delta'] = df.iloc[i]['delta']
         return df
 
+    def box(df, index):
+        low_box = -1
+        high_box = -1
+        box_def = False
+
+        # in the last 29 periods kijun has been flat take the last flat
+        for m in range(index, index- 28*3, -1):
+            if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 4]['kijun_avg'] :
+                box_def = True
+                break
+
+        # if box has been found
+        if box_def == True:
+            #If Askclose is more than kijun flat then it is a buy look for low limit
+            if df.iloc[index]['AskClose'] > df.iloc[m]['kijun_avg']:
+                max_limit = df.iloc[m]['kijun_avg']-df['AskLow'][index-28*3:index-2].min()
+            #if askclose lower then it is a sell
+            elif df.iloc[index]['AskClose'] < df.iloc[m]['kijun_avg']:
+                max_limit = df['AskHigh'][index-28*3:index-2].max()-df.iloc[m]['kijun_avg']
+            low_box = df.iloc[m]['kijun_avg'] - max_limit
+            high_box = df.iloc[m]['kijun_avg'] + max_limit
+        df['low_box']=low_box
+        df['high_box']=high_box
+        df['box_def']=box_def
+        df['kijun_box']=df.iloc[m]['kijun_avg']
+        df['index_box']=m
+        return df
+
     df = ichimoku(df)
     df = macd(df)
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
     df = find_last_peaks(df,1)
-
+    df = box(df,len(df)-1)
     return (df)
 
-def box(df, index):
-    low_box = -1
-    high_box = -1
-    box_def = False
 
-    # in the last 29 periods kijun has been flat take the last flat
-    for m in range(index, index- 28*2, -1):
-        if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
-                df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
-                df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg']:
-            box_def = True
-            break
 
-    # if box has been found
-    if box_def == True:
-        # Top limit
-        if df['AskHigh'][ index-28*2: index-2].max() >= df.iloc[index]['kijun_avg']:
-            top_limit = df['AskHigh'][index-28*2:index-2].max() - df.iloc[index]['kijun_avg']
-        else:
-            top_limit = df.iloc[index]['kijun_avg'] - df['AskHigh'][index-28*2:index-2].max()
-        # Lower limit
-        if df['AskLow'][index-28*2:index-2].min() <= df.iloc[ index]['kijun_avg']:
-            low_limit = df.iloc[index]['kijun_avg'] - df['AskLow'][index-28*2:index-2].min()
-        else:
-            low_limit = df['AskLow'][index-28*2:index-2].min() - df.iloc[ index]['kijun_avg']
-        max_limit = max(top_limit, low_limit)
-        low_box = df.iloc[ index]['kijun_avg'] - max_limit
-        high_box = df.iloc[ index]['kijun_avg'] + max_limit
-        # Check that kijun is in-between
-        if ((low_box + high_box) * 0.45) < df.iloc[m]['kijun_avg'] < ((low_box + high_box) * 0.55):
-            box_def == True
-        else:
-            box_def == False
-    return low_box, high_box, box_def
-
-def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0, low_box=0, tp=0, sl=0, index_peak=0):
+def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0):
     def sendemail(attach, subject_mail, body_mail):
         fromaddr = 'sanpexos@hotmail.com'
         toaddr = 'paul.pelluchon.doc@gmail.com'
@@ -802,19 +801,13 @@ def df_plot(df, tick, trades, type_signal="", index=0, box_def=False, high_box=0
         ax1.set_xlim(np.nanmin(df['index'][-min_x:]), np.nanmax(df['index'][-min_x:]))
         ax1.set(xlabel=None)
         # Range_box
-        if box_def == True:
-            xmin = df['AskLow'][index-27:index-1].idxmin()
-            xmax = df['AskHigh'][index-27:index-1].idxmax()
-            ax1.add_patch(patches.Rectangle((xmin, low_box), (xmax - xmin), (high_box - low_box), edgecolor='orange',
+        if df.iloc[0]['box_def'] == True:
+            xmin = df['AskLow'][index-28*3:index-2].idxmin()
+            xmax = df['AskHigh'][index-28*3:index-2].idxmax()
+            ax1.add_patch(patches.Rectangle((index-28*3, df.iloc[0]['low_box']), ((index-2) - (index-28*3)), 
+                                            (df.iloc[0]['high_box'] - df.iloc[0]['low_box']), edgecolor='purple',
                                             facecolor='none', linewidth=1))
-            ax1.hlines(y=float(0.4 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.6 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.9 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
-            ax1.hlines(y=float(0.1 * (high_box - low_box) + low_box), xmin=xmin, xmax=xmax, color='orange', linewidth=1,
-                       linestyle='-.')
+            ax1.plot(df.iloc[0]['index_box'], df.iloc[0]['kijun_box'], color='purple', marker='s')
 
         ###AX2
         ax2.bar(df.index[-min_x:], df['macd'][-min_x:], color='grey')
@@ -891,7 +884,7 @@ def check_trades(tick, fx):
     open_pos_status = 'No'
     orders_table = fx.table_manager.get_table(ForexConnect.TRADES)
     offers_table = fx.table_manager.get_table(ForexConnect.OFFERS)
-    dj = pd.DataFrame(dtype="string")
+    dj = pd.DataFrame()#dtype="string")
     if len(orders_table) != 0:
         k = 0
         for row in orders_table:
@@ -955,14 +948,14 @@ def main():
                             elif l0 > 1 and int(datetime.now().strftime("%H")) < Dict['instrument'][l0]['hour_open']:
                                 print('other not hour')
                             else:
-                                df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
+                                df, type_signal, index, tp, sl, index_peak = \
                                     open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
-                                df_plot(df, tick,None, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                                df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                         # if status is open then check if to close
                         elif open_pos_status == 'Yes':
-                            df, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak = \
+                            df, type_signal, index, tp, sl, index_peak = \
                                 close_trade(df, fx, FX[l1], dj,len(df)-2)
-                            df_plot(df, tick,None, type_signal, index, box_def, high_box, low_box, tp, sl, index_peak)
+                            df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                 else:
                     if l0==1:
                         # back-test
