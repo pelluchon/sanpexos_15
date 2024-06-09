@@ -802,9 +802,9 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         ax1.set(xlabel=None)
         # Range_box
         if df.iloc[0]['box_def'] == True:
-            xmin = df['AskLow'][index-28*3:index-2].idxmin()
-            xmax = df['AskHigh'][index-28*3:index-2].idxmax()
-            ax1.add_patch(patches.Rectangle((index-28*3, df.iloc[0]['low_box']), ((index-2) - (index-28*3)), 
+            xmin = df['AskLow'][df.iloc[0]['index_box']-28*3:df.iloc[0]['index_box']-2].idxmin()
+            xmax = df['AskHigh'][df.iloc[0]['index_box']-28*3:df.iloc[0]['index_box']-2].idxmax()
+            ax1.add_patch(patches.Rectangle((df.iloc[0]['index_box']-28*3, df.iloc[0]['low_box']), ((df.iloc[0]['index_box']-2) - (df.iloc[0]['index_box']-28*3)), 
                                             (df.iloc[0]['high_box'] - df.iloc[0]['low_box']), edgecolor='purple',
                                             facecolor='none', linewidth=1))
             ax1.plot(df.iloc[0]['index_box'], df.iloc[0]['kijun_box'], color='purple', marker='s')
