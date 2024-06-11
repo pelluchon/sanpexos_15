@@ -121,9 +121,9 @@ def should_open_buy_trade(df,idx):
             (df['AskHigh'] - df['AskLow'])[idx-3:idx].max()<3*(df['AskHigh'] - df['AskLow'])[idx-27:idx].mean() and
             min(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])>df.iloc[0]['high_box'] and
             df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),
-                                                df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())
-            #(df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) and
-            df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65):# and\
+                                                df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())8 and
+            df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65):
+            #(df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) # and\
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))): #and
             #df.iloc[idx - 2:idx]['delta'].mean() > df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Buy'
@@ -147,10 +147,10 @@ def should_open_sell_trade(df,idx):
             (df['AskHigh'] - df['AskLow'])[idx - 3:idx].max() < 3 * (df['AskHigh'] - df['AskLow'])[idx - 27:idx].mean() and
             max(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])<df.iloc[0]['low_box'] and
             df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
-            #(df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
             df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),
                                                           df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):# and
-            #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))):# and
+            #(df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
+                                                              #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))):# and
             #df.iloc[idx - 2:idx]['delta'].mean() < df.iloc[idx - 3:idx - 1]['delta'].mean()):
             result = 'Open Sell'
     return(result)
