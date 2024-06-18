@@ -328,6 +328,39 @@ def close_trade(df, fx, tick, dj, idx):
     margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['BidHigh']) - np.nanmin(
         df.iloc[idx-window_of_interest:idx]['BidLow'])))
 
+    def box(df, index):
+        low_box = -1
+        high_box = -1
+        box_def = False
+
+        # in the last 29 periods kijun has been flat take the last flat
+        for m in range(index, index- 28*3, -1):
+            if df.iloc[m]['kijun_avg'] == df.iloc[m - 1]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 2]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 3]['kijun_avg'] and \
+                    df.iloc[m]['kijun_avg'] == df.iloc[m - 4]['kijun_avg'] :
+                box_def = True
+                break
+
+        # if box has been found
+        if box_def == True:
+            #If Askclose is more than kijun flat then it is a buy look for low limit
+            if df.iloc[index]['AskClose'] > df.iloc[m]['kijun_avg']:
+                max_limit = df.iloc[m]['kijun_avg']-df['AskLow'][index-28*3:index-2].min()
+            #if askclose lower then it is a sell
+            elif df.iloc[index]['AskClose'] < df.iloc[m]['kijun_avg']:
+                max_limit = df['AskHigh'][index-28*3:index-2].max()-df.iloc[m]['kijun_avg']
+            low_box = df.iloc[m]['kijun_avg'] - max_limit
+            high_box = df.iloc[m]['kijun_avg'] + max_limit
+        df['low_box']=low_box
+        df['high_box']=high_box
+        df['box_def']=box_def
+        df['kijun_box']=df.iloc[m]['kijun_avg']
+        df['index_box']=m
+        return df
+    df=box(df, open_rev_index)
+    
+
     if open_rev_index <= 1:
         print('open_rev_index too small')
     else:
