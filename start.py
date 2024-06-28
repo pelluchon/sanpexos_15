@@ -730,17 +730,18 @@ def indicators(df):
         df['index_box']=m
         return df
 
-    def bollinger_bands(df: pd.DataFrame, length: int = 20, num_stds: tuple[float, ...] = (2, 0, -2)) -> pd.DataFrame:
-        rolling = df['BidClose'].rolling(length)
-        bband0 = rolling.mean()
-        bband_std = rolling.std(ddof=0)
-        
-        bands_df = pd.DataFrame({f'MyCustomBand_{num_std}': (bband0 + (bband_std * num_std)) for num_std in num_stds})
-        df = pd.concat([df, bands_df], axis=1)
-        
+    from typing import Tuple
+
+    def bollinger_bands(df: pd.DataFrame, length: int = 20, num_stds: Tuple[float, ...] = (2, 0, -2)) -> pd.DataFrame:
+        df = df.copy()
+        df['SMA'] = df['Close'].rolling(window=length).mean()
+        df['STD'] = df['Close'].rolling(window=length).std()
+    
+        for num_std in num_stds:
+            df[f'Bollinger_{num_std}'] = df['SMA'] + num_std * df['STD']
+    
         return df
-
-
+        
     df = ichimoku(df)
     df = macd(df)
     df['rsi'] = rsi(df, 14, True)
