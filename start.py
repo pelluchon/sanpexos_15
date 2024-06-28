@@ -730,12 +730,24 @@ def indicators(df):
         df['index_box']=m
         return df
 
+    def bollinger_bands(df: pd.DataFrame, length: int = 20, num_stds: tuple[float, ...] = (2, 0, -2)) -> pd.DataFrame:
+        rolling = df['BidClose'].rolling(length)
+        bband0 = rolling.mean()
+        bband_std = rolling.std(ddof=0)
+        
+        bands_df = pd.DataFrame({f'MyCustomBand_{num_std}': (bband0 + (bband_std * num_std)) for num_std in num_stds})
+        df = pd.concat([df, bands_df], axis=1)
+        
+        return df
+
+
     df = ichimoku(df)
     df = macd(df)
     df['rsi'] = rsi(df, 14, True)
     df['ci'] = get_ci(df['AskHigh'], df['AskLow'], df['AskClose'], 28)
     df = find_last_peaks(df,1)
     df = box(df,len(df)-1)
+    df = bollinger_bands(df)
     return (df)
 
 
@@ -807,6 +819,9 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
         ax1.plot(df.index[-min_x:], df['peaks'][-min_x:], color='orange', marker='s')
+        ax1.plot(df.index[-min_x:], df['MyCustomBand_2'][-min_x:], color='green',  linewidth=0.5)
+        ax1.plot(df.index[-min_x:], df['MyCustomBand_0'][-min_x:], color='green',  linewidth=0.5)
+        ax1.plot(df.index[-min_x:], df['MyCustomBand_-2'][-min_x:], color='green',  linewidth=0.5)
 
         if type_signal != "":
             ax1.axhline(y=float(df.iloc[index]['AskClose']), color='black', linewidth=1, linestyle='-.')
