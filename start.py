@@ -268,7 +268,9 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     result_sell = should_open_sell_trade(df, idx)
     min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['AskLow'])) / (
         abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
-    if result_buy != None and min_entry >= 2:
+    if result_buy =='Sell Bollinger':
+        print('try')
+    elif result_buy != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
             type_signal = ' BUY Amount:' + str(amount) + 'Bid/Ask:' + str(min_entry)
@@ -289,6 +291,8 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         except Exception as e:
             type_signal = type_signal + ' not working for ' + str(e)
             pass
+    elif result_buy =='Sell Bollinger':
+        print('try')
     elif result_sell != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
