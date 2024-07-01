@@ -126,9 +126,7 @@ def should_open_buy_trade(df,idx):
             #(df.iloc[idx]['AskClose'] - df.iloc[idx]['kijun_avg'])>(df.iloc[idx]['kijun_avg'] - df.iloc[idx - 27:idx]['AskClose'].min()) # and\
             #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))): #and
             #df.iloc[idx - 2:idx]['delta'].mean() > df.iloc[idx - 3:idx - 1]['delta'].mean()):
-            if df.iloc[idx]['AskHigh']<df.iloc[idx]['Bollinger_2'] and
-                df.iloc[idx-1]['AskHigh']<df.iloc[idx-1]['Bollinger_2'] and
-                df.iloc[idx-2]['AskHigh']<df.iloc[idx-2]['Bollinger_2']:
+            if df.iloc[idx]['AskHigh']<df.iloc[idx]['Bollinger_2'] an df.iloc[idx-1]['AskHigh']<df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-2]['AskHigh']<df.iloc[idx-2]['Bollinger_2']:
                 result = 'Open Buy'
             else:
                 result = 'Sell Bollinger'
@@ -157,9 +155,7 @@ def should_open_sell_trade(df,idx):
             #(df.iloc[idx]['kijun_avg'] - df.iloc[idx]['AskClose']) > (df.iloc[idx - 27:idx]['AskClose'].max()-df.iloc[idx]['kijun_avg']) and\
                                                               #abs(df.iloc[idx]['macd']) > 0.1*(max(df['macd'])+abs(min(df['macd'])))):# and
             #df.iloc[idx - 2:idx]['delta'].mean() < df.iloc[idx - 3:idx - 1]['delta'].mean()):
-            if df.iloc[idx]['AskLow']<df.iloc[idx]['Bollinger_-2'] and
-                df.iloc[idx-1]['AskLow']<df.iloc[idx-1]['Bollinger_-2'] and
-                df.iloc[idx-2]['AskLow']<df.iloc[idx-2]['Bollinger_-2']:
+            if df.iloc[idx]['AskLow']<df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['AskLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx-2]['AskLow']<df.iloc[idx-2]['Bollinger_-2']:
                 result = 'Open Sell'
             else:
                 result = 'Buy Bollinger'
