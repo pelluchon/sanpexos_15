@@ -283,7 +283,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0']
+                RATE=df.iloc[idx]['Bollinger_0'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
@@ -326,7 +326,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0']
+                RATE=df.iloc[idx]['Bollinger_0'],
                 RATE_STOP=sl,
             )
             fx.send_request(request)
