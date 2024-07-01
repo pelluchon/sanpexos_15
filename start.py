@@ -869,9 +869,9 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         ax1.plot(df.index[-min_x:], df['senkou_b'][-min_x:], linewidth=0.5, color='black')
         ax1.plot(df.index[-min_x:], df['chikou'][-min_x:], linewidth=2, color='brown')
         ax1.plot(df.index[-min_x:], df['peaks'][-min_x:], color='orange', marker='s')
-        ax1.plot(df.index[-min_x:], df['MyCustomBand_2'][-min_x:], color='green',  linewidth=0.5)
-        ax1.plot(df.index[-min_x:], df['MyCustomBand_0'][-min_x:], color='green',  linewidth=0.5)
-        ax1.plot(df.index[-min_x:], df['MyCustomBand_-2'][-min_x:], color='green',  linewidth=0.5)
+        ax1.plot(df.index[-min_x:], df['Bollinger_2'][-min_x:], color='green',  linewidth=0.5)
+        ax1.plot(df.index[-min_x:], df['Bollinger_0'][-min_x:], color='green',  linewidth=0.5)
+        ax1.plot(df.index[-min_x:], df['Bollinger_-2'][-min_x:], color='green',  linewidth=0.5)
 
         if type_signal != "":
             ax1.axhline(y=float(df.iloc[index]['AskClose']), color='black', linewidth=1, linestyle='-.')
