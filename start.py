@@ -734,8 +734,8 @@ def indicators(df):
 
     def bollinger_bands(df: pd.DataFrame, length: int = 20, num_stds: Tuple[float, ...] = (2, 0, -2)) -> pd.DataFrame:
         df = df.copy()
-        df['SMA'] = df['Close'].rolling(window=length).mean()
-        df['STD'] = df['Close'].rolling(window=length).std()
+        df['SMA'] = df['BidClose'].rolling(window=length).mean()
+        df['STD'] = df['BidClose'].rolling(window=length).std()
     
         for num_std in num_stds:
             df[f'Bollinger_{num_std}'] = df['SMA'] + num_std * df['STD']
