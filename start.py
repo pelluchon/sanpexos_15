@@ -268,8 +268,28 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     result_sell = should_open_sell_trade(df, idx)
     min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['AskLow'])) / (
         abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
-    if result_buy =='Sell Bollinger':
-        print('try')
+    if result_sell =='Buy Bollinger':
+        try:
+            amount = (set_amount(Dict['amount'], dj))
+            sl = min(df.iloc[idx - 7:idx]['BidLow'].min(),
+                     df.iloc[idx - 7:idx]['kijun_avg'].min(),
+                     df.iloc[idx - 7:idx]['tenkan_avg'].min(),
+                     df.iloc[idx - 7:idx]['senkou_a'].min(),
+                     df.iloc[idx - 7:idx]['senkou_b'].min())
+            type_signal = ' Buy Bollinger Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry)
+            request = fx.create_order_request(
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                BUY_SELL=fxcorepy.Constants.SELL,
+                AMOUNT=round(amount, 2),
+                SYMBOL=tick,
+                RATE=df.iloc[idx]['Bollinger_0']
+                RATE_STOP=sl,
+            )
+            fx.send_request(request)
+        except Exception as e:
+            type_signal = type_signal + ' not working for ' + str(e)
+
     elif result_buy != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
@@ -292,7 +312,26 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
             type_signal = type_signal + ' not working for ' + str(e)
             pass
     elif result_buy =='Sell Bollinger':
-        print('try')
+        try:
+            amount = (set_amount(Dict['amount'], dj))
+            sl = max(df.iloc[idx-7:idx]['BidHigh'].max(),
+                                 df.iloc[idx-7:idx]['kijun_avg'].max(),
+                                 df.iloc[idx-7:idx]['tenkan_avg'].max(),
+                                 df.iloc[idx-7:idx]['senkou_a'].max(),
+                                 df.iloc[idx-7:idx]['senkou_b'].max())
+            type_signal = ' Sell Bollinger Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry)
+            request = fx.create_order_request(
+                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
+                ACCOUNT_ID=Dict['FXCM']['str_account'],
+                BUY_SELL=fxcorepy.Constants.SELL,
+                AMOUNT=round(amount, 2),
+                SYMBOL=tick,
+                RATE=df.iloc[idx]['Bollinger_0']
+                RATE_STOP=sl,
+            )
+            fx.send_request(request)
+        except Exception as e:
+            type_signal = type_signal + ' not working for ' + str(e)
     elif result_sell != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
