@@ -280,7 +280,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
-                BUY_SELL=fxcorepy.Constants.SELL,
+                BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
                 RATE=df.iloc[idx]['Bollinger_0'],
