@@ -1,9 +1,10 @@
-name: run start.py
+#name: run start.py
+name: run sub_Status.py
 
 on:
   schedule:
-    - cron: '3 * * * MON-FRI' # At 00:03 every hours in weekday
-    #- cron: '*/5 * * * *' # every 5 minutes
+    #- cron: '3 * * * MON-FRI' # At 00:03 every hours in weekday
+    - cron: '*/5 * * * *' # every 5 minutes
 
 jobs:
   build:
