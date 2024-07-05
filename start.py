@@ -119,12 +119,12 @@ def should_open_buy_trade(df,idx):
             df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65):
                 
-                if (df.iloc[idx]['AskClose']<(0.75*(df.iloc[idx]['Bollinger_2']- df.iloc[idx]['Bollinger_0'])+ df.iloc[idx]['Bollinger_0']) and 
-                (df['AskHigh'] - df['AskLow'])[idx-7:idx].max()<2*(df['AskHigh'] - df['AskLow'])[idx-27*2:idx].mean() and 
-                min(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])>df.iloc[0]['high_box'] and 
+                if (df.iloc[idx]['BidClose']<(0.66*(df.iloc[idx]['Bollinger_2']- df.iloc[idx]['Bollinger_0'])+ df.iloc[idx]['Bollinger_0']) and 
+                (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['AskHigh'] - df['AskLow'])[idx-27*2:idx].mean() and 
+                min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
                 df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):
                     result = 'Open Buy'
-                elif df.iloc[idx]['AskHigh']>df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['AskHigh']>df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-2]['AskHigh']>df.iloc[idx-2]['Bollinger_2']:
+                elif df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.1 and df.iloc[idx-3:idx]['rsi'].mean() > 70 and df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2']:
                     result = 'Sell Bollinger'
     return(result)
 
@@ -137,19 +137,19 @@ def should_open_sell_trade(df,idx):
     if temp_macd.size != 0 and temp_delta.size != 0 :
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx - 2:idx]['AskClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        if (df.iloc[idx - 2:idx]['BidClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
             df.iloc[idx - 2:idx]['kijun_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
             df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
-            df.iloc[idx - 2:idx]['AskClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
+            df.iloc[idx - 2:idx]['BidClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
             df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35):
-                if (df.iloc[idx]['AskClose']>(-0.75*(df.iloc[idx]['Bollinger_0']- df.iloc[idx]['Bollinger_-2'])+ df.iloc[idx]['Bollinger_0']) and
-                (df['AskHigh'] - df['AskLow'])[idx - 7:idx].max() < 2 * (df['AskHigh'] - df['AskLow'])[idx - 27*2:idx].mean() and
-                max(df.iloc[idx]['AskClose'],df.iloc[idx]['AskOpen'])<df.iloc[0]['low_box'] and 
+                if (df.iloc[idx]['BidClose']>(-0.75*(df.iloc[idx]['Bollinger_0']- df.iloc[idx]['Bollinger_-2'])+ df.iloc[idx]['Bollinger_0']) and
+                (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and
+                max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
                 df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):
                     result = 'Open Sell'
-                elif df.iloc[idx]['AskLow']<df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['AskLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx-2]['AskLow']<df.iloc[idx-2]['Bollinger_-2']:
+                elif df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.1 and df.iloc[idx-3:idx]['rsi'].mean() < 30 :
                     result = 'Buy Bollinger'
     return(result)
 
