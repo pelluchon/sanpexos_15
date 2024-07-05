@@ -257,7 +257,8 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
         amount = base_unit_size * Dict['amount']
         return amount
-
+    margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['BidHigh']) - np.nanmin(
+        df.iloc[idx-window_of_interest:idx]['BidLow'])))
     type_signal = 'No'
     tp = 0
     sl = 0
@@ -281,8 +282,8 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.BUY,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0'],
-                RATE_STOP=sl,
+                RATE=df.iloc[idx]['Bollinger_0']-margin,
+                RATE_STOP=sl-margin,
             )
             fx.send_request(request)
         except Exception as e:
@@ -324,8 +325,8 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                 BUY_SELL=fxcorepy.Constants.SELL,
                 AMOUNT=round(amount, 2),
                 SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0'],
-                RATE_STOP=sl,
+                RATE=df.iloc[idx]['Bollinger_0']+margin,
+                RATE_STOP=sl+margin,
             )
             fx.send_request(request)
         except Exception as e:
@@ -670,7 +671,7 @@ def indicators(df):
         """
         Returns a pd.Series with the relative strength index.
         """
-        close_delta = df['AskClose'].diff()
+        close_delta = df['BidClose'].diff()
 
         # Make two series: one for lower closes and one for higher closes
         up = close_delta.clip(lower=0)
@@ -719,7 +720,7 @@ def indicators(df):
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 3]['macd']) and \
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 1]['macd']) :
                 df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+                df.loc[n + i, 'peaks'] = df.iloc[i]['BidClose']
             elif (i < -2) and \
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 1]['macd']) and \
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i - 2]['macd']) and \
@@ -728,7 +729,7 @@ def indicators(df):
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 2]['macd']) and \
                     abs(df.iloc[i]['macd']) >= abs(df.iloc[i + 3]['macd']):
                 df.loc[n + i, 'peaks_macd'] = df.iloc[i]['macd']
-                df.loc[n + i, 'peaks'] = df.iloc[i]['AskClose']
+                df.loc[n + i, 'peaks'] = df.iloc[i]['BidClose']
             if abs(df.iloc[i]['delta']) > 0.1*(max(df['delta'])+abs(min(df['delta']))):
                 if (i == -2) and \
                         abs(df.iloc[i]['delta']) >= abs(df.iloc[i - 1]['delta']) and \
@@ -763,11 +764,11 @@ def indicators(df):
         # if box has been found
         if box_def == True:
             #If Askclose is more than kijun flat then it is a buy look for low limit
-            if df.iloc[index]['AskClose'] > df.iloc[m]['kijun_avg']:
-                max_limit = df.iloc[m]['kijun_avg']-df['AskLow'][index-28*3:index-2].min()
+            if df.iloc[index]['BidClose'] > df.iloc[m]['kijun_avg']:
+                max_limit = df.iloc[m]['kijun_avg']-df['BidLow'][index-28*3:index-2].min()
             #if askclose lower then it is a sell
-            elif df.iloc[index]['AskClose'] < df.iloc[m]['kijun_avg']:
-                max_limit = df['AskHigh'][index-28*3:index-2].max()-df.iloc[m]['kijun_avg']
+            elif df.iloc[index]['BidClose'] < df.iloc[m]['kijun_avg']:
+                max_limit = df['BidHigh'][index-28*3:index-2].max()-df.iloc[m]['kijun_avg']
             else:
                 max_limit = 0
             low_box = df.iloc[m]['kijun_avg'] - max_limit
@@ -783,8 +784,8 @@ def indicators(df):
 
     def bollinger_bands(df: pd.DataFrame, length: int = 20, num_stds: Tuple[float, ...] = (2, 0, -2)) -> pd.DataFrame:
         df = df.copy()
-        df['SMA'] = df['AskClose'].rolling(window=length).mean()
-        df['STD'] = df['AskClose'].rolling(window=length).std()
+        df['SMA'] = df['BidClose'].rolling(window=length).mean()
+        df['STD'] = df['BidClose'].rolling(window=length).std()
     
         for num_std in num_stds:
             df[f'Bollinger_{num_std}'] = df['SMA'] + num_std * df['STD']
@@ -890,11 +891,11 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         ax1.fill_between(df.index[-min_x:], df['senkou_a'][-min_x:], df['senkou_b'][-min_x:],
                          where=df['senkou_a'][-min_x:] < df['senkou_b'][-min_x:],
                          color='lightcoral')
-        quotes = [tuple(x) for x in df[['index', 'AskOpen', 'AskHigh', 'AskLow', 'AskClose']].values]
+        quotes = [tuple(x) for x in df[['index', 'BidOpen', 'BidHigh', 'BidLow', 'BidClose']].values]
         candlestick_ohlc(ax1, quotes, width=0.2, colorup='g', colordown='r')
         ax1.grid()
-        low_limit = np.nanmin(df['AskLow'][-min_x:])
-        high_limit = np.nanmax(df['AskHigh'][-min_x:])
+        low_limit = np.nanmin(df['BidLow'][-min_x:])
+        high_limit = np.nanmax(df['BidHigh'][-min_x:])
         ax1.set_ylim(low_limit - 0.1 * (high_limit - low_limit), high_limit + 0.1 * (high_limit - low_limit))
         ax1.set_xlim(np.nanmin(df['index'][-min_x:]), np.nanmax(df['index'][-min_x:]))
         ax1.set(xlabel=None)
