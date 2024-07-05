@@ -190,7 +190,7 @@ def should_close_buy_trade(df,idx,idx_open,dj):
         abs(df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen'])>abs(df.iloc[idx-7:idx]['AskHigh'].max() - df.iloc[idx-7:idx]['AskLow'].min()) and\
         df.iloc[idx]['AskClose'] < df.iloc[idx-3:idx]['tenkan_avg'].mean():
         result = 'Kill for high tendance change'
-    elif df.iloc[idx]['BidHigh'] > df.iloc[idx]['Bollinger_2'] and candle_m2<0.1 and
+    elif df.iloc[idx]['BidHigh'] > df.iloc[idx]['Bollinger_2'] and candle_m2<0.1 and \
         df.iloc[idx-3:idx]['rsi'].mean() > 70:
         result ='Kill for Bollinger'
     elif df.iloc[idx]['BidClose'] > df.iloc[idx_open]['BidClose'] and \
@@ -240,7 +240,7 @@ def should_close_sell_trade(df,idx,idx_open,dj):
         abs(df.iloc[idx]['AskClose'] - df.iloc[idx]['AskOpen'])>abs(df.iloc[idx-7:idx]['AskHigh'].max() - df.iloc[idx-7:idx]['AskLow'].min()) and\
         df.iloc[idx]['AskClose'] > df.iloc[idx-3:idx]['tenkan_avg'].mean():
         result = 'Kill for high tendance change'
-    elif df.iloc[idx]['BidLow'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.1 and
+    elif df.iloc[idx]['BidLow'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.1 and \
         df.iloc[idx-3:idx]['rsi'].mean()< 30:
         result ='Kill for Bollinger'
     elif df.iloc[idx]['BidClose'] < df.iloc[idx_open]['BidClose'] and \
