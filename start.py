@@ -257,8 +257,6 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         base_unit_size = trading_settings_provider.get_base_unit_size(tick, account)
         amount = base_unit_size * Dict['amount']
         return amount
-    margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['BidHigh']) - np.nanmin(
-        df.iloc[idx-window_of_interest:idx]['BidLow'])))
     type_signal = 'No'
     tp = 0
     sl = 0
@@ -267,6 +265,9 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     result_sell = should_open_sell_trade(df, idx)
     min_entry = round((max(df.iloc[-27:-2]['AskHigh']) - min(df.iloc[-27:-2]['AskLow'])) / (
         abs(df.iloc[-2]['BidClose'] - df.iloc[-2]['AskClose'])), 2)
+    window_of_interest = 27
+    margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['BidHigh']) - np.nanmin(
+        df.iloc[idx-window_of_interest:idx]['BidLow'])))
     if result_sell =='Buy Bollinger':
         try:
             amount = (set_amount(Dict['amount'], dj))
