@@ -125,7 +125,8 @@ def should_open_buy_trade(df,idx):
                     print('check')
                     if df.iloc[idx]['BidClose']<(0.66*(df.iloc[idx]['Bollinger_2']- df.iloc[idx]['Bollinger_0'])+ df.iloc[idx]['Bollinger_0']):
                         result = 'Open Buy'
-                elif df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.1 and df.iloc[idx-3:idx]['rsi'].mean() > 70 and df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2']:
+                elif df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.25 and df.iloc[idx-1:idx]['rsi'].mean() > 70 and df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2']:
+                    print('check')
                     result = 'Sell Bollinger'
     return(result)
 
@@ -152,7 +153,7 @@ def should_open_sell_trade(df,idx):
                     print('check')
                     if df.iloc[idx]['BidClose']>(-0.66*(df.iloc[idx]['Bollinger_0']- df.iloc[idx]['Bollinger_-2'])+ df.iloc[idx]['Bollinger_0']):
                         result = 'Open Sell'
-                elif df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.1 and df.iloc[idx-3:idx]['rsi'].mean() < 30 :
+                elif df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.25 and df.iloc[idx-1:idx]['rsi'].mean() < 30 :
                     result = 'Buy Bollinger'
     return(result)
 
