@@ -123,7 +123,9 @@ def should_open_buy_trade(df,idx):
                 min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
                 df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):
                     print('check')
-                    if df.iloc[idx]['BidClose']<(0.66*(df.iloc[idx]['Bollinger_2']- df.iloc[idx]['Bollinger_0'])+ df.iloc[idx]['Bollinger_0']):
+                    print(df.iloc[idx]['Bollinger_2']-df.iloc[idx]['Bollinger_0'])
+                    print(df.iloc[idx]['Bollinger_2'])
+                    if df.iloc[idx]['BidClose']<df.iloc[idx]['Bollinger_2']:
                         result = 'Open Buy'
                 elif df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.25 and df.iloc[idx-1:idx]['rsi'].mean() > 70 and df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2']:
                     print('check')
@@ -151,7 +153,9 @@ def should_open_sell_trade(df,idx):
                 max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
                 df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean())):
                     print('check')
-                    if df.iloc[idx]['BidClose']>(-0.66*(df.iloc[idx]['Bollinger_0']- df.iloc[idx]['Bollinger_-2'])+ df.iloc[idx]['Bollinger_0']):
+                    print(df.iloc[idx]['Bollinger_-2'])
+                    print(df.iloc[idx]['Bollinger_-2']-df.iloc[idx]['Bollinger_0'])
+                    if df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_-2']:
                         result = 'Open Sell'
                 elif df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.25 and df.iloc[idx-1:idx]['rsi'].mean() < 30 :
                     result = 'Buy Bollinger'
