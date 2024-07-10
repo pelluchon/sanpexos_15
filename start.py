@@ -123,7 +123,8 @@ def should_open_buy_trade(df,idx):
             (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and 
             min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
-            df.iloc[idx]['BidClose']<df.iloc[idx]['Bollinger_2']):
+            df.iloc[idx]['BidClose']<df.iloc[idx]['Bollinger_2'] and
+            df.iloc[idx-1]['BidClose']<df.iloc[idx-1]['Bollinger_2'] and candle_m2>-0.25):
                 result = 'Open Buy'
 
     return(result)
@@ -149,7 +150,8 @@ def should_open_sell_trade(df,idx):
             (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and
             max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
-            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_-2']):
+            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_-2'] and
+            df.iloc[idx-1]['BidClose']>df.iloc[idx-1]['Bollinger_-2'] and candle_m2<0.25):
                 result = 'Open Sell'
 
     return(result)
@@ -1036,12 +1038,12 @@ def main():
                                 print('other not hour')
                             else:
                                 df, type_signal, index, tp, sl, index_peak = \
-                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
+                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-1)
                                 df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                         # if status is open then check if to close
                         elif open_pos_status == 'Yes':
                             df, type_signal, index, tp, sl, index_peak = \
-                                close_trade(df, fx, FX[l1], dj,len(df)-2)
+                                close_trade(df, fx, FX[l1], dj,len(df)-1)
                             df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                 else:
                     if l0==1:
