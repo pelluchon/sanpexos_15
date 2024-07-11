@@ -1038,12 +1038,12 @@ def main():
                                 print('other not hour')
                             else:
                                 df, type_signal, index, tp, sl, index_peak = \
-                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-1)
+                                    open_trade(df, fx, FX[l1], trading_settings_provider, dj,len(df)-2)
                                 df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                         # if status is open then check if to close
                         elif open_pos_status == 'Yes':
                             df, type_signal, index, tp, sl, index_peak = \
-                                close_trade(df, fx, FX[l1], dj,len(df)-1)
+                                close_trade(df, fx, FX[l1], dj,len(df)-2)
                             df_plot(df, tick,None, type_signal, index, tp, sl, index_peak)
                 else:
                     if l0==1:
