@@ -84,7 +84,7 @@ Dict = {
                 'hour_close': 21,  # closing time in UTC
                 'day_open': 6,  # 6 is Sunday
                 'day_close': 4,  # 4 is Friday
-                'FX': ['EUR/AUD', 'EUR/CAD',
+                'FX': ['US30','EUR/AUD', 'EUR/CAD',
                        'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NOK', 'EUR/NZD',
                        'EUR/SEK', 'EUR/TRY', 'EUR/USD']},
             2: {
@@ -108,17 +108,17 @@ def should_open_buy_trade(df,idx):
     temp_macd = df['peaks_macd'][:idx].dropna()
     temp_delta = df['peaks_delta'][:idx].dropna()
     result=None
-    if temp_macd.size != 0 and temp_delta.size != 0 :
+    if (temp_macd.size != 0 and temp_delta.size != 0 and 
+        df.iloc[idx - 2:idx]['BidClose'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(), df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['kijun_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 2:idx]['BidClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean()):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
         if df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.25 and df.iloc[idx-1:idx]['rsi'].mean() > 70 and df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2']:
             result = 'Sell Bollinger'
-        elif (df.iloc[idx - 2:idx]['BidClose'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(), df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['kijun_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
-            df.iloc[idx - 2:idx]['BidClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
-            df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
+        elif (df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65 and 
             (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and 
             min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
@@ -137,17 +137,17 @@ def should_open_sell_trade(df,idx):
     temp_macd = df['peaks_macd'][:idx].dropna()
     temp_delta = df['peaks_delta'][:idx].dropna()
     result=None
-    if temp_macd.size != 0 and temp_delta.size != 0 :
+    if (temp_macd.size != 0 and temp_delta.size != 0 and
+        df.iloc[idx - 2:idx]['BidClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['kijun_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 2:idx]['BidClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean()):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
         if df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.25 and df.iloc[idx-1:idx]['rsi'].mean() < 30 :
             result = 'Buy Bollinger'
-        elif (df.iloc[idx - 2:idx]['BidClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['kijun_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-            df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
-            df.iloc[idx - 2:idx]['BidClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean() and
-            df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
+        elif (df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
             (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and
             max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
