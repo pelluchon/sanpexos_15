@@ -124,8 +124,9 @@ def should_open_buy_trade(df,idx):
             min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
             (df['Bollinger_2']-df['BidHigh'])[idx-2:idx].min()>0 and candle_m2>-0.25):
-                print(df.iloc[idx]['BidHigh'])
-                print(df.iloc[idx]['Bollinger_2'])
+                print((df['Bollinger_2']-df['BidHigh'])[idx-2:idx])
+                print([idx-2,idx])
+                print(len(df))
                 result = 'Open Buy'
 
     return(result)
@@ -152,8 +153,9 @@ def should_open_sell_trade(df,idx):
             max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
             (df['BidLow']-df['Bollinger_-2'])[idx-2:idx].min()>0 and candle_m2<0.25):
-                print(df.iloc[idx]['BidLow'])
-                print(df.iloc[idx]['Bollinger_-2'])
+                print((df['BidLow']-df['Bollinger_-2'])[idx-2:idx])
+                print([idx-2,idx])
+                print(len(df))
                 result = 'Open Sell'
 
     return(result)
