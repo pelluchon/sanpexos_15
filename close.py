@@ -19,10 +19,10 @@ import math
 
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71591187',
-        'str_password': 's8ykzvw',
+        'str_user_i_d': '71596342',
+        'str_password': 'gzvn0th',
         'str_connection': 'Demo',
-        'str_account': '71591187',
+        'str_account': '71596342',
         # 'str_user_i_d': '87053959',
         # 'str_password': 'S4Tpj3P!zz.Mm2p',
         # 'str_connection': 'Real',
@@ -42,7 +42,7 @@ Dict = {
         {
 
             1: {
-                'FX': ['JPYBasket','EMBasket']},
+                'FX': ['EMBasket']},
             # US. AUTO 13.30 - 20.00 GMT
             # BUND 06.00 - 20.00 GMT
 
