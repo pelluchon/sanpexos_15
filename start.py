@@ -117,7 +117,7 @@ def should_open_buy_trade(df,idx):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.25 and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
-            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']):
+            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
             result = 'Sell Bollinger'
         elif (df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65 and 
