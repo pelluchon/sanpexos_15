@@ -109,22 +109,23 @@ def should_open_buy_trade(df,idx):
     temp_delta = df['peaks_delta'][:idx].dropna()
     result=None
     if (temp_macd.size != 0 and temp_delta.size != 0 and 
-        df.iloc[idx - 2:idx]['BidClose'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(), df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['kijun_avg'].mean() > max(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['tenkan_avg'].mean() > df.iloc[idx - 2:idx]['kijun_avg'].mean() and
-        df.iloc[idx - 2:idx]['BidClose'].mean() > df.iloc[idx - 2:idx]['tenkan_avg'].mean()):
+        df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() > df.iloc[idx - 1:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() > df.iloc[idx - 1:idx]['tenkan_avg'].mean()):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and candle_m2<0.25 and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
-            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+        if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
+            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and 
+            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and df.iloc[idx-1]['candle_signal']== 'sell inversion'):
             result = 'Sell Bollinger'
         elif (df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx-27:idx]['rsi'][df['tenkan_avg']>df['kijun_avg']].mean() < 65 and 
             (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and 
             min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
-            df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['BidHigh']<df.iloc[idx-1]['Bollinger_2'] and candle_m2>-0.1):
+            df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['BidHigh']<df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-1]['candle_signal']== 'buy trend'):
                 print((df['Bollinger_2']-df['BidHigh'])[idx-2:idx])
                 print([idx-2,idx])
                 print(len(df))
@@ -139,22 +140,24 @@ def should_open_sell_trade(df,idx):
     temp_delta = df['peaks_delta'][:idx].dropna()
     result=None
     if (temp_macd.size != 0 and temp_delta.size != 0 and
-        df.iloc[idx - 2:idx]['BidClose'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['kijun_avg'].mean() < min(df.iloc[idx - 2:idx]['senkou_a'].mean(),df.iloc[idx - 2:idx]['senkou_b'].mean()) and
-        df.iloc[idx - 2:idx]['tenkan_avg'].mean() < df.iloc[idx - 2:idx]['kijun_avg'].mean() and
-        df.iloc[idx - 2:idx]['BidClose'].mean() < df.iloc[idx - 2:idx]['tenkan_avg'].mean()):
+        df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() < df.iloc[idx - 1:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() < df.iloc[idx - 1:idx]['tenkan_avg'].mean()):
         idx_last_macd=temp_macd.index[-1]
         idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and 
-            candle_m2>-0.25 and df.iloc[idx-1:idx]['rsi'].mean() < 30 and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+        if (df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] 
+            and df.iloc[idx-1:idx]['rsi'].mean() < 30 and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) 
+            and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and df.iloc[idx-1]['candle_signal']== 'buy inversion'):
             result = 'Buy Bollinger'
         elif (df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
             df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
             (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and
             max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box'] and 
             df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
-            df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['BidLow']>df.iloc[idx-1]['Bollinger_-2'] and candle_m2<0.1):
+            df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['BidLow']>df.iloc[idx-1]['Bollinger_-2'] 
+            and df.iloc[idx-1]['candle_signal']== 'sell tred'):
                 print((df['BidLow']-df['Bollinger_-2'])[idx-2:idx])
                 print([idx-2,idx])
                 print(len(df))
@@ -206,6 +209,9 @@ def should_close_buy_trade(df,idx,idx_open,dj):
         df.iloc[idx]['tenkan_avg'] < df.iloc[idx]['Bollinger_0'] and \
         df.iloc[idx]['signal'] > df.iloc[idx]['macd']:
         result ='Kill for Bollinger 0'
+    elif (df.iloc[idx-1]['candle_signal']== 'sell inversion' or df.iloc[idx-1]['candle_signal']== 'sell trend')\
+        and df.iloc[idx]['kijun_avg'] > df.iloc[idx_open]['BidClose']:
+        result ='Kill for Candle Pattern'
     elif df.iloc[idx]['BidClose'] > df.iloc[idx_open]['BidClose']:
         result = 'Save minimum'
     else:
@@ -259,6 +265,9 @@ def should_close_sell_trade(df,idx,idx_open,dj):
     elif df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] and candle_m2>-0.25 and \
         df.iloc[idx-1:idx]['rsi'].mean()< 30:
         result ='Kill for Bollinger -2'
+    elif (df.iloc[idx-1]['candle_signal']== 'buy inversion' or df.iloc[idx-1]['candle_signal']== 'buy trend')\
+        and df.iloc[idx]['kijun_avg'] < df.iloc[idx_open]['BidClose']:
+        result ='Kill for Candle Pattern'
     elif df.iloc[idx]['BidClose'] < df.iloc[idx_open]['BidClose'] :
         result = 'Save minimum'
     else:
@@ -787,7 +796,101 @@ def indicators(df):
             df[f'Bollinger_{num_std}'] = df['SMA'] + num_std * df['STD']
     
         return df
+
+    def detect_candlestick_patterns(df):
+        df['candle'] = None  # Initialize the 'candle' column with None
+    
+        for idx in range(2, len(df)):
+            open_price = df.iloc[idx]['BidOpen']
+            close_price = df.iloc[idx]['BidClose']
+            high_price = df.iloc[idx]['BidHigh']
+            low_price = df.iloc[idx]['BidLow']
+            prev_open_price = df.iloc[idx-1]['BidOpen']
+            prev_close_price = df.iloc[idx-1]['BidClose']
+            prev_high_price = df.iloc[idx-1]['BidHigh']
+            prev_low_price = df.iloc[idx-1]['BidLow']
+            prev2_open_price = df.iloc[idx-2]['BidOpen']
+            prev2_close_price = df.iloc[idx-2]['BidClose']
+            prev2_high_price = df.iloc[idx-2]['BidHigh']
+            prev2_low_price = df.iloc[idx-2]['BidLow']
+            
+            # Define basic candlestick components
+            body = abs(close_price - open_price)
+            prev_body = abs(prev_close_price - prev_open_price)
+            upper_shadow = high_price - max(open_price, close_price)
+            lower_shadow = min(open_price, close_price) - low_price
+
+            # Detect candlestick patterns and save them in the 'candle' column
+            if body <= 0.1 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Doji' #BUY or SELL 
+            elif body <= 0.05 * (high_price - low_price) and upper_shadow <= 0.05 * (high_price - low_price) and lower_shadow > 0.9 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Dragonfly Doji' # BUY
+            elif body <= 0.05 * (high_price - low_price) and lower_shadow <= 0.05 * (high_price - low_price) and upper_shadow > 0.9 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Gravestone Doji' # SELL
+            elif body <= 0.3 * (high_price - low_price) and lower_shadow >= 2 * body and upper_shadow <= 0.2 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Hammer' #BUY
+            elif body <= 0.3 * (high_price - low_price) and upper_shadow >= 2 * body and lower_shadow <= 0.2 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Inverted Hammer' #SELL
+            elif body <= 0.3 * (high_price - low_price) and lower_shadow >= 2 * body and upper_shadow <= 0.2 * (high_price - low_price) and df.iloc[idx-1]['BidClose'] > df.iloc[idx-1]['BidOpen']:
+                df.at[idx, 'candle'] = 'Hanging Man' #SELL
+            elif body <= 0.3 * (high_price - low_price) and upper_shadow >= 2 * body and lower_shadow <= 0.2 * (high_price - low_price) and df.iloc[idx-1]['BidClose'] < df.iloc[idx-1]['BidOpen']:
+                df.at[idx, 'candle'] = 'Shooting Star' # SELL
+            elif prev_close_price < prev_open_price and close_price > open_price and open_price < prev_close_price and close_price > prev_open_price:
+                df.at[idx, 'candle'] = 'Bullish Engulfing' # BUY
+            elif prev_close_price > prev_open_price and close_price < open_price and open_price > prev_close_price and close_price < prev_open_price:
+                df.at[idx, 'candle'] = 'Bearish Engulfing' # SELL
+            elif prev2_close_price < prev2_open_price and abs(prev2_close_price - prev2_open_price) > 0.5 * (prev2_high_price - prev2_low_price) and \
+                abs(prev_close_price - prev_open_price) <= 0.1 * (prev_high_price - prev_low_price) and close_price > open_price and \
+                close_price > prev2_close_price:
+                df.at[idx, 'candle'] = 'Morning Star' #BUY
+            elif prev2_close_price > prev2_open_price and abs(prev2_close_price - prev2_open_price) > 0.5 * (prev2_high_price - prev2_low_price) and \
+                abs(prev_close_price - prev_open_price) <= 0.1 * (prev_high_price - prev_low_price) and close_price < open_price and \
+                close_price < prev2_close_price:
+                df.at[idx, 'candle'] = 'Evening Star' #SELL
+            elif prev_close_price < prev_open_price and open_price > prev_close_price and close_price < prev_open_price:
+                df.at[idx, 'candle'] = 'Bullish Harami' #BUY
+            elif prev_close_price > prev_open_price and open_price < prev_close_price and close_price > prev_open_price:
+                df.at[idx, 'candle'] = 'Bearish Harami' #SELL
+            elif prev_close_price < prev_open_price and close_price > prev_open_price and close_price < open_price and open_price > prev_close_price:
+                df.at[idx, 'candle'] = 'Piercing Pattern' #BUY
+            elif prev_close_price > prev_open_price and close_price < prev_open_price and close_price > open_price and open_price < prev_close_price:
+                df.at[idx, 'candle'] = 'Dark Cloud Cover' # SELL
+            elif df.iloc[idx-3]['BidClose'] < df.iloc[idx-3]['BidOpen'] and df.iloc[idx-2]['BidClose'] < df.iloc[idx-2]['BidOpen'] and \
+                df.iloc[idx-1]['BidClose'] < df.iloc[idx-1]['BidOpen'] and open_price > close_price and close_price > df.iloc[idx-1]['BidOpen']:
+                df.at[idx, 'candle'] = 'Three Stars In The South' #BUY
+            elif prev2_close_price < prev2_open_price and prev_close_price < prev_open_price and close_price > open_price and \
+                close_price > prev_close_price and open_price < prev_open_price:
+                df.at[idx, 'candle'] = 'Rising Three Methods' # BUY
+            elif body <= 0.5 * (high_price - low_price) and upper_shadow > 0.6 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Bullish Pin Bar With Long Tail' # BUY
+            elif body <= 0.5 * (high_price - low_price) and lower_shadow > 0.6 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Bearish Pin Bar With Long Tail' #SELL
+            elif body <= 0.5 * (high_price - low_price) and upper_shadow > 0.3 * (high_price - low_price) and lower_shadow > 0.3 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Bullish Pin Bar With Short Tail' # BUY
+            elif body <= 0.5 * (high_price - low_price) and upper_shadow > 0.3 * (high_price - low_price) and lower_shadow > 0.3 * (high_price - low_price):
+                df.at[idx, 'candle'] = 'Bearish Pin Bar With Short Tail' #SELL
+
+        return df
+
+    def determine_candle_signal(df):
+        df['candle_signal'] = None  # Initialize the 'candle_signal' column with None
         
+        for idx in range(len(df)):
+            candle = df.iloc[idx]['candle']
+            
+            if candle in ['Bullish Engulfing', 'Morning Star', 'Bullish Harami', 'Piercing Pattern', 'Three Stars In The South', 'Rising Three Methods']:
+                df.at[idx, 'candle_signal'] = 'buy inversion'
+            elif candle in ['Bearish Engulfing', 'Evening Star', 'Bearish Harami', 'Dark Cloud Cover']:
+                df.at[idx, 'candle_signal'] = 'sell inversion'
+            elif candle in ['Hammer', 'Inverted Hammer', 'Bullish Pin Bar With Long Tail', 'Bullish Pin Bar With Short Tail']:
+                df.at[idx, 'candle_signal'] = 'buy trend'
+            elif candle in ['Shooting Star', 'Hanging Man', 'Bearish Pin Bar With Long Tail', 'Bearish Pin Bar With Short Tail']:
+                df.at[idx, 'candle_signal'] = 'sell trend'
+
+        return df
+
+
+
     df = ichimoku(df)
     df = macd(df)
     df['rsi'] = rsi(df, 14, True)
@@ -795,9 +898,9 @@ def indicators(df):
     df = find_last_peaks(df,1)
     df = box(df,len(df)-1)
     df = bollinger_bands(df)
+    df = detect_candlestick_patterns(df)
+    df = determine_candle_signal(df)
     return (df)
-
-
 
 def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0):
     def sendemail(attach, subject_mail, body_mail):
