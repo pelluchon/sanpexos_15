@@ -115,18 +115,24 @@ def should_open_buy_trade(df,idx):
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
             df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and 
-            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and df.iloc[idx-1]['candle_signal']== 'sell inversion'):
-            result = 'Sell Bollinger'
+            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+                if df.iloc[idx-1]['candle_signal']== 'sell inversion':
+                    result = 'Sell Bollinger'
+                else:
+                    result = 'Not Sell Bollinger - Candle check' 
         elif (df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and
                 df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
                 df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and df.iloc[idx - 1:idx]['rsi'].mean() < 65 and 
                 (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and
-                df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['candle_signal']== 'buy trend'):
-                    result = 'Open Buy'
-                    if min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box']:
-                        print('BUY box limit removed')
+                df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2']):
+                    if df.iloc[idx-1]['candle_signal']== 'buy trend':
+                        result = 'Open Buy'
+                    elif min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box']:
+                        result = 'Not Buy - Box check'
+                    else:
+                        result = 'Not Buy - Candle check'
     return(result)
 
 def should_open_sell_trade(df,idx):
@@ -142,18 +148,24 @@ def should_open_sell_trade(df,idx):
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] 
                 and df.iloc[idx-1:idx]['rsi'].mean() < 30 and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) 
-                and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and df.iloc[idx-1]['candle_signal']== 'buy inversion'):
-            result = 'Buy Bollinger'
+                and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+                    if df.iloc[idx-1]['candle_signal']== 'buy inversion':
+                        result = 'Buy Bollinger'
+                    else:
+                        result = 'Not Buy Bollinger - Candle Check'
         elif (df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['senkou_a'].mean(),df.iloc[idx-28:idx-27]['senkou_b'].mean(),df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean()) and 
                 df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
                 df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
                 (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and 
-                df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['candle_signal']== 'sell trend'):
-                    result = 'Open Sell'
-                    if max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box']:
-                        print('SELL limit removed')
+                df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2']):
+                    if df.iloc[idx-1]['candle_signal']== 'sell trend':
+                        result = 'Open Sell'
+                    elif max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box']:
+                        result = 'not sell - Box check'
+                    else:
+                        result = 'not sell - Candle check'
             
     return(result)
 
