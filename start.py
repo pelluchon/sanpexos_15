@@ -124,7 +124,7 @@ def should_open_buy_trade(df,idx):
                 df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and df.iloc[idx - 1:idx]['rsi'].mean() < 65 and 
                 (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and
                 df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['candle_signal']== 'buy trend'):
-                result = 'Open Buy'
+                    result = 'Open Buy'
                 if min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box']:
                     print('BUY box limit removed')
     return(result)
@@ -151,9 +151,10 @@ def should_open_sell_trade(df,idx):
                 df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
                 (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and 
                 df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['candle_signal']== 'sell trend'):
+                    result = 'Open Sell'
                 if max(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])<df.iloc[0]['low_box']:
                     print('SELL limit removed')
-            result = 'Open Sell'
+            
     return(result)
 
 def should_close_buy_trade(df,idx,idx_open,dj):
