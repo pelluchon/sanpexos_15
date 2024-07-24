@@ -126,7 +126,7 @@ def should_open_buy_trade(df,idx):
                 df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['candle_signal']== 'buy trend'):
                 result = 'Open Buy'
                 if min(df.iloc[idx]['BidClose'],df.iloc[idx]['BidOpen'])>df.iloc[0]['high_box']:
-                    print('BUY box limit removed'):
+                    print('BUY box limit removed')
     return(result)
 
 def should_open_sell_trade(df,idx):
