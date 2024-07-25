@@ -304,7 +304,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                      df.iloc[idx - 7:idx]['tenkan_avg'].min(),
                      df.iloc[idx - 7:idx]['senkou_a'].min(),
                      df.iloc[idx - 7:idx]['senkou_b'].min())
-            type_signal = ' Buy Bollinger Amount: ' + str(amount) + 'Bid/Ask: ' + str(min_entry)  + 'Candle: ' + str(df.iloc[idx]['candle'])
+            type_signal = ' Buy Bollinger Amount: ' + str(amount) + ' Bid/Ask: ' + str(min_entry)  + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -321,7 +321,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     elif result_buy != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
-            type_signal = ' BUY Amount:' + str(amount) + 'Bid/Ask: ' + str(min_entry) + 'Candle: ' + str(df.iloc[idx]['candle'])
+            type_signal = ' BUY Amount:' + str(amount) + ' Bid/Ask: ' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             sl = min(df.iloc[idx - 7:idx]['BidLow'].min(),
                      df.iloc[idx - 7:idx]['kijun_avg'].min(),
                      df.iloc[idx - 7:idx]['tenkan_avg'].min(),
@@ -347,7 +347,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                                  df.iloc[idx-7:idx]['tenkan_avg'].max(),
                                  df.iloc[idx-7:idx]['senkou_a'].max(),
                                  df.iloc[idx-7:idx]['senkou_b'].max())
-            type_signal = ' Sell Bollinger Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry) + 'Candle: ' + str(df.iloc[idx]['candle'])
+            type_signal = ' Sell Bollinger Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -368,7 +368,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
                                  df.iloc[idx-7:idx]['tenkan_avg'].max(),
                                  df.iloc[idx-7:idx]['senkou_a'].max(),
                                  df.iloc[idx-7:idx]['senkou_b'].max())
-            type_signal = ' Sell Amount: ' + str(amount) + 'Bid/Ask:' + str(min_entry) + 'Candle: ' + str(df.iloc[idx]['candle'])
+            type_signal = ' Sell Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -464,7 +464,7 @@ def close_trade(df, fx, tick, dj, idx):
             elif result != None:
                 if price > open_price:
                     try:
-                        type_signal = ' Buy : ' + str(result) + 'Candle: ' + str(df.iloc[idx]['candle'])
+                        type_signal = ' Buy : ' + str(result) + ' Candle: ' + str(df.iloc[idx]['candle'])
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
@@ -540,7 +540,7 @@ def close_trade(df, fx, tick, dj, idx):
             elif result != None:
                 if price < open_price:
                     try:
-                        type_signal = ' Sell : ' + str(result) + 'Candle: ' + str(df.iloc[idx]['candle'])
+                        type_signal = ' Sell : ' + str(result) + ' Candle: ' + str(df.iloc[idx]['candle'])
                         request = fx.create_order_request(
                             order_type=fxcorepy.Constants.Orders.TRUE_MARKET_CLOSE,
                             OFFER_ID=offer.offer_id,
