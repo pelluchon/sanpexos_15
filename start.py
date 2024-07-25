@@ -214,7 +214,7 @@ def should_close_buy_trade(df,idx,idx_open,dj):
         df.iloc[idx]['signal'] > df.iloc[idx]['macd']:
         result ='Kill for Bollinger 0'
     elif (df.iloc[idx]['candle_signal']== 'sell inversion' or df.iloc[idx]['candle_signal']== 'sell trend')\
-        and df.iloc[idx]['kijun_avg'] > df.iloc[idx_open]['BidClose']:
+        and df.iloc[idx]['Bollinger_0'] > df.iloc[idx_open]['BidClose']:
         result ='Kill for Candle Pattern'
     elif df.iloc[idx]['BidClose'] > df.iloc[idx_open]['BidClose']:
         result = 'Save minimum'
@@ -270,7 +270,7 @@ def should_close_sell_trade(df,idx,idx_open,dj):
         df.iloc[idx-1:idx]['rsi'].mean()< 30:
         result ='Kill for Bollinger -2'
     elif (df.iloc[idx]['candle_signal']== 'buy inversion' or df.iloc[idx]['candle_signal']== 'buy trend')\
-        and df.iloc[idx]['kijun_avg'] < df.iloc[idx_open]['BidClose']:
+        and df.iloc[idx]['Bollinger_0'] < df.iloc[idx_open]['BidClose']:
         result ='Kill for Candle Pattern'
     elif df.iloc[idx]['BidClose'] < df.iloc[idx_open]['BidClose'] :
         result = 'Save minimum'
