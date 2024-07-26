@@ -437,6 +437,10 @@ def close_trade(df, fx, tick, dj, idx):
             current_ratio = (price - open_price) / (open_price - df.iloc[open_rev_index-7:open_rev_index]['BidLow'].min())
             result = should_close_buy_trade(df,idx,open_rev_index,dj)
             if result == 'Save minimum':
+                if df.iloc[idx]['Bollinger_0']>open_price:
+                    sl=df.iloc[idx]['Bollinger_0']-margin
+                else:
+                    sl=df.iloc[idx]['Bollinger_-2']
                 try:
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
@@ -446,7 +450,7 @@ def close_trade(df, fx, tick, dj, idx):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=df.iloc[idx]['Bollinger_-2'],
+                        RATE=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
@@ -513,6 +517,10 @@ def close_trade(df, fx, tick, dj, idx):
             current_ratio = (open_price - price) / (df.iloc[open_rev_index-7:open_rev_index]['BidHigh'].max() - open_price)
             result = should_close_sell_trade (df,idx,open_rev_index,dj)
             if result == 'Save minimum':
+                if df.iloc[idx]['Bollinger_0']<open_price:
+                    sl=df.iloc[idx]['Bollinger_0']+margin
+                else:
+                    sl=df.iloc[idx]['Bollinger_-2']
                 try:
                     request = fx.create_order_request(
                         order_type=fxcorepy.Constants.Orders.STOP,
@@ -522,7 +530,7 @@ def close_trade(df, fx, tick, dj, idx):
                         BUY_SELL=buy_sell,
                         AMOUNT=int(dj.loc[0, 'tick_amount']),
                         TRADE_ID=dj.loc[0, 'tick_id'],
-                        RATE=df.iloc[idx]['Bollinger_-2'],
+                        RATE=sl,
                     )
                     resp = fx.send_request(request)
                 except Exception as e:
