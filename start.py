@@ -940,7 +940,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         #     df = df.iloc[-100:-1]
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
-        min_x = 27 * 10
+        min_x = 27 * 3
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
