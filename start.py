@@ -115,7 +115,7 @@ def should_open_buy_trade(df,idx):
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
             df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and 
-            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and candle_m2 < 0.2):
                 if df.iloc[idx]['candle_signal']== 'sell inversion' or df.iloc[idx-1]['candle_signal']== 'sell inversion' or df.iloc[idx-2]['candle_signal']== 'sell inversion':
                     result = 'Sell Bollinger'
                 
@@ -144,7 +144,7 @@ def should_open_sell_trade(df,idx):
         idx_last_delta=temp_delta.index[-1]
         if (df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] 
                 and df.iloc[idx-1:idx]['rsi'].mean() < 30 and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) 
-                and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta'])):
+                and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and candle_m2 > -0.2):
                     if df.iloc[idx]['candle_signal']== 'buy inversion' or df.iloc[idx-1]['candle_signal']== 'buy inversion' or df.iloc[idx-2]['candle_signal']== 'buy inversion':
                         result = 'Buy Bollinger'
                     
@@ -865,9 +865,9 @@ def indicators(df):
         for idx in range(len(df)):
             candle = df.iloc[idx]['candle']
             
-            if candle in ['Bullish Engulfing', 'Morning Star', 'Bullish Harami', 'Piercing Pattern', 'Three Stars In The South', 'Rising Three Methods']:
+            if candle in ['Bullish Engulfing', 'Morning Star', 'Bullish Harami', 'Piercing Pattern', 'Three Stars In The South', 'Rising Three Methods', 'Dragonfly Doji', 'Doji']:
                 df.at[idx, 'candle_signal'] = 'buy inversion'
-            elif candle in ['Bearish Engulfing', 'Evening Star', 'Bearish Harami', 'Dark Cloud Cover']:
+            elif candle in ['Bearish Engulfing', 'Evening Star', 'Bearish Harami', 'Dark Cloud Cover', 'Gravestone Doji', 'Doji']:
                 df.at[idx, 'candle_signal'] = 'sell inversion'
             elif candle in ['Hammer', 'Inverted Hammer', 'Bullish Pin Bar With Long Tail', 'Bullish Pin Bar With Short Tail']:
                 df.at[idx, 'candle_signal'] = 'buy trend'
