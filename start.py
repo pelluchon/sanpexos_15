@@ -1118,7 +1118,7 @@ def main():
                 tick = FX[l1]
                 print(FX[l1])
                 # H1
-                df = pd.DataFrame(fx.get_history(FX[l1], 'H1', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                df = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
                 df = indicators(df)
                 if live == True:
                     if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
