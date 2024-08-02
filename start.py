@@ -940,7 +940,7 @@ def df_plot(df, tick, trades, type_signal="", index=0, tp=0, sl=0, index_peak=0)
         #     df = df.iloc[-100:-1]
         print(str(tick) + " " + str(type_signal))
         my_dpi = 120
-        min_x = 27 * 3
+        min_x = 27 * 5
         fig = plt.figure(figsize=(2190 / my_dpi, 1200 / my_dpi), dpi=my_dpi)
         fig.suptitle(tick + type_signal, fontsize=12)
         ax1 = plt.subplot2grid((9, 1), (0, 0), rowspan=4)
@@ -1118,7 +1118,7 @@ def main():
                 tick = FX[l1]
                 print(FX[l1])
                 # H1
-                df = pd.DataFrame(fx.get_history(FX[l1], 'm15', Dict['indicators']['sd'], Dict['indicators']['ed']))
+                df = pd.DataFrame(fx.get_history(FX[l1], 'm30', Dict['indicators']['sd'], Dict['indicators']['ed']))
                 df = indicators(df)
                 if live == True:
                     if trading_settings_provider.get_market_status(FX[l1]) == fxcorepy.O2GMarketStatus.MARKET_STATUS_OPEN:
