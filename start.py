@@ -290,7 +290,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     if result_sell =='Buy Bollinger':
         try:
             amount = (set_amount(Dict['amount'], dj))
-            sl = df.iloc[idx]['Bollinger_0']
+            sl = min(df.iloc[idx]['Bollinger_0'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg'])
             type_signal = ' Buy Bollinger Amount: ' + str(amount) + ' Bid/Ask: ' + str(min_entry)  + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
@@ -309,7 +309,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         try:
             amount = (set_amount(Dict['amount'], dj))
             type_signal = ' BUY Amount:' + str(amount) + ' Bid/Ask: ' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
-            sl = df.iloc[idx]['Bollinger_0']
+            sl = min(df.iloc[idx]['Bollinger_0'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -325,7 +325,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     elif result_buy =='Sell Bollinger':
         try:
             amount = (set_amount(Dict['amount'], dj))
-            sl = df.iloc[idx]['Bollinger_0']
+            sl = max(df.iloc[idx]['Bollinger_0'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg'])
             type_signal = ' Sell Bollinger Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
@@ -342,7 +342,7 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     elif result_sell != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
-            sl = df.iloc[idx]['Bollinger_0']
+            sl = max(df.iloc[idx]['Bollinger_0'],df.iloc[idx]['kijun_avg'],df.iloc[idx]['tenkan_avg'])
             type_signal = ' Sell Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
