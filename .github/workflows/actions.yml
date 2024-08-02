@@ -4,8 +4,8 @@ name: run start.py
 
 on:
   schedule:
-    #- cron: '3 * * * MON-FRI' # At 00:03 every hours in weekday
-    - cron: '*/15 * * * *' # every 15 minutes
+    - cron: '*/30 * * * MON-FRI' # At 00:03 every hours in weekday
+    #- cron: '*/15 * * * *' # every 30 minutes in weekday
 
 jobs:
   build:
