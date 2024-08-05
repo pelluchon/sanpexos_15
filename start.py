@@ -21,8 +21,8 @@ live = True
 mail = True
 Dict = {
     'FXCM': {
-        'str_user_i_d': '71596342',
-        'str_password': 'gzvn0th',
+        'str_user_i_d': '71597804',
+        'str_password': 'pz1qfjp',
         'str_connection': 'Demo',
         'str_account': '71596342',
         #'str_user_i_d': '87053959',
