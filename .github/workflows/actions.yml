@@ -1,11 +1,11 @@
-name: run start.py
-#name: run sub_Status.py
+#name: run start.py
+name: run sub_Status.py
 #name: run close.py
 
 on:
   schedule:
-    - cron: '*/30 * * * MON-FRI' # At 00:03 every hours in weekday
-    #- cron: '*/15 * * * *' # every 30 minutes in weekday
+    #- cron: '*/30 * * * MON-FRI' # At 00:03 every hours in weekday
+    - cron: '*/5 * * * *' # every 30 minutes in weekday
 
 jobs:
   build:
