@@ -120,7 +120,7 @@ def should_open_buy_trade(df,idx):
                 if df.iloc[idx]['candle_signal']== 'sell inversion' or df.iloc[idx-1]['candle_signal']== 'sell inversion' or df.iloc[idx-2]['candle_signal']== 'sell inversion':
                     result = 'Sell Bollinger'
                 
-        elif (df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidHigh'].mean()) and
+        elif (df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidHigh'].mean()) and
                 df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
@@ -151,7 +151,7 @@ def should_open_sell_trade(df,idx):
                     if df.iloc[idx]['candle_signal']== 'buy inversion' or df.iloc[idx-1]['candle_signal']== 'buy inversion' or df.iloc[idx-2]['candle_signal']== 'buy inversion' :
                         result = 'Buy Bollinger'
                     
-        elif (df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['kijun_avg'].mean(),df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidLow'].mean()) and 
+        elif (df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidLow'].mean()) and 
                 df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
