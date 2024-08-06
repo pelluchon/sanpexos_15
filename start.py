@@ -124,7 +124,7 @@ def should_open_buy_trade(df,idx):
                 df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
-                df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and df.iloc[idx - 1:idx]['rsi'].mean() < 65 and 
+                df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and df.iloc[idx - 1:idx]['rsi'].mean() < 70 and 
                 (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and
                 df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['BidClose']<df.iloc[idx-1]['Bollinger_2']):
                     print('check buy')
@@ -155,7 +155,7 @@ def should_open_sell_trade(df,idx):
                 df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
                 df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
-                df.iloc[idx - 27:idx]['rsi'][df['tenkan_avg']<df['kijun_avg']].mean() > 35 and
+                df.iloc[idx - 1:idx]['rsi'].mean() > 30 and
                 (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and 
                 df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['BidClose']>df.iloc[idx-1]['Bollinger_-2']):
                     print('check sell')
