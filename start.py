@@ -103,64 +103,38 @@ backtest_result=[]
 np.seterr('ignore')
 
 def should_open_buy_trade(df,idx):
+    result=None
     candle_m2 = (df.iloc[idx]['BidClose'] - df.iloc[idx]['BidOpen']) / (
                 df.iloc[idx]['BidHigh'] - df.iloc[idx]['BidLow'])
-    temp_macd = df['peaks_macd'][:idx].dropna()
-    temp_delta = df['peaks_delta'][:idx].dropna()
-    result=None
-    if (temp_macd.size != 0 and temp_delta.size != 0 and
-        df.iloc[idx - 1:idx]['tenkan_avg'].mean() > df.iloc[idx - 1:idx]['kijun_avg'].mean() and
-        df.iloc[idx - 1:idx]['BidClose'].mean() > df.iloc[idx - 1:idx]['tenkan_avg'].mean()):
-        idx_last_macd=temp_macd.index[-1]
-        idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx-1]['BidHigh'] > df.iloc[idx-1]['Bollinger_2'] and df.iloc[idx-1:idx]['rsi'].mean() > 70 and
-            df.iloc[idx]['BidClose']>df.iloc[idx]['Bollinger_2'] and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) and 
-            abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and candle_m2 < 0.2):
-                print('check sell bollinger')
-                if df.iloc[idx]['candle_signal']== 'sell inversion' or df.iloc[idx-1]['candle_signal']== 'sell inversion' or df.iloc[idx-2]['candle_signal']== 'sell inversion':
-                    result = 'Sell Bollinger'
-                
-        elif (df.iloc[idx-28:idx-27]['chikou'].mean() > max(df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidHigh'].mean()) and
-                df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
-                df.iloc[idx]['macd'] > df.iloc[idx_last_macd]['macd'] and df.iloc[idx - 1:idx]['rsi'].mean() < 70 and 
-                (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and
-                df.iloc[idx]['BidHigh']<df.iloc[idx]['Bollinger_2'] and df.iloc[idx-1]['BidClose']<df.iloc[idx-1]['Bollinger_2']):
-                    print('check buy')
-                    if df.iloc[idx]['candle_signal']== 'buy trend' or df.iloc[idx-1]['candle_signal']== 'buy trend' or df.iloc[idx-2]['candle_signal']== 'buy trend' or candle_m2 > 0.5:
-                        result = 'Open Buy'
+    if (df.iloc[idx - 1:idx]['tenkan_avg'].mean() > df.iloc[idx - 1:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() > df.iloc[idx - 1:idx]['tenkan_avg'].mean() and 
+        df.iloc[idx-28:idx-27]['chikou'].mean() > df.iloc[idx-28:idx-27]['BidHigh'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['kijun_avg'].mean() > max(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
+        df.iloc[idx-1 : idx ]['macd'].mean() > 0 and df.iloc[idx-1:idx]['signal'].mean()>0 and df.iloc[idx - 1:idx]['rsi'].mean() < 70 and 
+        (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and
+        df.iloc[idx]['BidLow']< df.iloc[idx]['Bollinger_0'] and df.iloc[idx]['BidClose']> df.iloc[idx]['Bollinger_0'] and
+        candle_m2>0.3):
+            result = 'Open Buy'
                     
     return(result)
 
 def should_open_sell_trade(df,idx):
     candle_m2 = (df.iloc[idx]['BidClose'] - df.iloc[idx]['BidOpen']) / (
                 df.iloc[idx]['BidHigh'] - df.iloc[idx]['BidLow'])
-    temp_macd = df['peaks_macd'][:idx].dropna()
-    temp_delta = df['peaks_delta'][:idx].dropna()
     result=None
-    if (temp_macd.size != 0 and temp_delta.size != 0 and
-        df.iloc[idx - 1:idx]['tenkan_avg'].mean() < df.iloc[idx - 1:idx]['kijun_avg'].mean() and
-        df.iloc[idx - 1:idx]['BidClose'].mean() < df.iloc[idx - 1:idx]['tenkan_avg'].mean()):
-        idx_last_macd=temp_macd.index[-1]
-        idx_last_delta=temp_delta.index[-1]
-        if (df.iloc[idx-1]['BidLow']<df.iloc[idx-1]['Bollinger_-2'] and df.iloc[idx]['BidClose'] < df.iloc[idx]['Bollinger_-2'] 
-                and df.iloc[idx-1:idx]['rsi'].mean() < 30 and abs(df.iloc[idx]['delta'])<abs(df.iloc[idx-1]['delta']) 
-                and abs(df.iloc[idx-1]['delta'])<abs(df.iloc[idx-2]['delta']) and candle_m2 > -0.2):
-                    print('check buy bollinger')
-                    if df.iloc[idx]['candle_signal']== 'buy inversion' or df.iloc[idx-1]['candle_signal']== 'buy inversion' or df.iloc[idx-2]['candle_signal']== 'buy inversion' :
-                        result = 'Buy Bollinger'
-                    
-        elif (df.iloc[idx-28:idx-27]['chikou'].mean() < min(df.iloc[idx-28:idx-27]['tenkan_avg'].mean(),df.iloc[idx-28:idx-27]['BidLow'].mean()) and 
-                df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
-                df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and df.iloc[idx]['macd'] < df.iloc[idx_last_macd]['macd'] and
-                df.iloc[idx - 1:idx]['rsi'].mean() > 30 and
-                (df['BidHigh'] - df['BidLow'])[idx - 7:idx].max() < 2 * (df['BidHigh'] - df['BidLow'])[idx - 27*2:idx].mean() and 
-                df.iloc[idx]['BidLow']>df.iloc[idx]['Bollinger_-2'] and df.iloc[idx-1]['BidClose']>df.iloc[idx-1]['Bollinger_-2']):
-                    print('check sell')
-                    if df.iloc[idx]['candle_signal']== 'sell trend' or df.iloc[idx-1]['candle_signal']== 'sell trend' or df.iloc[idx-2]['candle_signal']== 'sell trend' or candle_m2<-0.5:
-                        result = 'Open Sell'
+    if (df.iloc[idx - 1:idx]['tenkan_avg'].mean() < df.iloc[idx - 1:idx]['kijun_avg'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() < df.iloc[idx - 1:idx]['tenkan_avg'].mean() and 
+        df.iloc[idx-28:idx-27]['chikou'].mean() < df.iloc[idx-28:idx-27]['BidHigh'].mean() and
+        df.iloc[idx - 1:idx]['BidClose'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['tenkan_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(), df.iloc[idx - 1:idx]['senkou_b'].mean()) and
+        df.iloc[idx - 1:idx]['kijun_avg'].mean() < min(df.iloc[idx - 1:idx]['senkou_a'].mean(),df.iloc[idx - 1:idx]['senkou_b'].mean()) and 
+        df.iloc[idx-1 : idx ]['macd'].mean() < 0 and df.iloc[idx-1:idx]['signal'].mean()< 0 and df.iloc[idx - 1:idx]['rsi'].mean() > 30 and 
+        (df['BidHigh'] - df['BidLow'])[idx-7:idx].max()<2*(df['BidHigh'] - df['BidLow'])[idx-27*2:idx].mean() and
+        df.iloc[idx]['BidHigh']>df.iloc[idx]['Bollinger_0'] and df.iloc[idx]['BidClose']<df.iloc[idx]['Bollinger_0'] and
+        candle_m2<-0.3):
+            result = 'Open Sell'
             
     return(result)
 
@@ -291,29 +265,11 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
     window_of_interest = 27
     margin = abs(0.1 * (np.nanmax(df.iloc[idx-window_of_interest:idx]['BidHigh']) - np.nanmin(
         df.iloc[idx-window_of_interest:idx]['BidLow'])))
-    if result_sell =='Buy Bollinger':
-        try:
-            amount = (set_amount(Dict['amount'], dj))
-            sl = (df.iloc[idx]['Bollinger_0']+df.iloc[idx]['Bollinger_-2'])/2
-            type_signal = ' Buy Bollinger Amount: ' + str(amount) + ' Bid/Ask: ' + str(min_entry)  + ' Candle: ' + str(df.iloc[idx]['candle'])
-            request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                BUY_SELL=fxcorepy.Constants.BUY,
-                AMOUNT=round(amount, 2),
-                SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0']-margin,
-                RATE_STOP=sl,
-            )
-            fx.send_request(request)
-        except Exception as e:
-            type_signal = type_signal + ' not working for ' + str(e)
-
-    elif result_buy != None and min_entry >= 2:
+    if result_buy != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
             type_signal = ' BUY Amount:' + str(amount) + ' Bid/Ask: ' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
-            sl = (df.iloc[idx]['Bollinger_0']+df.iloc[idx]['Bollinger_-2'])/2
+            sl = df.iloc[idx]['Bollinger_-2']
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
                 ACCOUNT_ID=Dict['FXCM']['str_account'],
@@ -326,27 +282,10 @@ def open_trade(df, fx, tick, trading_settings_provider, dj, idx):
         except Exception as e:
             type_signal = type_signal + ' not working for ' + str(e)
             pass
-    elif result_buy =='Sell Bollinger':
-        try:
-            amount = (set_amount(Dict['amount'], dj))
-            sl = (df.iloc[idx]['Bollinger_0']+df.iloc[idx]['Bollinger_2'])/2
-            type_signal = ' Sell Bollinger Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
-            request = fx.create_order_request(
-                order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
-                ACCOUNT_ID=Dict['FXCM']['str_account'],
-                BUY_SELL=fxcorepy.Constants.SELL,
-                AMOUNT=round(amount, 2),
-                SYMBOL=tick,
-                RATE=df.iloc[idx]['Bollinger_0']+margin,
-                RATE_STOP=sl,
-            )
-            fx.send_request(request)
-        except Exception as e:
-            type_signal = type_signal + ' not working for ' + str(e)
     elif result_sell != None and min_entry >= 2:
         try:
             amount = (set_amount(Dict['amount'], dj))
-            sl = (df.iloc[idx]['Bollinger_0']+df.iloc[idx]['Bollinger_2'])/2
+            sl = df.iloc[idx]['Bollinger_2']
             type_signal = ' Sell Amount: ' + str(amount) + ' Bid/Ask:' + str(min_entry) + ' Candle: ' + str(df.iloc[idx]['candle'])
             request = fx.create_order_request(
                 order_type=fxcorepy.Constants.Orders.TRUE_MARKET_OPEN,
